@@ -1,0 +1,16 @@
+[
+	{
+		"modid": "Sk1er-LevelHead",
+		"name": "Sk1er Level Head",
+		"description": "Display a player's network level above their head",
+		"version": "${version}",
+		"mcversion": "${mcversion}",
+		"url": "",
+		"updateUrl": "",
+		"authorList": ["Sk1er", "boomboompower"],
+		"credits": "HypixelAPI, Codename_B",
+		"logoFile": "",
+		"screenshots": [],
+		"dependencies": []
+	}
+]
