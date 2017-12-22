@@ -1,17 +1,15 @@
 package club.sk1er.mods.levelhead.utils;
 
-import club.sk1er.mods.levelhead.LevelHead;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
@@ -26,7 +24,9 @@ import java.util.concurrent.TimeUnit;
  * Created by Mitchell Katz on 6/8/2017.
  */
 public class Sk1erMod {
-
+/*
+Sk1erMod 3.0
+ */
     private static Sk1erMod instance;
     private List<String> updateMessage = new ArrayList<>();
     private String modid;
@@ -47,6 +47,7 @@ public class Sk1erMod {
         this.name = name;
         instance = this;
         prefix = EnumChatFormatting.RED + "[" + EnumChatFormatting.AQUA + this.name + EnumChatFormatting.RED + "]" + EnumChatFormatting.YELLOW + ": ";
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public static Sk1erMod getInstance() {
@@ -78,7 +79,10 @@ public class Sk1erMod {
     }
 
     public void sendMessage(String message) {
-        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(prefix + message));
+        EntityPlayerSP thePlayer = Minecraft.getMinecraft().thePlayer;
+        if (thePlayer != null) {
+            thePlayer.addChatComponentMessage(new ChatComponentText(prefix + message));
+        }
     }
 
     public JsonObject getPlayer(String name) {
@@ -93,12 +97,21 @@ public class Sk1erMod {
                     + "&modver=" + version
                     + "&mod=" + modid
             )).getAsJsonObject();
-            for (int i = 0; i < 50; i++)
-                System.out.println("En: " + en);
             updateMessage.clear();
             enabled = en.get("enabled").getAsBoolean();
             hasUpdate = en.get("update").getAsBoolean();
             apiKey = en.get("key").getAsString();
+            boolean first = en.has("first") && en.get("first").getAsBoolean();
+            if (first) {
+                updateMessage.add(prefix + "----------------------------------");
+                updateMessage.add(prefix + "Message from Sk1er: ");
+                updateMessage.add(prefix + en.get("firstMessage").getAsString());
+                updateMessage.add(" ");
+
+                updateMessage.add(prefix + "----------------------------------");
+                return;
+            }
+
             if (hasUpdate) {
                 updateMessage.add(prefix + "----------------------------------");
 
@@ -112,8 +125,8 @@ public class Sk1erMod {
 
                 updateMessage.add(prefix + "----------------------------------");
             }
-            LevelHead.count = en.get("count").getAsInt();
-            LevelHead.wait = en.get("wait").getAsInt();
+
+
         }, 0, 5, TimeUnit.MINUTES);
     }
 
@@ -122,17 +135,8 @@ public class Sk1erMod {
         hypixel = !FMLClientHandler.instance().getClient().isSingleplayer()
                 && (FMLClientHandler.instance().getClient().getCurrentServerData().serverIP.contains("hypixel.net") ||
                 FMLClientHandler.instance().getClient().getCurrentServerData().serverName.equalsIgnoreCase("HYPIXEL"));
-        System.out.print("isHypixel: \"");
-        for (int i = 0; i < 100; i++)
-            System.out.print(hypixel + " : "); // Log Spamfix
-        System.out.print("\"" + System.lineSeparator()); // Log Spamfix
         if (hasUpdate()) {
             Multithreading.runAsync(() -> {
-                try {
-                    Thread.sleep(3000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 while (Minecraft.getMinecraft().thePlayer == null) {
                     try {
                         Thread.sleep(100L);

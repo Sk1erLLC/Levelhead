@@ -40,9 +40,8 @@ import java.util.UUID;
 @Mod(modid = LevelHead.MODID, version = LevelHead.VERSION, clientSideOnly = true)
 public class LevelHead {
 
-    public static final String HEY_DEVS = "This code was adapted from codename_B's facepixel mod";
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "3.1.1";
+    public static final String VERSION = "4.0";
     public static boolean TOGGLED_ON = true;
     public static String PRIMARY_COLOR = "";
     public static String SECOND_COLOR = "";
@@ -55,7 +54,6 @@ public class LevelHead {
     public static boolean PRIMARY_CHROMA;
     public static boolean SECONDARY_CHROMA;
 
-    //    private static Map<String, Integer> levelCache = new HashMap<>();
     private static LevelHead instance;
     private long waitUntil = System.currentTimeMillis();
     private int updates = 0;
@@ -67,6 +65,7 @@ public class LevelHead {
 
     /*
      * This code is not that great but works so yay!
+     * Lets make the great AND make it work!
      */
 
     public static int getColor() {
