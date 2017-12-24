@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
  * Created by Mitchell Katz on 6/8/2017.
  */
 public class Sk1erMod {
-/*
-Sk1erMod 3.0
- */
+    /*
+    Sk1erMod 4.0
+     */
     private static Sk1erMod instance;
     private List<String> updateMessage = new ArrayList<>();
     private String modid;
@@ -37,9 +37,8 @@ Sk1erMod 3.0
     private String apiKey;
     private String prefix;
     private JsonObject en;
-    private int count;
-    private int wait;
     private boolean hypixel;
+    private GenKeyCallback callback;
 
     public Sk1erMod(String modid, String version, String name) {
         this.modid = modid;
@@ -48,6 +47,10 @@ Sk1erMod 3.0
         instance = this;
         prefix = EnumChatFormatting.RED + "[" + EnumChatFormatting.AQUA + this.name + EnumChatFormatting.RED + "]" + EnumChatFormatting.YELLOW + ": ";
         MinecraftForge.EVENT_BUS.register(this);
+    }
+    public Sk1erMod(String modid, String version, String name,GenKeyCallback callback) {
+        this(modid,version,name);
+        this.callback=callback;
     }
 
     public static Sk1erMod getInstance() {
@@ -67,7 +70,7 @@ Sk1erMod 3.0
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return true;
     }
 
     public List<String> getUpdateMessage() {
@@ -125,6 +128,8 @@ Sk1erMod 3.0
 
                 updateMessage.add(prefix + "----------------------------------");
             }
+            if(callback !=null)
+                callback.call(en);
 
 
         }, 0, 5, TimeUnit.MINUTES);
@@ -179,4 +184,6 @@ Sk1erMod 3.0
         return object.toString();
 
     }
+
+
 }
