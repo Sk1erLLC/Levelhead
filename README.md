@@ -10,11 +10,22 @@ Levelhead is a Minecraft Mod created for the Hypixel Network `mc.hypixel.net` to
 ### Gui 
 `Levelhead: [State]` - Toggle mod on and off
 
+`Show self` - Show your own level above your head
+
+
 #### Text / Level configuration 
 
 `Text: Level` - Format used for displaying level
 
-`Chroma` - Toggles chroma. When disabled the `Rotate` button is available.  This button will rotate the color between all colors in the Minecraft Color Code system.
+**Modes**
+
+`Chroma` - Toggles chroma. When disabled the `Rotate` button is available.  This will rotate the color between all colors in the Minecraft Color Code system.
+
+`RGB` - Use RGB for color configuration.
+
+`Standard` - Use Minecraft color codes for color configuration.
+
+
 
 `Set Prefix` - Allows users to specify a custom prefix instead of `Level`
 
