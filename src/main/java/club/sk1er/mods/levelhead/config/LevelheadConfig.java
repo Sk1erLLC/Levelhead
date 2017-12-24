@@ -32,7 +32,7 @@ public class LevelheadConfig {
     @ConfigOpt
     private double headerAlpha = 1.0;
     @ConfigOpt
-    private String customHeader ="Level: ";
+    private String customHeader ="Level";
 
 
     @ConfigOpt

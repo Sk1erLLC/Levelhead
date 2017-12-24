@@ -32,7 +32,7 @@ public class LevelHeadRender {
 
     @SubscribeEvent
     public void render(RenderPlayerEvent.Pre event) {
-        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel() && !levelHead.dev)
+        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel())
             return;
 
         EntityPlayer player = event.entityPlayer;
@@ -107,24 +107,36 @@ public class LevelHeadRender {
     }
 
     private void render(FontRenderer renderer, LevelheadComponent header, int x) {
+        GlStateManager.disableDepth();
+        GlStateManager.depthMask(true);
+        GlStateManager.disableDepth();
+        GlStateManager.depthMask(false);
+
         int y = 0;
         if (header.isRgb()) {
-            renderer.drawString(header.getValue(), x, y, new Color(header.getRed(), header.getBlue(), header.getGreen(), header.getAlpha()).darker().getRGB());
+//            GlStateManager.color(header.getRed()/2, header.getBlue()/2, header.getGreen()/2);
+            renderer.drawString(header.getValue(), x, y, new Color((float) header.getRed() / 255F, (float) header.getBlue() / 255F, (float) header.getGreen() / 255F, .2F).getRGB());
         } else if (header.isChroma()) {
-            renderer.drawString(header.getValue(), x, y, header.isChroma() ? Levelhead.getRGBColor() : 553648127);
+            renderer.drawString(header.getValue(), x, y, Levelhead.getRGBDarkColor());
         } else {
-            renderer.drawString(header.getColor() + header.getValue(), x, y, 553648127);
+            GlStateManager.color(255, 255, 255, .5F);
+            renderer.drawString(header.getColor() + header.getValue(), x, y, Color.WHITE.darker().darker().darker().darker().darker().getRGB() * 255);
         }
         GlStateManager.enableDepth();
         GlStateManager.depthMask(true);
+
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         if (header.isRgb()) {
-            renderer.drawString(header.getValue(), x, y, new Color(header.getRed(), header.getBlue(), header.getGreen(), header.getAlpha()).getRGB());
+            GlStateManager.color(header.getRed(), header.getBlue(), header.getGreen(), header.getAlpha());
+            renderer.drawString(header.getValue(), x, y, new Color(header.getRed(), header.getBlue(), header.getGreen()).getRGB());
         } else if (header.isChroma()) {
-            renderer.drawString(header.getValue(), x, y, header.isChroma() ? Levelhead.getRGBDarkColor() : Color.WHITE.getRGB());
+            renderer.drawString(header.getValue(), x, y, header.isChroma() ? Levelhead.getRGBColor() : 553648127);
         } else {
-            renderer.drawString(header.getColor() + header.getValue(), x, y, Color.WHITE.getRGB());
+            GlStateManager.color(255, 255, 255, .5F);
+
+            renderer.drawString(header.getColor() + header.getValue(), x, y, Color.WHITE.darker().getRGB());
         }
+
 
     }
 }

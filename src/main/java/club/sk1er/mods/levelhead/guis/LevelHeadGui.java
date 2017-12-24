@@ -12,8 +12,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Keyboard;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -45,13 +44,12 @@ public class LevelHeadGui extends GuiScreen {
     private final String DISABLED = ChatColor.RED + "Disabled";
     private final String COLOR_CHAR = String.valueOf("\u00a7");
     private final String colors = "0123456789abcdef";
+    List<GuiButton> sliders = new ArrayList<>();
     private HashMap<GuiButton, Consumer<GuiButton>> clicks = new HashMap<>();
     private Minecraft mc;
-
     private GuiButton headerColorButton;
     private GuiButton footerColorButton;
     private GuiButton prefixButton;
-
     private GuiTextField textField;
 
     public LevelHeadGui() {
@@ -67,10 +65,14 @@ public class LevelHeadGui extends GuiScreen {
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
 
-        reg(new GuiButton(1, this.width / 2 - 100, this.height / 2 - 100 - 34, 200, 20, "LevelHead: " + getLevelToggle()), button -> {
+        reg(new GuiButton(1, this.width / 2 - 155, this.height / 2 - 100 - 34, 150, 20, "LevelHead: " + getLevelToggle()), button -> {
             Levelhead.getInstance().getConfig().setEnabled(!Levelhead.getInstance().getConfig().isEnabled());
             button.displayString = "LevelHead: " + getLevelToggle();
             sendChatMessage(String.format("Toggled %s!", (Levelhead.getInstance().getConfig().isEnabled() ? "on" : "off")));
+        });
+        reg(new GuiButton(69, this.width / 2 + 5, this.height / 2 - 100 - 34, 150, 20, "Show self: " + (Levelhead.getInstance().getConfig().isShowSelf() ? ChatColor.GREEN + "on" : ChatColor.RED + "off")), button -> {
+            Levelhead.getInstance().getConfig().setShowSelf(!Levelhead.getInstance().getConfig().isShowSelf());
+            button.displayString = "Show self: " + (Levelhead.getInstance().getConfig().isShowSelf() ? ChatColor.GREEN + "on" : ChatColor.RED + "off");
         });
         //RGB -> Chroma
         //Chroma -> Classic
@@ -110,20 +112,71 @@ public class LevelHeadGui extends GuiScreen {
         this.textField = new GuiTextField(0, mc.fontRendererObj, this.width / 2 - 155, this.height / 2 - 100 + 14, 150, 20);
 
         //Color rotate
-        reg(this.headerColorButton = new GuiButton(4, this.width / 2 - 155, this.height / 2 - 100 + 44, 150, 20, "Rotate Color"), button -> {
+        reg(this.headerColorButton = new GuiButton(4, this.width / 2 - 155, this.height / 2 - 83 + 44, 150, 20, "Rotate Color"), button -> {
             int primaryId = colors.indexOf(removeColorChar(Levelhead.getInstance().getConfig().getHeaderColor()));
             if (++primaryId == colors.length()) {
                 primaryId = 0;
             }
             Levelhead.getInstance().getConfig().setHeaderColor(COLOR_CHAR + colors.charAt(primaryId));
         });
-        reg(this.footerColorButton = new GuiButton(5, this.width / 2 + 5, this.height / 2 - 100 + 44, 150, 20, "Rotate Color"), button -> {
+        reg(this.footerColorButton = new GuiButton(5, this.width / 2 + 5, this.height / 2 - 83 + 44, 150, 20, "Rotate Color"), button -> {
             int primaryId = colors.indexOf(removeColorChar(Levelhead.getInstance().getConfig().getFooterColor()));
             if (++primaryId == colors.length()) {
                 primaryId = 0;
             }
             Levelhead.getInstance().getConfig().setFooterColor(COLOR_CHAR + colors.charAt(primaryId));
         });
+        reg(new GuiSlider(13, this.width / 2 - 155, this.height / 2 - 83 + 22, 150, 20, "Display Distance: ", "", 5, 64, Levelhead.getInstance().getConfig().getRenderDistance(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setRenderDistance(slider.getValueInt());
+            slider.dragging = false;
+        }), null);
+
+        reg(new GuiSlider(14, this.width / 2 + 5, this.height / 2 - 83 + 22, 150, 20, "Cache size: ", "", 150, 5000, Levelhead.getInstance().getConfig().getPurgeSize(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setPurgeSize(slider.getValueInt());
+            slider.dragging = false;
+        }), null);
+
+        //public GuiSlider(int id, int xPos, int yPos, int width, int height, String prefix, String suf, double minVal, double maxVal, double currentVal, boolean showDec, boolean drawStr, ISlider par)
+        regSlider(new GuiSlider(6, this.width / 2 - 155, this.height / 2 - 83 + 44, 150, 20, "Header Red: ", "", 0, 255, Levelhead.getInstance().getConfig().getHeaderRed(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setHeaderRed(slider.getValueInt());
+            updatePeopleToValues();
+            slider.dragging = false;
+        }), null);
+        regSlider(new GuiSlider(7, this.width / 2 - 155, this.height / 2 - 83 + 66, 150, 20, "Header Green: ", "", 0, 255, Levelhead.getInstance().getConfig().getHeaderGreen(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setHeaderGreen(slider.getValueInt());
+            updatePeopleToValues();
+            slider.dragging = false;
+        }), null);
+        regSlider(new GuiSlider(8, this.width / 2 - 155, this.height / 2 - 83 + 88, 150, 20, "Header Blue: ", "", 0, 255, Levelhead.getInstance().getConfig().getHeaderBlue(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setHeaderBlue(slider.getValueInt());
+            updatePeopleToValues();
+            slider.dragging = false;
+        }), null);
+
+
+        regSlider(new GuiSlider(10, this.width / 2 + 5, this.height / 2 - 83 + 44, 150, 20, "Footer Red: ", "", 0, 255, Levelhead.getInstance().getConfig().getFooterRed(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setFooterRed(slider.getValueInt());
+            updatePeopleToValues();
+            slider.dragging = false;
+        }), null);
+        regSlider(new GuiSlider(11, this.width / 2 + 5, this.height / 2 - 83 + 66, 150, 20, "Footer Green: ", "", 0, 255, Levelhead.getInstance().getConfig().getFooterGreen(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setFooterGreen(slider.getValueInt());
+            updatePeopleToValues();
+            slider.dragging = false;
+        }), null);
+        regSlider(new GuiSlider(12, this.width / 2 + 5, this.height / 2 - 83 + 88, 150, 20, "Footer Blue: ", "", 0, 255, Levelhead.getInstance().getConfig().getFooterBlue(), false, true, slider -> {
+            Levelhead.getInstance().getConfig().setFooterBlue(slider.getValueInt());
+            updatePeopleToValues();
+            slider.dragging = false;
+        }), null);
+
+
+    }
+
+    private void regSlider(net.minecraftforge.fml.client.config.GuiSlider slider, Consumer<GuiButton> but) {
+        reg(slider, but);
+        sliders.add(slider);
+
     }
 
     @Override
@@ -138,6 +191,32 @@ public class LevelHeadGui extends GuiScreen {
         headerColorButton.visible = !Levelhead.getInstance().getConfig().isHeaderChroma() && !Levelhead.getInstance().getConfig().isHeaderRgb();
         footerColorButton.visible = !Levelhead.getInstance().getConfig().isFooterChroma() && !Levelhead.getInstance().getConfig().isFooterRgb();
         prefixButton.enabled = !textField.getText().isEmpty();
+        if (Levelhead.getInstance().getConfig().isHeaderRgb()) {
+            for (GuiButton slider : sliders) {
+                if (slider.displayString.contains("Header"))
+                    slider.visible = true;
+
+            }
+        } else {
+            for (GuiButton slider : sliders) {
+                if (slider.displayString.contains("Header"))
+                    slider.visible = false;
+
+            }
+        }
+        if (Levelhead.getInstance().getConfig().isFooterRgb()) {
+            for (GuiButton slider : sliders) {
+                if (slider.displayString.contains("Footer"))
+                    slider.visible = true;
+
+            }
+        } else {
+            for (GuiButton slider : sliders) {
+                if (slider.displayString.contains("Footer"))
+                    slider.visible = false;
+
+            }
+        }
 
         for (GuiButton aButtonList : this.buttonList) {
             aButtonList.drawButton(this.mc, mouseX, mouseY);
@@ -153,24 +232,25 @@ public class LevelHeadGui extends GuiScreen {
         }
     }
 
+    public void updatePeopleToValues() {
+        Levelhead.getInstance().levelCache.forEach((uuid, levelheadTag) -> {
+            Integer value = Levelhead.getInstance().getTrueLevelCache().get(uuid);
+            if (value == null)
+                return;
+            JsonHolder footer = new JsonHolder().put("level", value).put("strlevel", value + "");
+            LevelheadTag tag = Levelhead.getInstance().buildTag(footer, uuid);
+            levelheadTag.reApply(tag);
+
+        });
+    }
+
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         Consumer<GuiButton> guiButtonConsumer = clicks.get(button);
         if (guiButtonConsumer != null) {
             guiButtonConsumer.accept(button);
             //Adjust loaded levelhead names
-            List<UUID> adjust = new ArrayList<>();
-            for (EntityPlayer playerEntity : Minecraft.getMinecraft().theWorld.playerEntities) {
-                UUID uuid = playerEntity.getUniqueID();
-                if (!Levelhead.getInstance().getLevelString(uuid).isCustom()) {
-                    adjust.add(uuid);
-                }
-            }
-            Levelhead.getInstance().levelCache.clear();
-            for (UUID uuid : adjust) {
-                LevelheadTag level = Levelhead.getInstance().buildTag(new JsonHolder().put("level", Levelhead.getInstance().getTrueLevelCache().get(uuid)), uuid);
-                Levelhead.getInstance().levelCache.put(uuid, level);
-            }
+            updatePeopleToValues();
         }
     }
 
@@ -262,6 +342,7 @@ public class LevelHeadGui extends GuiScreen {
             }
 
             LevelheadComponent footer = levelheadTag.getFooter();
+            footer.setValue("5");
             if (footer.isChroma())
                 drawCenteredString(renderer, footer.getValue(), (this.width / 2 + renderer.getStringWidth(header.getValue()) / 2 + 3), this.height / 2 - 100 - 50, Levelhead.getRGBColor());
             else if (footer.isRgb()) {

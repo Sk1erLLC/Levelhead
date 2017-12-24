@@ -37,6 +37,16 @@ public class LevelheadTag {
             this.footer = build(holder, false);
         }
     }
+    public void reApply(LevelheadTag holder) {
+        if(!this.header.isCustom()) {
+            this.header = holder.header;
+        }
+        if(!this.footer.isCustom()) {
+            this.footer = holder.footer;
+
+        }
+
+    }
 
     private LevelheadComponent build(JsonHolder holder, boolean isHeader) {
         String seek = isHeader ? "header" : "footer";
@@ -44,8 +54,9 @@ public class LevelheadTag {
 
         LevelheadComponent component = new LevelheadComponent(json.optString(seek, "UMM BIG ERROR REPORT TO SK1ER"));
         boolean custom = json.optBoolean("custom");
+
         component.setCustom(custom);
-        if (custom && isHeader) {
+        if (custom && isHeader && !holder.optBoolean("exclude")) {
             component.setValue(component.getValue() + ": ");
         }
         if (json.optBoolean("chroma")) {

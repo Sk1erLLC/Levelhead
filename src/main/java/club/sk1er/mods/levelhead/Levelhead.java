@@ -44,7 +44,6 @@ public class Levelhead {
     public UUID userUuid = null;
     public int count = 1;
     public int wait = 60;
-    public boolean dev = true;
     private long waitUntil = System.currentTimeMillis();
     private int updates = 0;
     private Sk1erMod mod;
@@ -100,21 +99,23 @@ public class Levelhead {
 
 
     public boolean loadOrRender(EntityPlayer player) {
-
-        if (!(mod.isHypixel() && !config.isEnabled()) && !dev)
+        if (!mod.isHypixel())
             return false;
+        if (!config.isEnabled())
+            return false;
+
         for (PotionEffect effect : player.getActivePotionEffects()) { // TODO - Method obfuscated (PORTING REQUIRED)
             if (effect.getPotionID() == 14)
                 return false;
         }
-
         if (!renderFromTeam(player))
             return false;
         if (player.riddenByEntity != null)
             return false;
         int min = Math.min(64 * 64, config.getRenderDistance() * config.getRenderDistance());
-        if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min * min)
+        if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min) {
             return false;
+        }
         if (!probablyNotFakeWatchdogBoi.contains(player.getUniqueID())) {
             return false;
         }
@@ -126,8 +127,7 @@ public class Levelhead {
             return false;
         if (player.isSneaking())
             return false;
-        boolean b = player.getAlwaysRenderNameTagForRender() && !player.getDisplayNameString().isEmpty();
-        return b;
+        return player.getAlwaysRenderNameTagForRender() && !player.getDisplayNameString().isEmpty();
 
 
     }
@@ -157,15 +157,16 @@ public class Levelhead {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void tick(TickEvent.ClientTickEvent event) {
 
-        if ((event.phase == TickEvent.Phase.START || !mod.isHypixel() || !config.isEnabled() || !mod.isEnabled()) && !dev)
+        if ((event.phase == TickEvent.Phase.START || !mod.isHypixel() || !config.isEnabled() || !mod.isEnabled())) {
+
             return;
+        }
         Minecraft mc = Minecraft.getMinecraft();
         if (!mc.isGamePaused() && mc.thePlayer != null && mc.theWorld != null) {
             if (System.currentTimeMillis() < waitUntil) {
                 if (updates > 0) {
                     updates = 0;
                 }
-                System.out.println("wait");
                 return;
             }
 
@@ -239,9 +240,22 @@ public class Levelhead {
         //Apply values from server if present
         if (object.has("header_obj")) {
             headerObj = object.optJsonObject("header_obj");
+            headerObj.put("custom", true);
         }
         if (object.has("footer_obj")) {
             footerObj = object.optJsonObject("footer_obj");
+            footerObj.put("custom", true);
+        }
+        if (object.has("header")) {
+            headerObj.put("header", object.optString("header"));
+            headerObj.put("custom", true);
+        }
+        try {
+            if (object.getInt("level") != Integer.valueOf(object.optString("strlevel"))) {
+                footerObj.put("custom", true);
+            }
+        } catch (Exception ignored) {
+            footerObj.put("custom", true);
         }
         //Get config based values and merge
         headerObj.merge(getHeaderConfig(), false);
