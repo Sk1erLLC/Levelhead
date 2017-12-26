@@ -49,7 +49,7 @@ public class LevelHeadRender {
                     offset *= 2;
                 }
                 if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
-                    offset = -.1;
+                    offset = 0;
                 renderName(event, (Levelhead.getInstance().getLevelString(player.getUniqueID())), player, event.x, event.y + offset, event.z);
             }
         }

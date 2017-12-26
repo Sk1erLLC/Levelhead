@@ -36,7 +36,7 @@ public class Sk1erMod {
     private String name;
     private String apiKey;
     private String prefix;
-    private JsonObject en;
+    private JsonHolder en;
     private boolean hypixel;
     private GenKeyCallback callback;
 
@@ -48,9 +48,10 @@ public class Sk1erMod {
         prefix = EnumChatFormatting.RED + "[" + EnumChatFormatting.AQUA + this.name + EnumChatFormatting.RED + "]" + EnumChatFormatting.YELLOW + ": ";
         MinecraftForge.EVENT_BUS.register(this);
     }
-    public Sk1erMod(String modid, String version, String name,GenKeyCallback callback) {
-        this(modid,version,name);
-        this.callback=callback;
+
+    public Sk1erMod(String modid, String version, String name, GenKeyCallback callback) {
+        this(modid, version, name);
+        this.callback = callback;
     }
 
     public static Sk1erMod getInstance() {
@@ -61,7 +62,7 @@ public class Sk1erMod {
         return hypixel;
     }
 
-    public JsonObject getResponse() {
+    public JsonHolder getResponse() {
         return en;
     }
 
@@ -94,21 +95,24 @@ public class Sk1erMod {
 
     public void checkStatus() {
         Multithreading.schedule(() -> {
-            en = new JsonParser().parse(rawWithAgent("http://sk1er.club/genkey?name=" + Minecraft.getMinecraft().getSession().getProfile().getName()
+            en = new JsonHolder(rawWithAgent("http://sk1er.club/genkey?name=" + Minecraft.getMinecraft().getSession().getProfile().getName()
                     + "&uuid=" + Minecraft.getMinecraft().getSession().getPlayerID().replace("-", "")
                     + "&mcver=" + Minecraft.getMinecraft().getVersion()
                     + "&modver=" + version
                     + "&mod=" + modid
-            )).getAsJsonObject();
+            ));
+            if (callback != null)
+                callback.call(en);
+            System.out.println(en);
             updateMessage.clear();
-            enabled = en.get("enabled").getAsBoolean();
-            hasUpdate = en.get("update").getAsBoolean();
-            apiKey = en.get("key").getAsString();
-            boolean first = en.has("first") && en.get("first").getAsBoolean();
+            enabled = en.optBoolean("enabled");
+            hasUpdate = en.optBoolean("update");
+            apiKey = en.optString("key");
+            boolean first = en.optBoolean("first");
             if (first) {
                 updateMessage.add(prefix + "----------------------------------");
                 updateMessage.add(prefix + "Message from Sk1er: ");
-                updateMessage.add(prefix + en.get("firstMessage").getAsString());
+                updateMessage.add(prefix + en.optString("firstMessage"));
                 updateMessage.add(" ");
 
                 updateMessage.add(prefix + "----------------------------------");
@@ -120,16 +124,14 @@ public class Sk1erMod {
 
                 updateMessage.add(" ");
                 updateMessage.add(prefix + "            " + name + " is out of date!");
-                updateMessage.add(prefix + "Update level: " + en.get("level").getAsString());
-                updateMessage.add(prefix + "Update URL: " + en.get("url").getAsString());
+                updateMessage.add(prefix + "Update level: " + en.optString("level"));
+                updateMessage.add(prefix + "Update URL: " + en.optString("url"));
                 updateMessage.add(prefix + "Message from Sk1er: ");
-                updateMessage.add(prefix + en.get("message").getAsString());
+                updateMessage.add(prefix + en.get("message"));
                 updateMessage.add(" ");
 
                 updateMessage.add(prefix + "----------------------------------");
             }
-            if(callback !=null)
-                callback.call(en);
 
 
         }, 0, 5, TimeUnit.MINUTES);

@@ -38,7 +38,7 @@ import java.util.UUID;
 public class Levelhead {
 
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "4.0";
+    public static final String VERSION = "4.1";
     private static Levelhead instance;
     public Map<UUID, LevelheadTag> levelCache = new HashMap<>();
     public UUID userUuid = null;
@@ -71,8 +71,8 @@ public class Levelhead {
     @EventHandler
     public void init(FMLPreInitializationEvent event) {
         mod = new Sk1erMod(MODID, VERSION, "Level Head", object -> {
-            count = object.has("count") ? object.get("count").getAsInt() : 0;
-            this.wait = object.has("wait") ? object.get("wait").getAsInt() : Integer.MAX_VALUE;
+            count = object.optInt("count");
+            this.wait = object.optInt("wait", Integer.MAX_VALUE);
             if (count == 0 || wait == Integer.MAX_VALUE) {
                 mod.sendMessage("An error occurred whilst loading internal Levelhead info. ");
             }
@@ -217,6 +217,7 @@ public class Levelhead {
         if (updates >= count) {
             waitUntil = System.currentTimeMillis() + 1000 * wait;
             System.out.println("Returning");
+            updates = 0;
             return;
         }
         updates++;

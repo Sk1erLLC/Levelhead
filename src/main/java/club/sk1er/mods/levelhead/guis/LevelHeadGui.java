@@ -6,12 +6,18 @@ import club.sk1er.mods.levelhead.renderer.LevelheadComponent;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.utils.ChatColor;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
+import club.sk1er.mods.levelhead.utils.Multithreading;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.event.HoverEvent;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -20,9 +26,14 @@ import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 /**
@@ -50,7 +61,9 @@ public class LevelHeadGui extends GuiScreen {
     private GuiButton headerColorButton;
     private GuiButton footerColorButton;
     private GuiButton prefixButton;
+    private boolean isCustom = false;
     private GuiTextField textField;
+    private ReentrantLock lock = new ReentrantLock();
 
     public LevelHeadGui() {
         mc = Minecraft.getMinecraft();
@@ -63,6 +76,12 @@ public class LevelHeadGui extends GuiScreen {
 
     @Override
     public void initGui() {
+        Multithreading.runAsync(() -> {
+            String raw = Sk1erMod.getInstance().rawWithAgent("http://sk1er.club/modquery/" + Sk1erMod.getInstance().getApIKey() + "/levelhead/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", ""));
+            System.out.println(raw);
+            this.isCustom = new JsonHolder(raw).optBoolean("custom");
+            updateCustom();
+        });
         Keyboard.enableRepeatEvents(true);
 
         reg(new GuiButton(1, this.width / 2 - 155, this.height / 2 - 100 - 34, 150, 20, "LevelHead: " + getLevelToggle()), button -> {
@@ -173,6 +192,51 @@ public class LevelHeadGui extends GuiScreen {
 
     }
 
+    private void updateCustom() {
+        lock.lock();
+        reg(new GuiButton(13, this.width / 2 - 155, this.height / 2 - 83 + 110, 310, 20, (isCustom ? ChatColor.YELLOW + "Click to change custom Levelhead." : ChatColor.YELLOW + "Click to purchase a custom Levelhead message")), button -> {
+
+            try {
+                if (isCustom) {
+                    Desktop.getDesktop().browse(new URI("http://sk1er.club/user"));
+                } else {
+                    Desktop.getDesktop().browse(new URI("http://sk1er.club/customlevelhead"));
+                }
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+
+        });
+        if (isCustom) {
+            GuiButton button1 = new GuiButton(16, this.width / 2 - 155, this.height / 2 +50, 310, 20, ChatColor.YELLOW + "Export these colors to my custom Levelhead");
+            reg(button1, button -> {
+                JsonHolder object = new JsonHolder();
+                object.put("header_obj", Levelhead.getInstance().getHeaderConfig());
+                object.put("footer_obj", Levelhead.getInstance().getFooterConfig());
+                try {
+                    String encode = URLEncoder.encode(object.toString(), "UTF-8");
+                    String url = "https://sk1er.club/user?levelhead_color=" + encode;
+                    ChatComponentText text = new ChatComponentText("Click here to update your custom Levelhead colors");
+                    ChatStyle style = new ChatStyle();
+                    style.setBold(true);
+                    style.setColor(EnumChatFormatting.YELLOW);
+                    style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+                    ChatComponentText valueIn = new ChatComponentText("Please be logged in to your Sk1er.club for this to work. Do /levelhead dumpcache after clicking to see new colors!");
+                    ChatStyle style1 = new ChatStyle();
+                    style1.setColor(EnumChatFormatting.RED);
+                    valueIn.setChatStyle(style1);
+                    style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
+                    text.setChatStyle(style);
+                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                Minecraft.getMinecraft().displayGuiScreen(null);
+            });
+        }
+        lock.unlock();
+    }
+
     private void regSlider(net.minecraftforge.fml.client.config.GuiSlider slider, Consumer<GuiButton> but) {
         reg(slider, but);
         sliders.add(slider);
@@ -181,6 +245,7 @@ public class LevelHeadGui extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float ticks) {
+        lock.lock();
         drawDefaultBackground();
         drawTitle("Sk1er LevelHead v" + Levelhead.VERSION);
         drawLook();
@@ -221,6 +286,7 @@ public class LevelHeadGui extends GuiScreen {
         for (GuiButton aButtonList : this.buttonList) {
             aButtonList.drawButton(this.mc, mouseX, mouseY);
         }
+        lock.unlock();
     }
 
     public String getMode(boolean header) {
@@ -321,6 +387,9 @@ public class LevelHeadGui extends GuiScreen {
     }
 
     private void drawTitle(String text) {
+        drawCenteredString(mc.fontRendererObj, ChatColor.YELLOW + "Custom Levelhead Status: " + (isCustom ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled / Inactive"), this.width / 2,
+                this.height / 2 - 100 - 80 - 11, Color.WHITE.getRGB());
+
         drawCenteredString(mc.fontRendererObj, text, this.width / 2, this.height / 2 - 100 - 80, Color.WHITE.getRGB());
         drawHorizontalLine(this.width / 2 - mc.fontRendererObj.getStringWidth(text) / 2 - 5, this.width / 2 + mc.fontRendererObj.getStringWidth(text) / 2 + 5, this.height / 2 - 100 - 70, Color.WHITE.getRGB());
     }
