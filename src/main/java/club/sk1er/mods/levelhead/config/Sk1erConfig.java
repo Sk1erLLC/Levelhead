@@ -31,6 +31,8 @@ public class Sk1erConfig {
 
                 String done = builder.toString();
                 config = new JsonHolder(done);
+                br.close();
+                fr.close();
             } else {
                 config = new JsonHolder();
                 saveFile();
