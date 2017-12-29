@@ -75,6 +75,8 @@ public class Sk1erConfig {
     }
 
     private void loadToClassObject(Object object) throws IllegalAccessException {
+        if (config == null)
+            config = new JsonHolder();
         Class<?> aClass = object.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             field.setAccessible(true);
@@ -108,6 +110,8 @@ public class Sk1erConfig {
     }
 
     private void loadToJson(Object object) throws IllegalAccessException {
+        if (config == null)
+            config = new JsonHolder();
         Class<?> aClass = object.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             field.setAccessible(true);
