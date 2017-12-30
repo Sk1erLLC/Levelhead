@@ -115,7 +115,7 @@ public class LevelHeadRender {
         int y = 0;
         if (header.isRgb()) {
 //            GlStateManager.color(header.getRed()/2, header.getBlue()/2, header.getGreen()/2);
-            renderer.drawString(header.getValue(), x, y, new Color((float) header.getRed() / 255F, (float) header.getBlue() / 255F, (float) header.getGreen() / 255F, .2F).getRGB());
+            renderer.drawString(header.getValue(), x, y, new Color((float) header.getRed() / 255F, (float) header.getGreen() / 255F, (float) header.getBlue() / 255F, .2F).getRGB());
         } else if (header.isChroma()) {
             renderer.drawString(header.getValue(), x, y, Levelhead.getRGBDarkColor());
         } else {
@@ -128,7 +128,7 @@ public class LevelHeadRender {
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         if (header.isRgb()) {
             GlStateManager.color(header.getRed(), header.getBlue(), header.getGreen(), header.getAlpha());
-            renderer.drawString(header.getValue(), x, y, new Color(header.getRed(), header.getBlue(), header.getGreen()).getRGB());
+            renderer.drawString(header.getValue(), x, y, new Color(header.getRed(), header.getGreen(), header.getBlue()).getRGB());
         } else if (header.isChroma()) {
             renderer.drawString(header.getValue(), x, y, header.isChroma() ? Levelhead.getRGBColor() : 553648127);
         } else {

@@ -404,7 +404,7 @@ public class LevelHeadGui extends GuiScreen {
                 drawCenteredString(renderer, header.getValue(), this.width / 2, this.height / 2 - 100 - 50, Levelhead.getRGBColor());
             else if (header.isRgb()) {
 //                GlStateManager.color(header.getRed(), header.getGreen(), header.getBlue(), header.getAlpha());
-                drawCenteredString(renderer, header.getValue(), this.width / 2, this.height / 2 - 100 - 50, new Color(header.getRed(), header.getBlue(), header.getGreen(), header.getAlpha()).getRGB());
+                drawCenteredString(renderer, header.getValue(), this.width / 2, this.height / 2 - 100 - 50, new Color(header.getRed(), header.getGreen(), header.getBlue(), header.getAlpha()).getRGB());
 
             } else {
                 drawCenteredString(renderer, header.getColor() + header.getValue(), this.width / 2, this.height / 2 - 100 - 50, Color.WHITE.getRGB());
