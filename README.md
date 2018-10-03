@@ -1,5 +1,5 @@
 ## General Information
-Levelhead is a Minecraft Mod created for the Hypixel Network `mc.hypixel.net` to show a player's network level above their head.
+Levelhead is a Minecraft Mod created for the Hypixel Network `mc.hypixel.net` to show a player's network level above their head.  The mod can be found in [Hyperium Client](https://hyperium.cc).  
 
 ## Configuration
 `/levelhead` - Primary configuration command. Opens configuration GUI
