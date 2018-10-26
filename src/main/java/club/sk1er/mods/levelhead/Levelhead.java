@@ -38,11 +38,8 @@ import java.util.UUID;
 
 @Mod(modid = Levelhead.MODID, version = Levelhead.VERSION, clientSideOnly = true)
 public class Levelhead {
-
-
-    /*
-        Hello !
-     */
+    
+    
     public static final String MODID = "LEVEL_HEAD";
     public static final String VERSION = "5.0";
     private static Levelhead instance;
