@@ -40,6 +40,8 @@ public class ToggleCommand extends CommandBase {
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Header State: " + Levelhead.getInstance().getHeaderConfig());
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Footer State: " + Levelhead.getInstance().getFooterConfig());
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Callback: " + Sk1erMod.getInstance().getResponse());
+                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
+
                 return;
             } else if (args[0].equalsIgnoreCase("dumpcache")) {
                 Levelhead.getInstance().levelCache.clear();
