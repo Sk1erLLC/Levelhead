@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead;
 
+import club.sk1er.mods.levelhead.auth.MojangAuth;
 import club.sk1er.mods.levelhead.commands.ToggleCommand;
 import club.sk1er.mods.levelhead.config.ConfigOpt;
 import club.sk1er.mods.levelhead.config.LevelheadConfig;
@@ -60,7 +61,7 @@ public class Levelhead {
     private HashMap<UUID, Integer> timeCheck = new HashMap<>();
     @ConfigOpt
     private String type = "LEVEL";
-
+    private MojangAuth auth;
     private JsonHolder types = new JsonHolder();
     private DecimalFormat format = new DecimalFormat("#,###");
 
@@ -78,8 +79,7 @@ public class Levelhead {
 
     @EventHandler
     public void init(FMLPreInitializationEvent event) {
-        Multithreading.runAsync(() -> types = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_config"))
-        );
+        Multithreading.runAsync(() -> types = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_config")));
         mod = new Sk1erMod(MODID, VERSION, "Levelhead", object -> {
             count = object.optInt("count");
             this.wait = object.optInt("wait", Integer.MAX_VALUE);
@@ -88,6 +88,13 @@ public class Levelhead {
             }
         });
         mod.checkStatus();
+        auth = new MojangAuth(mod);
+        Multithreading.runAsync(() -> {
+            auth.auth();
+            if (auth.isFailed()) {
+                System.out.println("FAILED TO AUTH: " + auth.getFailMessage());
+            }
+        });
         sk1erConfig = new Sk1erConfig(event.getSuggestedConfigurationFile());
         config = new LevelheadConfig();
         sk1erConfig.register(config);
@@ -250,7 +257,7 @@ public class Levelhead {
             String raw = rawWithAgent(
                     "https://api.sk1er.club/levelheadv5/" + trimUuid(uuid) + "/" + type
                             + "/" + trimUuid(Minecraft.getMinecraft().getSession().getProfile().getId()) +
-                            "/" + VERSION);
+                            "/" + VERSION + "/" + auth.getAccessKey());
             JsonHolder object = new JsonHolder(raw);
             if (!object.optBoolean("success")) {
                 object.put("strlevel", "Error");
@@ -293,7 +300,7 @@ public class Levelhead {
         footerObj.merge(getFooterConfig().put("footer", object.optString("strlevel", format.format(object.getInt("level")))), false);
 
         //Ensure text values are present
-        construct.put("exclude",object.optBoolean("exclude"));
+        construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);
         value.construct(construct);
         return value;
