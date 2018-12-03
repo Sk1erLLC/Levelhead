@@ -6,7 +6,8 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion()
+@SuppressWarnings("unused")
+@IFMLLoadingPlugin.MCVersion("1.8.9")
 public final class FMLLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
