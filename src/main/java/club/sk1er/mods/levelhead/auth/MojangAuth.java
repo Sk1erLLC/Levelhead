@@ -38,6 +38,10 @@ public class MojangAuth {
         this.failed = true;
     }
 
+    public boolean isSuccess() {
+        return success;
+    }
+
     public void auth() {
         UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
         JsonHolder jsonHolder = new JsonHolder(sk1erMod.rawWithAgent("https://api.sk1er.club/auth/begin?uuid=" + uuid + "&mod=" + Levelhead.MODID + "&ver=" + Levelhead.VERSION));

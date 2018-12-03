@@ -45,7 +45,7 @@ public class Levelhead {
         Hello !
      */
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "5.0";
+    public static final String VERSION = "6.0";
     private static Levelhead instance;
     public Map<UUID, LevelheadTag> levelCache = new HashMap<>();
     public UUID userUuid = null;
@@ -64,6 +64,8 @@ public class Levelhead {
     private MojangAuth auth;
     private JsonHolder types = new JsonHolder();
     private DecimalFormat format = new DecimalFormat("#,###");
+    private JsonHolder paidData = new JsonHolder();
+
 
     public static int getRGBColor() {
         return Color.HSBtoRGB(System.currentTimeMillis() % 1000L / 1000.0f, 0.8f, 0.8f);
