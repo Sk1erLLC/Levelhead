@@ -5,8 +5,8 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 @SuppressWarnings("unused")
 public final class Hooks {
 
-    public static void drawPingHook(int pos, int x, int y, NetworkPlayerInfo playerInfo) {
-        System.out.println("drawPingHook( " + pos + ", " + x + ", " + y + ", " + playerInfo.toString() + " )");
+    public static void drawPingHook(int i, int x, int y, NetworkPlayerInfo playerInfo) {
+        // Add your hook here
     }
 
 }

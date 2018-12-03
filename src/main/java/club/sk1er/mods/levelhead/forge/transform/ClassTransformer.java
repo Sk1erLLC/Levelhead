@@ -30,7 +30,6 @@ public final class ClassTransformer implements IClassTransformer {
             String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(classNode.name, method.name, method.desc);
             if (methodName.equals("drawPing") || methodName.equals("func_175245_a")) {
                 method.instructions.insertBefore(method.instructions.getFirst(), getHookCall(method, "drawPing"));
-                System.out.println("Hooked drawPing method");
                 break;
             }
         }
