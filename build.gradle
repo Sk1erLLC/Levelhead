@@ -81,3 +81,10 @@ processResources
                 exclude 'mcmod.info'
             }
         }
+
+
+jar {
+    manifest {
+        attributes "FMLCorePlugin": "club.sk1er.mods.levelhead.forge.FMLLoadingPlugin", "ModSide": "CLIENT"
+    }
+}

@@ -10,6 +10,8 @@ import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
 import club.sk1er.mods.levelhead.utils.Multithreading;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.PotionEffect;
@@ -17,8 +19,10 @@ import net.minecraft.scoreboard.Team;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -33,12 +37,12 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod(modid = Levelhead.MODID, version = Levelhead.VERSION, clientSideOnly = true)
-public class Levelhead {
+public class Levelhead extends DummyModContainer {
 
 
     /*
@@ -67,6 +71,29 @@ public class Levelhead {
     private JsonHolder paidData = new JsonHolder();
 
 
+    public Levelhead() {
+        super(new ModMetadata());
+
+        ModMetadata meta = this.getMetadata();
+        meta.modId = MODID;
+        meta.version = VERSION;
+
+        meta.name = "Sk1er Level Head";
+        meta.description = "Display a player's network level above their head";
+
+        //noinspection deprecation
+        meta.url = meta.updateUrl = "http://sk1er.club/levelhead";
+
+        meta.authorList = Arrays.asList("Sk1er", "boomboompower");
+        meta.credits = "HypixelAPI, Codename_B";
+    }
+
+    @Override
+    public boolean registerBus(EventBus bus, LoadController controller) {
+        bus.register(this);
+        return true;
+    }
+
     public static int getRGBColor() {
         return Color.HSBtoRGB(System.currentTimeMillis() % 1000L / 1000.0f, 0.8f, 0.8f);
     }
@@ -79,7 +106,7 @@ public class Levelhead {
         return instance;
     }
 
-    @EventHandler
+    @Subscribe @EventHandler
     public void init(FMLPreInitializationEvent event) {
         Multithreading.runAsync(() -> types = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_config")));
         mod = new Sk1erMod(MODID, VERSION, "Levelhead", object -> {
@@ -108,7 +135,7 @@ public class Levelhead {
         return types.optJsonObject(type);
     }
 
-    @EventHandler
+    @Subscribe @EventHandler
     public void init(FMLPostInitializationEvent event) {
         instance = this;
         Minecraft minecraft = FMLClientHandler.instance().getClient();
