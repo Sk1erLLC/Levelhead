@@ -16,22 +16,36 @@ public final class Hooks {
         Levelhead instance = Levelhead.getInstance();
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
-            if (instance.getLevelheadPurchaseStates().isTab()) {
-                String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
-                if (s != null) {
-                    FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
-                    int x1 = i + x - 1 - fontRendererObj.getStringWidth(s);
-                    DisplayConfig config = tab.getConfig();
-                    if (config.isFooterChroma()) {
-                        fontRendererObj.drawString(s, x1, y, Levelhead.getRGBColor());
-                    } else if (config.isFooterRgb()) {
-                        fontRendererObj.drawString(s, x1, y, new Color(config.getFooterRed(), config.getFooterGreen(), config.getFooterBlue()).getRGB());
-                    } else {
-                        fontRendererObj.drawString(config.getFooterColor() + s, x1, y, Color.WHITE.getRGB());
-                    }
+//            if (instance.getLevelheadPurchaseStates().isTab()) {
+            String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
+            if (s != null) {
+                FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
+                int x1 = i + x - 12 - fontRendererObj.getStringWidth(s);
+                DisplayConfig config = tab.getConfig();
+                if (config.isFooterChroma()) {
+                    fontRendererObj.drawString(s, x1, y, Levelhead.getRGBColor());
+                } else if (config.isFooterRgb()) {
+                    fontRendererObj.drawString(s, x1, y, new Color(config.getFooterRed(), config.getFooterGreen(), config.getFooterBlue()).getRGB());
+                } else {
+                    fontRendererObj.drawString(config.getFooterColor() + s, x1, y, Color.WHITE.getRGB());
                 }
             }
         }
+//        }
+    }
+
+    public static final int getLevelheadWith(NetworkPlayerInfo playerInfo) {
+        Levelhead instance = Levelhead.getInstance();
+        LevelheadDisplay tab = instance.getDisplayManager().getTab();
+        if (tab != null) {
+//            if (instance.getLevelheadPurchaseStates().isTab()) {
+            String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
+            if (s != null) {
+                return Minecraft.getMinecraft().fontRendererObj.getStringWidth(s) + 2;
+            }
+        }
+//        }
+        return 0;
     }
 
 }

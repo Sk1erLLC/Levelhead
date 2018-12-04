@@ -11,7 +11,7 @@ import net.minecraft.command.ICommandSender;
 /**
  * Created by Mitchell Katz on 5/8/2017.
  */
-public class ToggleCommand extends CommandBase {
+public class LevelheadCommand extends CommandBase {
 
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
@@ -45,9 +45,8 @@ public class ToggleCommand extends CommandBase {
 
                 return;
             } else if (args[0].equalsIgnoreCase("dumpcache")) {
-//                Levelhead.getInstance().levelCache.clear();
-
-//                Sk1erMod.getInstance().sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&fStringcache entries: &b%s", Levelhead.getInstance().levelCache.size())));
+                Levelhead.getInstance().getDisplayManager().clearCache();
+                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Cleared Cache");
                 return;
             }
         }

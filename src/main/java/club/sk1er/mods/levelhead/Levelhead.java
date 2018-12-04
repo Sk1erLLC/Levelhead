@@ -1,12 +1,14 @@
 package club.sk1er.mods.levelhead;
 
 import club.sk1er.mods.levelhead.auth.MojangAuth;
-import club.sk1er.mods.levelhead.commands.ToggleCommand;
+import club.sk1er.mods.levelhead.commands.LevelheadCommand;
 import club.sk1er.mods.levelhead.display.DisplayManager;
 import club.sk1er.mods.levelhead.display.LevelheadDisplay;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadAboveHeadRender;
+import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
+import club.sk1er.mods.levelhead.renderer.NullLevelheadTag;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
 import club.sk1er.mods.levelhead.utils.Multithreading;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
@@ -25,9 +27,11 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -75,6 +79,8 @@ public class Levelhead extends DummyModContainer {
 
         meta.authorList = Arrays.asList("Sk1er", "boomboompower");
         meta.credits = "HypixelAPI";
+        System.out.println("INITIATED");
+
     }
 
     public static int getRGBColor() {
@@ -136,9 +142,16 @@ public class Levelhead extends DummyModContainer {
             }
         });
         register(mod);
+        JsonHolder config = new JsonHolder();
+        try {
+            config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
     }
 
-
+    private LevelheadChatRenderer levelheadChatRenderer;
     @Subscribe
     @EventHandler
     public void init(FMLPostInitializationEvent event) {
@@ -146,7 +159,9 @@ public class Levelhead extends DummyModContainer {
         Minecraft minecraft = FMLClientHandler.instance().getClient();
         userUuid = minecraft.getSession().getProfile().getId();
         register(new LevelheadAboveHeadRender(this), this);
-        ClientCommandHandler.instance.registerCommand(new ToggleCommand());
+        ClientCommandHandler.instance.registerCommand(new LevelheadCommand());
+        levelheadChatRenderer = new LevelheadChatRenderer(this);
+        register(levelheadChatRenderer);
     }
 
 
@@ -158,7 +173,10 @@ public class Levelhead extends DummyModContainer {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void tick(TickEvent.ClientTickEvent event) {
 
-        if ((event.phase == TickEvent.Phase.START || !mod.isHypixel() || !getDisplayManager().getMasterConfig().isEnabled() || !mod.isEnabled())) {
+        if ((event.phase == TickEvent.Phase.START ||
+                !mod.isHypixel() ||
+                !getDisplayManager().getMasterConfig().isEnabled()
+                || !mod.isEnabled())) {
 
             return;
         }
@@ -178,6 +196,7 @@ public class Levelhead extends DummyModContainer {
     }
 
     public String rawWithAgent(String url) {
+        System.out.println("Fetching: " + url);
         try {
             URL u = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) u.openConnection();
@@ -207,7 +226,7 @@ public class Levelhead extends DummyModContainer {
             return;
         }
         updates++;
-        display.getCache().put(uuid, new LevelheadTag(null));
+        display.getCache().put(uuid, new NullLevelheadTag(null));
         Multithreading.runAsync(() -> {
             String raw = rawWithAgent(
                     "https://api.sk1er.club/levelheadv5/" + trimUuid(uuid) + "/" + display.getConfig().getType()
@@ -216,6 +235,11 @@ public class Levelhead extends DummyModContainer {
             JsonHolder object = new JsonHolder(raw);
             if (!object.optBoolean("success")) {
                 object.put("strlevel", "Error");
+            }
+            if (!allowOverride) {
+                object.put("strlevel", object.optString("level"));
+                object.remove("header_obj");
+                object.remove("footer_obj");
             }
             LevelheadTag value = buildTag(object, uuid, display, allowOverride);
             display.getCache().put(uuid, value);
@@ -231,30 +255,22 @@ public class Levelhead extends DummyModContainer {
         JsonHolder construct = new JsonHolder();
         //Support for serverside override for Custom Levelhead
         //Apply values from server if present
-        if (object.has("header_obj")) {
+        if (object.has("header_obj") && allowOverride) {
             headerObj = object.optJsonObject("header_obj");
             headerObj.put("custom", true);
         }
-        if (object.has("footer_obj")) {
+        if (object.has("footer_obj")&& allowOverride) {
             footerObj = object.optJsonObject("footer_obj");
             footerObj.put("custom", true);
         }
-        if (object.has("header")) {
+        if (object.has("header")&& allowOverride) {
             headerObj.put("header", object.optString("header"));
             headerObj.put("custom", true);
         }
-        try {
-            if (object.getInt("level") != Integer.valueOf(object.optString("strlevel"))) {
-                footerObj.put("custom", true);
-            }
-        } catch (Exception ignored) {
-            footerObj.put("custom", true);
-        }
+
         //Get config based values and merge
-        if (allowOverride) {
-            headerObj.merge(display.getHeaderConfig(), false);
-            footerObj.merge(display.getFooterConfig().put("footer", object.optString("strlevel", format.format(object.getInt("level")))), false);
-        }
+        headerObj.merge(display.getHeaderConfig(), !allowOverride);
+        footerObj.merge(display.getFooterConfig().put("footer", object.optString("strlevel", format.format(object.getInt("level")))), !allowOverride);
         //Ensure text values are present
         construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);

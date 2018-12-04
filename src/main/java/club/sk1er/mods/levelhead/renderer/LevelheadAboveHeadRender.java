@@ -33,13 +33,16 @@ public class LevelheadAboveHeadRender {
 
     @SubscribeEvent
     public void render(RenderPlayerEvent.Pre event) {
-        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getDisplayManager().getMasterConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel())
-            return;
 
+        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getDisplayManager().getMasterConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel()) {
+            return;
+        }
         EntityPlayer player = event.entityPlayer;
         int o = 0;
-        for (LevelheadDisplay display : levelHead.getDisplayManager().getAboveHeaad()) {
-            if (display.loadOrRender(player) && display.getCache().get(player.getUniqueID()) != null) {
+        for (LevelheadDisplay display : levelHead.getDisplayManager().getAboveHead()) {
+
+            LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
+            if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
                 if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
                     double offset = 0.3;
                     Scoreboard scoreboard = player.getWorldScoreboard();
@@ -50,7 +53,7 @@ public class LevelheadAboveHeadRender {
                     }
                     if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
                         offset = 0;
-                    renderName(event, display.getCache().get(player.getUniqueID()), player, event.x, event.y + offset + o * 10, event.z);
+                    renderName(event, levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
                 }
             }
             o++;

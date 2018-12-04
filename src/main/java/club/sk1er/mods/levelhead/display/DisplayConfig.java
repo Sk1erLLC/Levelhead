@@ -25,7 +25,7 @@ public class DisplayConfig {
     private int footerGreen = 255;
     private int footerBlue = 250;
     private double footerAlpha = 1.0;
-    private String type;
+    private String type = "LEVEL";
 
     public boolean isFooterChroma() {
         return footerChroma;

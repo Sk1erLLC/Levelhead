@@ -2,7 +2,6 @@ package club.sk1er.mods.levelhead.display;
 
 import club.sk1er.mods.levelhead.Levelhead;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.Team;
@@ -34,10 +33,12 @@ public class AboveHeadDisplay extends LevelheadDisplay {
         if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min) {
             return false;
         }
+
+
         if (player.hasCustomName() && player.getCustomNameTag().isEmpty()) {
             return false;
         }
-        if (player.getAlwaysRenderNameTagForRender() && !player.getDisplayNameString().isEmpty())
+        if (player.getDisplayNameString().isEmpty())
             return false;
         if (!existedMorethan5Seconds.contains(player.getUniqueID())) {
             return false;
