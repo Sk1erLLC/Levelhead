@@ -30,6 +30,7 @@ public class ToggleCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+        //TODO update
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("limit")) {
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Count: " + Levelhead.getInstance().count);
@@ -37,16 +38,16 @@ public class ToggleCommand extends CommandBase {
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Hypixel: " + Sk1erMod.getInstance().isHypixel());
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Remote Status: " + Sk1erMod.getInstance().isEnabled());
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Local Stats: " + Levelhead.getInstance().getSk1erMod().isHypixel());
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Header State: " + Levelhead.getInstance().getHeaderConfig());
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Footer State: " + Levelhead.getInstance().getFooterConfig());
+//                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Header State: " + Levelhead.getInstance().getHeaderConfig());
+//                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Footer State: " + Levelhead.getInstance().getFooterConfig());
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Callback: " + Sk1erMod.getInstance().getResponse());
                 Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
 
                 return;
             } else if (args[0].equalsIgnoreCase("dumpcache")) {
-                Levelhead.getInstance().levelCache.clear();
+//                Levelhead.getInstance().levelCache.clear();
 
-                Sk1erMod.getInstance().sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&fStringcache entries: &b%s", Levelhead.getInstance().levelCache.size())));
+//                Sk1erMod.getInstance().sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&fStringcache entries: &b%s", Levelhead.getInstance().levelCache.size())));
                 return;
             }
         }

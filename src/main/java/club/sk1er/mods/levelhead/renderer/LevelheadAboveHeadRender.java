@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead.renderer;
 
 import club.sk1er.mods.levelhead.Levelhead;
+import club.sk1er.mods.levelhead.display.LevelheadDisplay;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -15,44 +16,46 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Created by mitchellkatz
  * <p>
  * Modified by boomboompower on 16/6/2017
  */
-public class LevelHeadRender {
+public class LevelheadAboveHeadRender {
 
     private Levelhead levelHead;
 
-    public LevelHeadRender(Levelhead levelHead) {
+    public LevelheadAboveHeadRender(Levelhead levelHead) {
         this.levelHead = levelHead;
     }
 
     @SubscribeEvent
     public void render(RenderPlayerEvent.Pre event) {
-        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel())
+        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getDisplayManager().getMasterConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel())
             return;
 
         EntityPlayer player = event.entityPlayer;
-        // TODO - "entityPlayer" field is private for newer versions (PORTING REQUIRED) - Newer versions use a getter instead
-        // TODO - https://github.com/MinecraftForge/MinecraftForge/blob/1.11.x/src/main/java/net/minecraftforge/event/entity/player/PlayerEvent.java#L51-L54
+        int o = 0;
+        for (LevelheadDisplay display : levelHead.getDisplayManager().getAboveHeaad()) {
+            if (display.loadOrRender(player) && display.getCache().get(player.getUniqueID()) != null) {
+                if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
+                    double offset = 0.3;
+                    Scoreboard scoreboard = player.getWorldScoreboard();
+                    ScoreObjective scoreObjective = scoreboard.getObjectiveInDisplaySlot(2);
 
-        if (levelHead.loadOrRender(player) && (Levelhead.getInstance().getLevelString(player.getUniqueID())) != null) {
-            if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
-                double offset = 0.3;
-                Scoreboard scoreboard = player.getWorldScoreboard();
-                ScoreObjective scoreObjective = scoreboard.getObjectiveInDisplaySlot(2);
-
-                if (scoreObjective != null && event.entityPlayer.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 10 * 10) {
-                    offset *= 2;
+                    if (scoreObjective != null && event.entityPlayer.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 10 * 10) {
+                        offset *= 2;
+                    }
+                    if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
+                        offset = 0;
+                    renderName(event, display.getCache().get(player.getUniqueID()), player, event.x, event.y + offset + o * 10, event.z);
                 }
-                if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
-                    offset = 0;
-                renderName(event, (Levelhead.getInstance().getLevelString(player.getUniqueID())), player, event.x, event.y + offset, event.z);
             }
+            o++;
         }
+
     }
 
     public void renderName(RenderPlayerEvent event, LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {

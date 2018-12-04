@@ -1,3 +1,26 @@
-.gradle
+# IntelliJ
 .idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
+dependency-reduced-pom.xml
+
+# Java
+*.jar
+
+# Gradle
+.gradle/
+gradle/
 build/
+classes/
+gradlew
+gradlew.bat
+
+# Minecraft Environment
+run/
