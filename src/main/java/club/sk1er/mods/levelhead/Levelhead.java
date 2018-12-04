@@ -4,6 +4,7 @@ import club.sk1er.mods.levelhead.auth.MojangAuth;
 import club.sk1er.mods.levelhead.commands.ToggleCommand;
 import club.sk1er.mods.levelhead.display.DisplayManager;
 import club.sk1er.mods.levelhead.display.LevelheadDisplay;
+import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadAboveHeadRender;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
@@ -56,6 +57,8 @@ public class Levelhead extends DummyModContainer {
     private DecimalFormat format = new DecimalFormat("#,###");
     private JsonHolder paidData = new JsonHolder();
     private DisplayManager displayManager;
+    private LevelheadPurchaseStates levelheadPurchaseStates = new LevelheadPurchaseStates();
+    private JsonHolder purchaseStatus;
 
     public Levelhead() {
         super(new ModMetadata());
@@ -65,13 +68,13 @@ public class Levelhead extends DummyModContainer {
         meta.version = VERSION;
 
         meta.name = "Sk1er Level Head";
-        meta.description = "LevelheadDisplay a player's network level above their head";
+        meta.description = "Levelhead displays a player's network level above their head";
 
         //noinspection deprecation
         meta.url = meta.updateUrl = "http://sk1er.club/levelhead";
 
         meta.authorList = Arrays.asList("Sk1er", "boomboompower");
-        meta.credits = "HypixelAPI, Codename_B";
+        meta.credits = "HypixelAPI";
     }
 
     public static int getRGBColor() {
@@ -94,6 +97,23 @@ public class Levelhead extends DummyModContainer {
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
         return true;
+    }
+
+    public LevelheadPurchaseStates getLevelheadPurchaseStates() {
+        return levelheadPurchaseStates;
+    }
+
+    public JsonHolder getPurchaseStatus() {
+        return purchaseStatus;
+    }
+
+    public synchronized void refreshPurchaseStates() {
+        purchaseStatus = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_purchase_status/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString()));
+        levelheadPurchaseStates.setChat(purchaseStatus.optBoolean("chat"));
+        levelheadPurchaseStates.setTab(purchaseStatus.optBoolean("tab"));
+        levelheadPurchaseStates.setExtraHead(purchaseStatus.optInt("tab"));
+
+
     }
 
     @Subscribe
@@ -198,7 +218,7 @@ public class Levelhead extends DummyModContainer {
             if (!object.optBoolean("success")) {
                 object.put("strlevel", "Error");
             }
-            LevelheadTag value = buildTag(object, uuid, display,allowOverride);
+            LevelheadTag value = buildTag(object, uuid, display, allowOverride);
             display.getCache().put(uuid, value);
             display.getTrueValueCache().put(uuid, object.optString("strlevel"));
         });
@@ -232,7 +252,7 @@ public class Levelhead extends DummyModContainer {
             footerObj.put("custom", true);
         }
         //Get config based values and merge
-        if(allowOverride) {
+        if (allowOverride) {
             headerObj.merge(display.getHeaderConfig(), false);
             footerObj.merge(display.getFooterConfig().put("footer", object.optString("strlevel", format.format(object.getInt("level")))), false);
         }

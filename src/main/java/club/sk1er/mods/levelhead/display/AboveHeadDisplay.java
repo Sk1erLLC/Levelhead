@@ -2,6 +2,7 @@ package club.sk1er.mods.levelhead.display;
 
 import club.sk1er.mods.levelhead.Levelhead;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.Team;
@@ -105,7 +106,8 @@ public class AboveHeadDisplay extends LevelheadDisplay {
 
     @Override
     public void checkCacheSize() {
-        if (cache.size() > Math.max(Levelhead.getInstance().getDisplayManager().getMasterConfig().getPurgeSize(), 150)) {
+        int max = Math.max(150, Levelhead.getInstance().getDisplayManager().getMasterConfig().getPurgeSize());
+        if(cache.size() > max) {
             ArrayList<UUID> safePlayers = new ArrayList<>();
             for (EntityPlayer player : Minecraft.getMinecraft().theWorld.playerEntities) {
                 if (existedMorethan5Seconds.contains(player.getUniqueID())) {
@@ -115,18 +117,21 @@ public class AboveHeadDisplay extends LevelheadDisplay {
             existedMorethan5Seconds.clear();
             existedMorethan5Seconds.addAll(safePlayers);
 
-
             for (UUID uuid : cache.keySet()) {
                 if (!safePlayers.contains(uuid)) {
                     cache.remove(uuid);
+                    trueValueCache.remove(uuid);
                 }
             }
         }
+
     }
 
     @Override
     public void onDelete() {
-
+        cache.clear();
+        trueValueCache.clear();
+        existedMorethan5Seconds.clear();
     }
 
 }

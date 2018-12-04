@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.display;
 import club.sk1er.mods.levelhead.config.MasterConfig;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 public class DisplayManager {
 
     private Gson GSON = new Gson();
-    private List<LevelheadDisplay> aboveHeaad = new ArrayList<>();
+    private List<AboveHeadDisplay> aboveHeaad = new ArrayList<>();
     private LevelheadDisplay chat = null;
     private LevelheadDisplay tab = null;
     private MasterConfig config = new MasterConfig();
@@ -19,10 +20,19 @@ public class DisplayManager {
         if (source.has("master")) {
             this.config = GSON.fromJson(source.optJsonObject("master").getObject(), MasterConfig.class);
         }
+        for (JsonElement head : source.optJSONArray("head")) {
+            aboveHeaad.add(GSON.fromJson(head.getAsJsonObject(), AboveHeadDisplay.class));
+        }
+        if (source.has("chat")) {
+//            this.chat = GSON.fromJson(source.optJsonObject("chat").getObject(), LevelheadDisplay.class); //TODO update to proper class name
+        }
+        if (source.has("tab")) {
+//            this.tab = GSON.fromJson(source.optJsonObject("tab").getObject(), LevelheadDisplay.class); //TODO update to proper class name
+        }
 
     }
 
-    public List<LevelheadDisplay> getAboveHeaad() {
+    public List<AboveHeadDisplay> getAboveHeaad() {
         return aboveHeaad;
     }
 
@@ -47,7 +57,7 @@ public class DisplayManager {
     }
 
     public void checkCacheSizes() {
-//TODO
+    //TODO
     }
 
     public void save() {
