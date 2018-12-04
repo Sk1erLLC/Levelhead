@@ -1,56 +1,31 @@
-package club.sk1er.mods.levelhead.config;
+package club.sk1er.mods.levelhead.display;
 
 import club.sk1er.mods.levelhead.utils.ChatColor;
 
 /**
  * Created by mitchellkatz on 12/23/17. Designed for production use on Sk1er.club
  */
-public class LevelheadConfig {
+public class DisplayConfig {
 
-    @ConfigOpt
-    private boolean enabled = true;
-    @ConfigOpt
-    private boolean showSelf = true;
-    @ConfigOpt
-    private int renderDistance = 64;
 
-    @ConfigOpt
-    private int purgeSize = 500;
-
-    @ConfigOpt
     private boolean headerChroma = false;
-    @ConfigOpt
     private boolean headerRgb = false;
-    @ConfigOpt
     private String headerColor = ChatColor.AQUA.toString();
-    @ConfigOpt
     private int headerRed = 255;
-    @ConfigOpt
     private int headerGreen = 255;
-    @ConfigOpt
     private int headerBlue = 250;
-    @ConfigOpt
     private double headerAlpha = 1.0;
-    @ConfigOpt
-    private String customHeader ="Level";
+    private String customHeader = "Level";
 
 
-    @ConfigOpt
     private boolean footerChroma = false;
-    @ConfigOpt
     private boolean footerRgb = false;
-    @ConfigOpt
     private String footerColor = ChatColor.YELLOW.toString();
-    @ConfigOpt
     private int footerRed = 255;
-    @ConfigOpt
     private int footerGreen = 255;
-    @ConfigOpt
     private int footerBlue = 250;
-    @ConfigOpt
     private double footerAlpha = 1.0;
-
-
+    private String type;
 
     public boolean isFooterChroma() {
         return footerChroma;
@@ -108,8 +83,6 @@ public class LevelheadConfig {
         this.footerAlpha = footerAlpha;
     }
 
-
-
     public boolean isHeaderChroma() {
         return headerChroma;
     }
@@ -166,38 +139,6 @@ public class LevelheadConfig {
         this.headerAlpha = headerAlpha;
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public int getRenderDistance() {
-        return renderDistance;
-    }
-
-    public void setRenderDistance(int renderDistance) {
-        this.renderDistance = renderDistance;
-    }
-
-    public boolean isShowSelf() {
-        return showSelf;
-    }
-
-    public void setShowSelf(boolean showSelf) {
-        this.showSelf = showSelf;
-    }
-
-
-    public int getPurgeSize() {
-        return purgeSize;
-    }
-
-    public void setPurgeSize(int purgeSize) {
-        this.purgeSize = purgeSize;
-    }
 
     public String getCustomHeader() {
         return customHeader;
@@ -205,5 +146,13 @@ public class LevelheadConfig {
 
     public void setCustomHeader(String customHeader) {
         this.customHeader = customHeader;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
