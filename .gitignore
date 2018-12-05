@@ -21,6 +21,7 @@ build/
 classes/
 gradlew
 gradlew.bat
+out/
 
 # Minecraft Environment
 run/
