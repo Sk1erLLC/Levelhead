@@ -34,7 +34,7 @@ public final class Hooks {
 //        }
     }
 
-    public static final int getLevelheadWith(NetworkPlayerInfo playerInfo) {
+    public static int getLevelheadWith(NetworkPlayerInfo playerInfo) {
         Levelhead instance = Levelhead.getInstance();
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
