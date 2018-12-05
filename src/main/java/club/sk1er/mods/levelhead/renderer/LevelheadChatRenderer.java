@@ -50,7 +50,8 @@ public class LevelheadChatRenderer {
                                     String[] split = value.split(" ");
                                     if (split.length == 2) {
                                         String uuid = split[1];
-                                        String tag = chat.getTrueValueCache().get(UUID.fromString(uuid));
+                                        UUID key = UUID.fromString(uuid);
+                                        String tag = chat.getTrueValueCache().get(key);
                                         if (tag != null) {
                                             DisplayConfig config = chat.getConfig();
                                             ChatComponentText text = new ChatComponentText(config.getHeaderColor() + "[" + config.getFooterColor() +
@@ -58,6 +59,10 @@ public class LevelheadChatRenderer {
                                                     config.getHeaderColor() + "]" + EnumChatFormatting.RESET);
                                             text.appendSibling(event.message);
                                             event.message = text;
+                                        } else {
+                                            if (!(chat.getCache().get(key) instanceof NullLevelheadTag)) {
+                                                levelhead.fetch(key, chat, false);
+                                            }
                                         }
 
                                     }
