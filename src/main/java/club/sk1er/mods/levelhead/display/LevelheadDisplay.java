@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead.display;
 
+import club.sk1er.mods.levelhead.guis.NewLevelheadGui;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
 import net.minecraft.entity.player.EntityPlayer;
@@ -65,7 +66,7 @@ public abstract class LevelheadDisplay {
     public abstract void onDelete();
 
     public boolean loadOrRender(EntityPlayer player) {
-        return true;
+        return !player.getDisplayName().getFormattedText().contains(NewLevelheadGui.COLOR_CHAR + "k");
     }
 
     public ConcurrentHashMap<UUID, LevelheadTag> getCache() {

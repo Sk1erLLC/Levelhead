@@ -145,7 +145,7 @@ public class Sk1erMod {
                 process(prefix + "Update level: " + en.optString("level"));
                 process(prefix + "Update URL: " + en.optString("url"));
                 process(prefix + "Message from Sk1er: ");
-                process(prefix + en.get("message"));
+                process(prefix + en.optString("message"));
                 process(" ");
 
                 process(prefix + "----------------------------------");
