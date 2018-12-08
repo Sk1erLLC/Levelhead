@@ -76,6 +76,7 @@ public class AboveHeadDisplay extends LevelheadDisplay {
 
     @Override
     public void tick() {
+
         for (EntityPlayer entityPlayer : Minecraft.getMinecraft().theWorld.playerEntities) {
             if (!existedMorethan5Seconds.contains(entityPlayer.getUniqueID())) {
                 if (!timeCheck.containsKey(entityPlayer.getUniqueID()))
@@ -104,7 +105,7 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     public void setBottomValue(boolean bottomValue) {
         this.bottomValue = bottomValue;
     }
-
+    private int index;
     @Override
     public void checkCacheSize() {
         int max = Math.max(150, Levelhead.getInstance().getDisplayManager().getMasterConfig().getPurgeSize());
@@ -135,4 +136,11 @@ public class AboveHeadDisplay extends LevelheadDisplay {
         existedMorethan5Seconds.clear();
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }

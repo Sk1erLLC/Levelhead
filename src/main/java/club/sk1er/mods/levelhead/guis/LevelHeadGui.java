@@ -214,7 +214,6 @@ public class LevelHeadGui extends GuiScreen {
     }
 
     private void updatePeopleToValues() {
-        //TODO
     }
 
     private void updateCustom() {

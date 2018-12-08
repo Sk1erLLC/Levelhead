@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead.display;
 
+import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.config.MasterConfig;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
 import com.google.gson.Gson;
@@ -42,31 +43,29 @@ public class DisplayManager {
         if (aboveHead.isEmpty()) {
             aboveHead.add(new AboveHeadDisplay(new DisplayConfig()));
         }
-        //TODO remove debug
-        if (aboveHead.size() != 2) {
-            DisplayConfig config = new DisplayConfig();
-            config.setType("KARMA");
-            config.setFooterChroma(true);
-            aboveHead.add(new AboveHeadDisplay(config));
 
-        }
         if (tab == null) {
             DisplayConfig config = new DisplayConfig();
             config.setType("QUESTS");
             tab = new TabDisplay(config);
         }
 
-        for (int i = 0; i < aboveHead.size(); i++) {
-            aboveHead.get(i).setBottomValue(i == 0);
-        }
+        adjustIndexes();
 
-        if(chat == null) {
+        if (chat == null) {
             DisplayConfig config = new DisplayConfig();
             config.setType("GUILD_NAME");
             chat = new ChatDisplay(config);
         }
 
 
+    }
+
+    public void adjustIndexes() {
+        for (int i = 0; i < aboveHead.size(); i++) {
+            aboveHead.get(i).setBottomValue(i == 0);
+            aboveHead.get(i).setIndex(i);
+        }
     }
 
     public List<AboveHeadDisplay> getAboveHead() {
@@ -86,6 +85,10 @@ public class DisplayManager {
     }
 
     public void tick() {
+        if (!Levelhead.getInstance().getDisplayManager().getMasterConfig().isEnabled()) {
+            return;
+        }
+
         aboveHead.forEach(LevelheadDisplay::tick);
         if (tab != null)
             tab.tick();

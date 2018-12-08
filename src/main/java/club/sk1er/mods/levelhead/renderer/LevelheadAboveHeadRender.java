@@ -1,7 +1,7 @@
 package club.sk1er.mods.levelhead.renderer;
 
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.display.LevelheadDisplay;
+import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -25,22 +25,30 @@ import java.awt.Color;
  */
 public class LevelheadAboveHeadRender {
 
-    private Levelhead levelHead;
+    private Levelhead levelhead;
 
-    public LevelheadAboveHeadRender(Levelhead levelHead) {
-        this.levelHead = levelHead;
+    public LevelheadAboveHeadRender(Levelhead levelhead) {
+        this.levelhead = levelhead;
     }
 
     @SubscribeEvent
     public void render(RenderPlayerEvent.Pre event) {
-
-        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelHead.getDisplayManager().getMasterConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel()) {
+        if (!levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
+            return;
+        }
+        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelhead.getDisplayManager().getMasterConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel()) {
             return;
         }
         EntityPlayer player = event.entityPlayer;
         int o = 0;
-        for (LevelheadDisplay display : levelHead.getDisplayManager().getAboveHead()) {
-
+        for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
+            int index = display.getIndex();
+            int extraHead = levelhead.getLevelheadPurchaseStates().getExtraHead();
+            if (index > extraHead) {
+                continue;
+            }
+            if (!display.getConfig().isEnabled())
+                continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
                 if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {

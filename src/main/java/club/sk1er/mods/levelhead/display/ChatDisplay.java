@@ -15,12 +15,13 @@ public class ChatDisplay extends LevelheadDisplay {
 
     @Override
     public void tick() {
-        for (NetworkPlayerInfo networkPlayerInfo : Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap()) {
-            UUID id = networkPlayerInfo.getGameProfile().getId();
-            if (id != null)
-                if (!cache.containsKey(id))
-                    Levelhead.getInstance().fetch(id, this, false);
-        }
+        if (Levelhead.getInstance().getLevelheadPurchaseStates().isChat())
+            for (NetworkPlayerInfo networkPlayerInfo : Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap()) {
+                UUID id = networkPlayerInfo.getGameProfile().getId();
+                if (id != null)
+                    if (!cache.containsKey(id))
+                        Levelhead.getInstance().fetch(id, this, false);
+            }
     }
 
     @Override

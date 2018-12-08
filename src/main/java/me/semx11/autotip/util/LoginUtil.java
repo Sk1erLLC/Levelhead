@@ -58,7 +58,7 @@ public class LoginUtil {
                 out.write(jsonBytes);
             }
             int responseCode = conn.getResponseCode();
-
+            System.out.println("MOJANG RESPONSE CODE: " + responseCode);
 
             return responseCode;
         } catch (IOException e) {

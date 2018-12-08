@@ -16,8 +16,7 @@ public class DisplayConfig {
     private int headerBlue = 250;
     private double headerAlpha = 1.0;
     private String customHeader = "Level";
-
-
+    private boolean enable = true;
     private boolean footerChroma = false;
     private boolean footerRgb = false;
     private String footerColor = ChatColor.YELLOW.toString();
@@ -26,6 +25,14 @@ public class DisplayConfig {
     private int footerBlue = 250;
     private double footerAlpha = 1.0;
     private String type = "LEVEL";
+
+    public boolean isEnabled() {
+        return enable;
+    }
+
+    public void setEnabled(boolean enable) {
+        this.enable = enable;
+    }
 
     public boolean isFooterChroma() {
         return footerChroma;

@@ -16,6 +16,7 @@ public class MojangAuth {
     private boolean failed = false;
     private String failMessage = null;
     private boolean success = false;
+    private String hash;
 
     public MojangAuth(Sk1erMod sk1erMod) {
         this.sk1erMod = sk1erMod;
@@ -42,6 +43,10 @@ public class MojangAuth {
         return success;
     }
 
+    public String getHash() {
+        return hash;
+    }
+
     public void auth() {
         UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
         JsonHolder jsonHolder = new JsonHolder(sk1erMod.rawWithAgent("https://api.sk1er.club/auth/begin?uuid=" + uuid + "&mod=" + Levelhead.MODID + "&ver=" + Levelhead.VERSION));
@@ -49,7 +54,7 @@ public class MojangAuth {
             fail("Error during init: " + jsonHolder);
             return;
         }
-        String hash = jsonHolder.optString("hash");
+        hash = jsonHolder.optString("hash");
 
         String session = Minecraft.getMinecraft().getSession().getToken();
         System.out.println("Logging in with details: Server-Hash: " + hash + " Session: " + session + " UUID=" + uuid);
@@ -60,12 +65,14 @@ public class MojangAuth {
             return;
         }
         JsonHolder finalResponse = new JsonHolder(sk1erMod.rawWithAgent("https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().getSession().getProfile().getName()));
+        System.out.println("FINAL RESPONSE: " + finalResponse);
         if (finalResponse.optBoolean("success")) {
+
             this.accessKey = finalResponse.optString("access_key");
             this.success = true;
             System.out.println("Successfully authenticated with Sk1er.club Levelhead");
         } else {
-            fail("Error during final auth. Reason: " + finalResponse.optString("reason"));
+            fail("Error during final auth. Reason: " + finalResponse.optString("cause"));
         }
 
     }

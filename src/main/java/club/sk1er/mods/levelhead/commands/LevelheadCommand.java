@@ -1,7 +1,7 @@
 package club.sk1er.mods.levelhead.commands;
 
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.guis.LevelHeadGui;
+import club.sk1er.mods.levelhead.guis.NewLevelheadGui;
 import club.sk1er.mods.levelhead.utils.ChatColor;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.command.CommandBase;
@@ -32,24 +32,23 @@ public class LevelheadCommand extends CommandBase {
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         //TODO update
         if (args.length == 1) {
+            Sk1erMod instance = Sk1erMod.getInstance();
             if (args[0].equalsIgnoreCase("limit")) {
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Count: " + Levelhead.getInstance().count);
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Wait: " + Levelhead.getInstance().wait);
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Hypixel: " + Sk1erMod.getInstance().isHypixel());
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Remote Status: " + Sk1erMod.getInstance().isEnabled());
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Local Stats: " + Levelhead.getInstance().getSk1erMod().isHypixel());
-//                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Header State: " + Levelhead.getInstance().getHeaderConfig());
-//                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Footer State: " + Levelhead.getInstance().getFooterConfig());
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Callback: " + Sk1erMod.getInstance().getResponse());
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
-
+                instance.sendMessage(ChatColor.RED + "Count: " + Levelhead.getInstance().count);
+                instance.sendMessage(ChatColor.RED + "Wait: " + Levelhead.getInstance().wait);
+                instance.sendMessage(ChatColor.RED + "Hypixel: " + instance.isHypixel());
+                instance.sendMessage(ChatColor.RED + "Remote Status: " + instance.isEnabled());
+                instance.sendMessage(ChatColor.RED + "Local Stats: " + Levelhead.getInstance().getSk1erMod().isHypixel());
+                instance.sendMessage(ChatColor.RED + "Callback: " + instance.getResponse());
+                instance.sendMessage(ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
+                //TODO add more debug
                 return;
             } else if (args[0].equalsIgnoreCase("dumpcache")) {
                 Levelhead.getInstance().getDisplayManager().clearCache();
-                Sk1erMod.getInstance().sendMessage(ChatColor.RED + "Cleared Cache");
+                instance.sendMessage(ChatColor.RED + "Cleared Cache");
                 return;
             }
         }
-        new LevelHeadGui().display();
+        new NewLevelheadGui().display();
     }
 }

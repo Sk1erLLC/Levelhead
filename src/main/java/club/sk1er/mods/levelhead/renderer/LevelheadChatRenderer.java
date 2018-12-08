@@ -17,55 +17,62 @@ import java.util.UUID;
 
 public class LevelheadChatRenderer {
 
-    private boolean inLobby = true;
     private Levelhead levelhead;
 
     public LevelheadChatRenderer(Levelhead levelhead) {
         this.levelhead = levelhead;
     }
 
+    public static IChatComponent modifyChat(IChatComponent component, String tag, DisplayConfig config) {
+        ChatComponentText text = new ChatComponentText(config.getHeaderColor() + "[" + config.getFooterColor() +
+                tag +
+                config.getHeaderColor() + "]" + EnumChatFormatting.RESET);
+        text.appendSibling(component);
+        return text;
+    }
+
     @SubscribeEvent
     public void chat(ClientChatReceivedEvent event) {
-        if (levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
-            //TODO more checks to see if state is right and it is purchased
+        if (!levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
+            return;
         }
-        if (inLobby) {
-            LevelheadDisplay chat = Levelhead.getInstance().getDisplayManager().getChat();
-            if (chat == null) {
-                return;
-            }
-            List<IChatComponent> siblings = event.message.getSiblings();
-            if (siblings.size() > 0) {
-                IChatComponent chatComponent = siblings.get(0);
-                if (chatComponent instanceof ChatComponentText) {
-                    ChatStyle chatStyle = chatComponent.getChatStyle();
-                    ClickEvent chatClickEvent = chatStyle.getChatClickEvent();
-                    if (chatClickEvent != null) {
-                        if (chatClickEvent.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                            String value = chatClickEvent.getValue();
-                            HoverEvent chatHoverEvent = chatStyle.getChatHoverEvent();
-                            if (chatHoverEvent != null) {
-                                if (chatHoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
-                                    String[] split = value.split(" ");
-                                    if (split.length == 2) {
-                                        String uuid = split[1];
-                                        UUID key = UUID.fromString(uuid);
-                                        String tag = chat.getTrueValueCache().get(key);
-                                        if (tag != null) {
-                                            DisplayConfig config = chat.getConfig();
-                                            ChatComponentText text = new ChatComponentText(config.getHeaderColor() + "[" + config.getFooterColor() +
-                                                    tag +
-                                                    config.getHeaderColor() + "]" + EnumChatFormatting.RESET);
-                                            text.appendSibling(event.message);
-                                            event.message = text;
-                                        } else {
-                                            if (!(chat.getCache().get(key) instanceof NullLevelheadTag)) {
-                                                levelhead.fetch(key, chat, false);
-                                            }
-                                        }
+        LevelheadDisplay chat = Levelhead.getInstance().getDisplayManager().getChat();
+        if (chat == null) {
+            return;
+        }
+        if (!levelhead.getLevelheadPurchaseStates().isChat()) {
+            return;
+        }
+        if (!chat.getConfig().isEnabled())
+            return;
+        List<IChatComponent> siblings = event.message.getSiblings();
+        if (siblings.size() == 0) {
+            return;
+        }
 
+        IChatComponent chatComponent = siblings.get(0);
+        if (chatComponent instanceof ChatComponentText) {
+            ChatStyle chatStyle = chatComponent.getChatStyle();
+            ClickEvent chatClickEvent = chatStyle.getChatClickEvent();
+            if (chatClickEvent != null) {
+                if (chatClickEvent.getAction() == ClickEvent.Action.RUN_COMMAND) {
+                    String value = chatClickEvent.getValue();
+                    HoverEvent chatHoverEvent = chatStyle.getChatHoverEvent();
+                    if (chatHoverEvent != null) {
+                        if (chatHoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
+                            String[] split = value.split(" ");
+                            if (split.length == 2) {
+                                String uuid = split[1];
+                                UUID key = UUID.fromString(uuid);
+                                String tag = chat.getTrueValueCache().get(key);
+                                if (tag != null) {
+                                    event.message = modifyChat(event.message, tag, chat.getConfig());
+                                } else {
+                                    if (!(chat.getCache().get(key) instanceof NullLevelheadTag)) {
+                                        levelhead.fetch(key, chat, false);
                                     }
                                 }
+
                             }
                         }
                     }

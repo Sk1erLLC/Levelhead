@@ -13,38 +13,52 @@ import java.awt.Color;
 public final class Hooks {
 
     public static void drawPingHook(int i, int x, int y, NetworkPlayerInfo playerInfo) {
+        if (!Levelhead.getInstance().getDisplayManager().getMasterConfig().isEnabled()) {
+            return;
+        }
         Levelhead instance = Levelhead.getInstance();
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
-//            if (instance.getLevelheadPurchaseStates().isTab()) {
-            String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
-            if (s != null) {
-                FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
-                int x1 = i + x - 12 - fontRendererObj.getStringWidth(s);
-                DisplayConfig config = tab.getConfig();
-                if (config.isFooterChroma()) {
-                    fontRendererObj.drawString(s, x1, y, Levelhead.getRGBColor());
-                } else if (config.isFooterRgb()) {
-                    fontRendererObj.drawString(s, x1, y, new Color(config.getFooterRed(), config.getFooterGreen(), config.getFooterBlue()).getRGB());
-                } else {
-                    fontRendererObj.drawString(config.getFooterColor() + s, x1, y, Color.WHITE.getRGB());
+
+            if (!tab.getConfig().isEnabled()) {
+                return;
+            }
+
+            if (instance.getLevelheadPurchaseStates().isTab()) {
+                String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
+                if (s != null) {
+                    FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
+                    int x1 = i + x - 12 - fontRendererObj.getStringWidth(s);
+                    DisplayConfig config = tab.getConfig();
+                    if (config.isFooterChroma()) {
+                        fontRendererObj.drawString(s, x1, y, Levelhead.getRGBColor());
+                    } else if (config.isFooterRgb()) {
+                        fontRendererObj.drawString(s, x1, y, new Color(config.getFooterRed(), config.getFooterGreen(), config.getFooterBlue()).getRGB());
+                    } else {
+                        fontRendererObj.drawString(config.getFooterColor() + s, x1, y, Color.WHITE.getRGB());
+                    }
                 }
             }
         }
-//        }
     }
 
+
     public static int getLevelheadWith(NetworkPlayerInfo playerInfo) {
+        if (!Levelhead.getInstance().getDisplayManager().getMasterConfig().isEnabled()) {
+            return 0;
+        }
         Levelhead instance = Levelhead.getInstance();
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
-//            if (instance.getLevelheadPurchaseStates().isTab()) {
-            String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
-            if (s != null) {
-                return Minecraft.getMinecraft().fontRendererObj.getStringWidth(s) + 2;
+            if (!tab.getConfig().isEnabled())
+                return 0;
+            if (instance.getLevelheadPurchaseStates().isTab()) {
+                String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
+                if (s != null) {
+                    return Minecraft.getMinecraft().fontRendererObj.getStringWidth(s) + 2;
+                }
             }
         }
-//        }
         return 0;
     }
 

@@ -15,6 +15,7 @@ public class TabDisplay extends LevelheadDisplay {
 
     @Override
     public void tick() {
+
         for (NetworkPlayerInfo networkPlayerInfo : Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap()) {
             UUID id = networkPlayerInfo.getGameProfile().getId();
             if (id != null)

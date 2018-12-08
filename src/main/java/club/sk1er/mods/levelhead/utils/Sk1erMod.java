@@ -3,17 +3,6 @@ package club.sk1er.mods.levelhead.utils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreenBook;
-import net.minecraft.event.ClickEvent;
-import net.minecraft.event.HoverEvent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemWritableBook;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.ForgeHooks;
@@ -110,7 +99,7 @@ public class Sk1erMod {
     }
 
     public void sendMessage(String message) {
-        this.messages.add(new ChatComponentText(prefix + message));
+        this.messages.add(ForgeHooks.newChatWithLinks(prefix + message));
     }
 
     @SubscribeEvent
@@ -121,9 +110,8 @@ public class Sk1erMod {
         while (!messages.isEmpty()) {
             Minecraft.getMinecraft().thePlayer.addChatComponentMessage(messages.poll());
         }
-        if(book){
-            book=false;
-            displayUpdateBook();
+        if (book) {
+            book = false;
         }
     }
 
@@ -207,7 +195,7 @@ public class Sk1erMod {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    this.book=true;
+                    this.book = true;
 
                 }
                 try {
@@ -223,59 +211,8 @@ public class Sk1erMod {
 
 
     }
-    public void displayUpdateBook() {
-        ItemWritableBook book1 = ((ItemWritableBook) Item.getItemById(386));
-        ItemStack book = new ItemStack(book1, 1, 1, new NBTTagCompound());
-
-        NBTTagCompound tagCompound = book.getTagCompound();
-        if (tagCompound == null)
-            tagCompound = new NBTTagCompound();
-
-        tagCompound.setString("author", "Sk1er");
-        tagCompound.setString("title", "Welcome to my mods");
-
-        NBTTagList nbtTagList = new NBTTagList();
-        ChatComponentText text = new ChatComponentText("Hello!\n");
-        ChatStyle helloStyle = new ChatStyle();
-        helloStyle.setBold(true);
-        helloStyle.setColor(EnumChatFormatting.RED);
-        text.setChatStyle(helloStyle);
-
-        ChatComponentText next1 = new ChatComponentText("Thank you for downloading one of my mods. Please consider ");
-        ChatStyle next1Style = new ChatStyle();
-        next1Style.setColor(EnumChatFormatting.RED);
-        next1Style.setBold(false);
-        next1.setChatStyle(next1Style);
-        text.appendSibling(next1);
 
 
-        ChatComponentText valueIn = new ChatComponentText("Click to open URL. Then click \"subscribe\"");
-        ChatStyle style2 = new ChatStyle();
-        style2.setColor(EnumChatFormatting.RED);
-        style2.setBold(true);
-        valueIn.setChatStyle(style2);
-
-
-        ChatComponentText next2 = new ChatComponentText("Subscribing to the mod creator");
-        ChatStyle next2Style = new ChatStyle();
-        next2Style.setBold(true);
-        next2Style.setUnderlined(true);
-        next2Style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://sk1er.club/sub"));
-        next1Style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://sk1er.club/sub"));
-        helloStyle.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://sk1er.club/sub"));
-        next2Style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
-        next2Style.setColor(EnumChatFormatting.GREEN);
-
-        next2.setChatStyle(next2Style);
-
-        text.appendSibling(next2);
-
-        nbtTagList.appendTag(new NBTTagString(IChatComponent.Serializer.componentToJson(text)));
-        tagCompound.setTag("pages", nbtTagList);
-        book.setTagCompound(tagCompound);
-        GuiScreenBook screenBook = new GuiScreenBook(Minecraft.getMinecraft().thePlayer, book, false);
-        Minecraft.getMinecraft().displayGuiScreen(screenBook);
-    }
     @SubscribeEvent
     public void onPlayerLogOutEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         hypixel = false;
