@@ -32,7 +32,6 @@ public class LevelheadChatRenderer {
         if (inLobby) {
             LevelheadDisplay chat = Levelhead.getInstance().getDisplayManager().getChat();
             if (chat == null) {
-                System.out.println("caht null");
                 return;
             }
             List<IChatComponent> siblings = event.message.getSiblings();

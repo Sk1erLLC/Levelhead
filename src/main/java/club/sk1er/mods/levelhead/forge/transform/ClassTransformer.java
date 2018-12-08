@@ -5,14 +5,17 @@ import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRema
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 public final class ClassTransformer implements IClassTransformer {
 
@@ -28,9 +31,48 @@ public final class ClassTransformer implements IClassTransformer {
 
         for (MethodNode method : classNode.methods) {
             String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(classNode.name, method.name, method.desc);
-            if (methodName.equals("drawPing") || methodName.equals("func_175245_a")) {
+            if (methodName.equals("func_175245_a")) {
                 method.instructions.insertBefore(method.instructions.getFirst(), getHookCall(method, "drawPing"));
-                break;
+            } else if (methodName.equals("func_175249_a")) {
+                int found = 0;
+
+                ListIterator<AbstractInsnNode> iterator = method.instructions.iterator();
+                while (iterator.hasNext()) {
+                    AbstractInsnNode abstractInsnNode = iterator.next();
+
+                    if (abstractInsnNode.getOpcode() == Opcodes.ALOAD) {
+                        VarInsnNode node = (VarInsnNode) abstractInsnNode;
+                        if (node.var == 0) {
+                            found = 1;
+                        } else if (node.var == 9 && found == 1) { // 9 = networkplayernfo
+                            found = 2;
+                        } else {
+                            found = 0;
+                        }
+                    } else if (abstractInsnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+                        MethodInsnNode node = (MethodInsnNode) abstractInsnNode;
+                        if (node.name.equals("a") && found == 2 && // getPlayerName
+                                node.owner.equals("awh") && // net/minecraft/client/gui/GuiPlayerTabOverlay
+                                node.desc.equals("(Lbdc;)Ljava/lang/String;")) { // net/minecraft/client/network/NetworkPlayerInfo
+                            found = 3;
+                        } else if (node.name.equals("a") && found == 3 && // getStringWidth
+                                node.owner.equals("avn") &&  // net/minecraft/client/gui/FontRenderer
+                                node.desc.equals("(Ljava/lang/String;)I")) {
+
+                            InsnList insnList = new InsnList();
+                            insnList.add(new VarInsnNode(Opcodes.ALOAD, 9)); // 9 = networkplayerinfo
+
+                            insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+                                    "club/sk1er/mods/levelhead/forge/transform/Hooks",
+                                    "getLevelheadWith", "(Lbdc;)I", false));
+
+                            insnList.add(new InsnNode(Opcodes.IADD));
+
+                            method.instructions.insert(node, insnList);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
