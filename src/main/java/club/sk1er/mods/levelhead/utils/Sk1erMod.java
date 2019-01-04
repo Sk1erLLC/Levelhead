@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.apache.commons.io.IOUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,8 +103,7 @@ public class Sk1erMod {
 
     @SubscribeEvent
     public void tick(TickEvent.RenderTickEvent event) {
-
-
+        
         if (Minecraft.getMinecraft().thePlayer == null) return;
         while (!messages.isEmpty()) {
             Minecraft.getMinecraft().thePlayer.addChatComponentMessage(messages.poll());
@@ -116,19 +114,20 @@ public class Sk1erMod {
     }
 
     public JsonObject getPlayer(String name) {
-        return new JsonParser().parse(rawWithAgent("http://sk1er.club/data/" + name + "/" + getApIKey())).getAsJsonObject();
+        return new JsonParser().parse(rawWithAgent("https://sk1er.club/data/" + name + "/" + getApIKey())).getAsJsonObject();
     }
 
     public void checkStatus() {
         Multithreading.schedule(() -> {
-            en = new JsonHolder(rawWithAgent("http://sk1er.club/genkey?name=" + Minecraft.getMinecraft().getSession().getProfile().getName()
+            en = new JsonHolder(rawWithAgent("https://sk1er.club/genkey?name=" + Minecraft.getMinecraft().getSession().getProfile().getName()
                     + "&uuid=" + Minecraft.getMinecraft().getSession().getPlayerID().replace("-", "")
                     + "&mcver=" + Minecraft.getMinecraft().getVersion()
                     + "&modver=" + version
                     + "&mod=" + modid
             ));
-            if (callback != null)
+            if (callback != null) {
                 callback.call(en);
+            }
             System.out.println(en);
             updateMessage.clear();
             enabled = en.optBoolean("enabled");
@@ -139,7 +138,6 @@ public class Sk1erMod {
             checkFirst(en.optString("lock"), first);
             if (hasUpdate) {
                 process(prefix + "----------------------------------");
-
                 process(" ");
                 process(prefix + "            " + name + " is out of date!");
                 process(prefix + "Update level: " + en.optString("level"));
@@ -147,10 +145,8 @@ public class Sk1erMod {
                 process(prefix + "Message from Sk1er: ");
                 process(prefix + en.optString("message"));
                 process(" ");
-
                 process(prefix + "----------------------------------");
             }
-
 
         }, 0, 5, TimeUnit.MINUTES);
     }
@@ -209,7 +205,6 @@ public class Sk1erMod {
             });
         }
 
-
     }
 
 
@@ -242,6 +237,5 @@ public class Sk1erMod {
         return object.toString();
 
     }
-
 
 }
