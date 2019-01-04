@@ -31,7 +31,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +44,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class Levelhead extends DummyModContainer {
-
 
     /*
         Hello !
@@ -77,11 +75,11 @@ public class Levelhead extends DummyModContainer {
         meta.modId = MODID;
         meta.version = VERSION;
 
-        meta.name = "Sk1er Level Head";
+        meta.name = "Sk1er LevelHead";
         meta.description = "Levelhead displays a player's network level above their head";
 
         //noinspection deprecation
-        meta.url = meta.updateUrl = "http://sk1er.club/levelhead";
+        meta.url = meta.updateUrl = "https://sk1er.club/levelhead";
 
         meta.authorList = Arrays.asList("Sk1er", "boomboompower");
         meta.credits = "HypixelAPI";
@@ -196,11 +194,9 @@ public class Levelhead extends DummyModContainer {
         register(levelheadChatRenderer);
     }
 
-
     public JsonHolder getTypes() {
         return types;
     }
-
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void tick(TickEvent.ClientTickEvent event) {
@@ -212,8 +208,7 @@ public class Levelhead extends DummyModContainer {
 
             return;
         }
-
-
+        
         Minecraft mc = Minecraft.getMinecraft();
         if (!mc.isGamePaused() && mc.thePlayer != null && mc.theWorld != null) {
             if (System.currentTimeMillis() < waitUntil) {
@@ -296,8 +291,8 @@ public class Levelhead extends DummyModContainer {
         JsonHolder headerObj = new JsonHolder();
         JsonHolder footerObj = new JsonHolder();
         JsonHolder construct = new JsonHolder();
-        //Support for serverside override for Custom Levelhead
-        //Apply values from server if present
+        // Support for serverside override for Custom Levelhead
+        // Apply values from server if present
         if (object.has("header_obj") && allowOverride) {
             headerObj = object.optJsonObject("header_obj");
             headerObj.put("custom", true);
@@ -311,10 +306,10 @@ public class Levelhead extends DummyModContainer {
             headerObj.put("custom", true);
         }
 
-        //Get config based values and merge
+        // Get config based values and merge
         headerObj.merge(display.getHeaderConfig(), !allowOverride);
         footerObj.merge(display.getFooterConfig().put("footer", object.optString("strlevel", format.format(object.getInt("level")))), !allowOverride);
-        //Ensure text values are present
+        // Ensure text values are present
         construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);
         value.construct(construct);
@@ -350,7 +345,6 @@ public class Levelhead extends DummyModContainer {
             MinecraftForge.EVENT_BUS.register(o);
         }
     }
-
 
     public Sk1erMod getSk1erMod() {
         return mod;
