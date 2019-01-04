@@ -5,7 +5,6 @@ import club.sk1er.mods.levelhead.utils.JsonHolder;
 import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import me.semx11.autotip.util.LoginUtil;
 import net.minecraft.client.Minecraft;
-
 import java.util.UUID;
 
 public class MojangAuth {
@@ -76,6 +75,5 @@ public class MojangAuth {
         }
 
     }
-
 
 }
