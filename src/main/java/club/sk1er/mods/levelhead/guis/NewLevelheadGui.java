@@ -317,7 +317,7 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
                         updatePeopleToValues();
                     }
                     reg(new GuiButton(++currentID, width - editWidth - 1, 72, editWidth, 20, "Editing layer: " + (aboveHead.indexOf(((AboveHeadDisplay) currentlyBeingEdited)) + 1)), button -> {
-                        int i = aboveHead.indexOf(((AboveHeadDisplay) currentlyBeingEdited));
+                        int i = aboveHead.indexOf(currentlyBeingEdited);
                         i++;
                         if (i >= aboveHead.size()) {
                             i = 0;
@@ -327,7 +327,14 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
                         textField.setText(currentlyBeingEdited.getConfig().getCustomHeader());
                     });
 
-                    int colorConfigStart = 93 + 22;
+                    int colorConfigStart = 93 + 22 + 22;
+                    regSlider(new GuiSlider(++currentID, width - editWidth * 2 - 2, colorConfigStart - 22, editWidth, 20, "Self offset: ", "", 0, 100, Math.round(currentlyBeingEdited.getConfig().getSelfOffset() * 100D) , true, true, slider -> {
+                        DisplayConfig.setSelfOffset(slider.getValue() / 100D);
+                    }), null);
+                    regSlider(new GuiSlider(++currentID, width - editWidth, colorConfigStart - 22, editWidth, 20, "Others' offset: ", "", 0, 100, Math.round(currentlyBeingEdited.getConfig().getOtherOffset() * 100D), true, true, slider -> {
+                        DisplayConfig.setOtherOffset(slider.getValue() / 100D);
+                    }), null);
+
                     reg(new GuiButton(++currentID, width - editWidth * 2 - 2, colorConfigStart, editWidth, 20, "Header Mode: " + getMode(true)), button -> {
                         if (config.isHeaderRgb()) {
                             config.setHeaderRgb(false);
@@ -435,10 +442,10 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
             GlStateManager.enableDepth();
             GlStateManager.translate(0, 0, 50);
             int posX = current.getScaledWidth() / 2;
-            int posY = current.getScaledHeight() / 2 ;
+            int posY = current.getScaledHeight() / 2;
             GuiInventory.drawEntityOnScreen(posX,
-                    posY+ 50,
-                    50, posX-mouseX,posY-mouseY, thePlayer);
+                    posY + 50,
+                    50, posX - mouseX, posY - mouseY, thePlayer);
             GlStateManager.depthFunc(515);
             GlStateManager.resetColor();
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

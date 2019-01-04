@@ -28,7 +28,7 @@ public class DisplayManager {
         if (source.has("master")) {
             this.config = GSON.fromJson(source.optJsonObject("master").getObject(), MasterConfig.class);
         }
-        if(config == null){
+        if (config == null) {
             this.config = new MasterConfig();
             Sk1erMod.getInstance().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
         }

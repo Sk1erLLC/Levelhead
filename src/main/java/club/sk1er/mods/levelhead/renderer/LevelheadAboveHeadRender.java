@@ -60,7 +60,9 @@ public class LevelheadAboveHeadRender {
                         offset *= 2;
                     }
                     if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
-                        offset = 0;
+                        offset = display.getConfig().getSelfOffset();
+                    else
+                        offset += display.getConfig().getOtherOffset();
                     renderName(event, levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
                 }
             }

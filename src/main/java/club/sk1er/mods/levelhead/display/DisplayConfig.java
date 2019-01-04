@@ -24,7 +24,16 @@ public class DisplayConfig {
     private int footerGreen = 255;
     private int footerBlue = 250;
     private double footerAlpha = 1.0;
+    private static double otherOffset;
     private String type = "LEVEL";
+    private static double selfOffset;
+    public double getOtherOffset() {
+        return otherOffset;
+    }
+
+    public static void setOtherOffset(double otherOffset1) {
+        otherOffset = otherOffset1;
+    }
 
     public boolean isEnabled() {
         return enable;
@@ -161,5 +170,13 @@ public class DisplayConfig {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public double getSelfOffset() {
+        return selfOffset;
+    }
+
+    public static void setSelfOffset(double selfOffset1) {
+        selfOffset = selfOffset1;
     }
 }
