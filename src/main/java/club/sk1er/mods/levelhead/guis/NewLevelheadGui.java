@@ -38,7 +38,6 @@ import net.minecraftforge.fml.client.config.GuiSlider;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
-
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.IOException;
@@ -90,7 +89,6 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
         } else if (i > 0) {
             offset -= 11;
         }
-
 
     }
 
@@ -183,7 +181,7 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
             reg(new GuiButton(++currentID, 1, height - 22, 150, 20, EnumChatFormatting.YELLOW + "Purchase Extra Stats"), guiButton -> {
                 purchasingStats = true;
             });
-            //Fake tab
+            // Fake tab
             String formattedText = thePlayer.getDisplayName().getFormattedText();
             NetworkPlayerInfo playerInfo = Minecraft.getMinecraft().getNetHandler().getPlayerInfo(thePlayer.getUniqueID());
             LevelheadDisplay tab = instance.getDisplayManager().getTab();
@@ -191,7 +189,6 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
                 boolean enabled = tab.getConfig().isEnabled();
 
                 tab.getConfig().setEnabled(true);
-
 
                 int totalTabWith = 9 + fontRendererObj.getStringWidth(formattedText) + Hooks.getLevelheadWith(playerInfo) + 15;
                 int fakeTabTop = 35;
@@ -234,9 +231,8 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
                 }
                 tab.getConfig().setEnabled(enabled);
 
-
             }
-            //Fake chat
+            // Fake chat
             IChatComponent component = new ChatComponentText(formattedText + EnumChatFormatting.WHITE + ": Levelhead rocks!");
             String chatTag = "Some Stat";
             LevelheadDisplay chatDisplay = instance.getDisplayManager().getChat();
@@ -350,7 +346,6 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
                         updatePeopleToValues();
                     });
 
-
                     if (config.isHeaderRgb()) {
                         regSlider(new GuiSlider(++currentID, width - editWidth * 2 - 2, colorConfigStart + 22, editWidth, 20, "Header Red: ", "", 0, 255, config.getHeaderRed(), false, true, slider -> {
                             config.setHeaderRed(slider.getValueInt());
@@ -409,7 +404,6 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
                         });
                     }
 
-
                 }
                 if (currentlyBeingEdited instanceof ChatDisplay) {
                     reg(new GuiButton(++currentID, width - editWidth - 1, 71, editWidth, 20, "Rotate Bracket Color"), button -> {
@@ -432,7 +426,7 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
 
             }
 
-            //Draws the player
+            // Draws the player
             GlStateManager.pushMatrix();
             GlStateManager.color(1, 1, 1);
             RenderHelper.enableStandardItemLighting();
@@ -456,7 +450,7 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
         if (bigChange) {
             int start = height - 25;
             int i = 0;
-            for (String s : "Some changes cannot be applied in real time.\nThey will be applied once you close this GUI".split("\n")) {
+            for (String s : "Some changes cannot be applied instantly.\nThey will be applied once you close this GUI".split("\n")) {
                 fontRenderer.drawString(s, width - fontRenderer.getStringWidth(s) - 5, start + (i * 10), Color.RED.getRGB(), true);
                 i++;
             }
@@ -466,9 +460,9 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
         reg(new GuiButton(++currentID, this.width / 2 - 155, height - 44, 310, 20, (isCustom ? ChatColor.YELLOW + "Click to change custom Levelhead." : ChatColor.YELLOW + "Click to purchase a custom Levelhead message")), button -> {
             try {
                 if (isCustom) {
-                    Desktop.getDesktop().browse(new URI("http://sk1er.club/user"));
+                    Desktop.getDesktop().browse(new URI("https://sk1er.club/user"));
                 } else {
-                    Desktop.getDesktop().browse(new URI("http://sk1er.club/customlevelhead"));
+                    Desktop.getDesktop().browse(new URI("https://sk1er.club/customlevelhead"));
                 }
             } catch (IOException | URISyntaxException e) {
                 e.printStackTrace();
@@ -680,7 +674,6 @@ public class NewLevelheadGui extends GuiScreen implements GuiYesNoCallback {
     private void regSlider(net.minecraftforge.fml.client.config.GuiSlider slider, Consumer<GuiButton> but) {
         reg(slider, but);
         sliders.add(slider);
-
     }
 
     private void reg(GuiButton button, Consumer<GuiButton> consumer) {
