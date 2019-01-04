@@ -3,7 +3,6 @@ package club.sk1er.mods.levelhead.forge;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.forge.transform.ClassTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-
 import java.util.Map;
 
 @SuppressWarnings("unused")
