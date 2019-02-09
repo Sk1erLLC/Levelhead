@@ -36,9 +36,7 @@ public class LevelheadAboveHeadRender {
         if (!levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
-        if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !levelhead.getDisplayManager().getMasterConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel()) {
-            return;
-        }
+
         EntityPlayer player = event.entityPlayer;
         int o = 0;
         for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
@@ -51,6 +49,9 @@ public class LevelheadAboveHeadRender {
                 continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
+                if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel())
+                    continue;
+
                 if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
                     double offset = 0.3;
                     Scoreboard scoreboard = player.getWorldScoreboard();
@@ -61,6 +62,7 @@ public class LevelheadAboveHeadRender {
                     }
                     if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
                         offset = 0;
+                    offset += levelhead.getDisplayManager().getMasterConfig().getOffset();
                     renderName(event, levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
                 }
             }
@@ -71,7 +73,7 @@ public class LevelheadAboveHeadRender {
 
     public void renderName(RenderPlayerEvent event, LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
         FontRenderer fontrenderer = event.renderer.getFontRendererFromRenderManager();
-        float f = 1.6F;
+        float f = (float) (1.6F * Levelhead.getInstance().getDisplayManager().getMasterConfig().getFontSize());
         float f1 = 0.016666668F * f;
         GlStateManager.pushMatrix();
         GlStateManager.translate((float) x + 0.0F, (float) y + entityIn.height + 0.5F, (float) z);

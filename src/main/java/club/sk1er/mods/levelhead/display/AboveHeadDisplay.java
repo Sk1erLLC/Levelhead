@@ -1,7 +1,7 @@
 package club.sk1er.mods.levelhead.display;
 
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.guis.NewLevelheadGui;
+import club.sk1er.mods.levelhead.guis.LevelheadMainGUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.PotionEffect;
@@ -45,7 +45,7 @@ public class AboveHeadDisplay extends LevelheadDisplay {
             return false;
         }
 
-        if (player.getDisplayName().getFormattedText().contains(NewLevelheadGui.COLOR_CHAR + "k")) {
+        if (player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")) {
             return false;
         }
         if (player.isInvisible() || player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer))

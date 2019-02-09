@@ -51,7 +51,7 @@ public class Levelhead extends DummyModContainer {
         Hello !
      */
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "6.0";
+    public static final String VERSION = "6.1";
     private static Levelhead instance;
     public UUID userUuid = null;
     public int count = 1;

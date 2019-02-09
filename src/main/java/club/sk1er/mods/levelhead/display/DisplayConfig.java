@@ -25,6 +25,17 @@ public class DisplayConfig {
     private int footerBlue = 250;
     private double footerAlpha = 1.0;
     private String type = "LEVEL";
+    private boolean showSelf = true;
+
+
+
+    public boolean isShowSelf() {
+        return showSelf;
+    }
+
+    public void setShowSelf(boolean showSelf) {
+        this.showSelf = showSelf;
+    }
 
     public boolean isEnabled() {
         return enable;

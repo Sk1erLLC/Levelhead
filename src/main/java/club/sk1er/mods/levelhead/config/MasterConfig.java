@@ -3,7 +3,6 @@ package club.sk1er.mods.levelhead.config;
 public class MasterConfig {
 
     private boolean enabled = true;
-    private boolean showSelf = true;
     private int renderDistance = 64;
 
     private int purgeSize = 500;
@@ -16,12 +15,23 @@ public class MasterConfig {
         this.enabled = enabled;
     }
 
-    public boolean isShowSelf() {
-        return showSelf;
+    private double fontSize = 1.0;
+    private double offset = 0.0;
+
+    public double getFontSize() {
+        return fontSize;
     }
 
-    public void setShowSelf(boolean showSelf) {
-        this.showSelf = showSelf;
+    public void setFontSize(double fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    public double getOffset() {
+        return offset;
+    }
+
+    public void setOffset(double offset) {
+        this.offset = offset;
     }
 
     public int getRenderDistance() {
