@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.display;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.config.MasterConfig;
 import club.sk1er.mods.levelhead.utils.JsonHolder;
+import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,8 +27,10 @@ public class DisplayManager {
         this.file = file;
         if (source.has("master")) {
             this.config = GSON.fromJson(source.optJsonObject("master").getObject(), MasterConfig.class);
-        } else {
+        }
+        if (config == null) {
             this.config = new MasterConfig();
+            Sk1erMod.getInstance().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
         }
         for (JsonElement head : source.optJSONArray("head")) {
             aboveHead.add(new AboveHeadDisplay(GSON.fromJson(head.getAsJsonObject(), DisplayConfig.class)));

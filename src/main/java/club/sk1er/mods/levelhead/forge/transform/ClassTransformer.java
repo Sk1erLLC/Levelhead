@@ -21,8 +21,13 @@ public final class ClassTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
+        boolean vanillaEnhancements = false;
         if (!"net.minecraft.client.gui.GuiPlayerTabOverlay".equals(transformedName)) {
-            return basicClass;
+            if ("com.orangemarshall.enhancements.modules.tab.CustomGuiPlayerTabOverlay".equals(transformedName)) {
+                vanillaEnhancements = true;
+            } else {
+                return basicClass;
+            }
         }
 
         ClassReader classReader = new ClassReader(basicClass);
@@ -42,34 +47,36 @@ public final class ClassTransformer implements IClassTransformer {
 
                     if (abstractInsnNode.getOpcode() == Opcodes.ALOAD) {
                         VarInsnNode node = (VarInsnNode) abstractInsnNode;
-                        if (node.var == 0) {
-                            found = 1;
-                        } else if (node.var == 9 && found == 1) { // 9 = networkplayernfo
-                            found = 2;
-                        } else {
-                            found = 0;
-                        }
+                        if (node.var == 0) found = 1;
+                        else if (node.var == (vanillaEnhancements ? 8 : 9) && found == 1)  found = 2;
+                        else found = 0;
                     } else if (abstractInsnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-                        MethodInsnNode node = (MethodInsnNode) abstractInsnNode;
-                        if (node.name.equals("a") && found == 2 && // getPlayerName
-                                node.owner.equals("awh") && // net/minecraft/client/gui/GuiPlayerTabOverlay
-                                node.desc.equals("(Lbdc;)Ljava/lang/String;")) { // net/minecraft/client/network/NetworkPlayerInfo
-                            found = 3;
-                        } else if (node.name.equals("a") && found == 3 && // getStringWidth
-                                node.owner.equals("avn") &&  // net/minecraft/client/gui/FontRenderer
-                                node.desc.equals("(Ljava/lang/String;)I")) {
+                        if (vanillaEnhancements) { // vanilla enhancements uses their own GuiPlayerTabOverlay impl
+                            MethodInsnNode node = (MethodInsnNode) abstractInsnNode;
+                            if (node.name.equals("func_175243_a") && found == 2 && // getPlayerName
+                                    node.owner.equals("com/orangemarshall/enhancements/modules/tab/CustomGuiPlayerTabOverlay") &&
+                                    node.desc.equals("(Lnet/minecraft/client/network/NetworkPlayerInfo;)Ljava/lang/String;")) {
+                                found = 3;
+                            } else if (node.name.equals("func_78256_a") && found == 3 && // getStringWidth
+                                    node.owner.equals("net/minecraft/client/gui/FontRenderer") &&
+                                    node.desc.equals("(Ljava/lang/String;)I")) {
 
-                            InsnList insnList = new InsnList();
-                            insnList.add(new VarInsnNode(Opcodes.ALOAD, 9)); // 9 = networkplayerinfo
+                                method.instructions.insert(node, this.getLevelheadWidthCall(8));
+                                break;
+                            }
+                        } else { // regular forge
+                            MethodInsnNode node = (MethodInsnNode) abstractInsnNode;
+                            if (node.name.equals("a") && found == 2 && // getPlayerName
+                                    node.owner.equals("awh") && // net/minecraft/client/gui/GuiPlayerTabOverlay
+                                    node.desc.equals("(Lbdc;)Ljava/lang/String;")) { // net/minecraft/client/network/NetworkPlayerInfo
+                                found = 3;
+                            } else if (node.name.equals("a") && found == 3 && // getStringWidth
+                                    node.owner.equals("avn") &&  // net/minecraft/client/gui/FontRenderer
+                                    node.desc.equals("(Ljava/lang/String;)I")) {
 
-                            insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-                                    "club/sk1er/mods/levelhead/forge/transform/Hooks",
-                                    "getLevelheadWith", "(Lbdc;)I", false));
-
-                            insnList.add(new InsnNode(Opcodes.IADD));
-
-                            method.instructions.insert(node, insnList);
-                            break;
+                                method.instructions.insert(node, this.getLevelheadWidthCall(9));
+                                break;
+                            }
                         }
                     }
                 }
@@ -79,6 +86,18 @@ public final class ClassTransformer implements IClassTransformer {
         ClassWriter classWriter = new ClassWriter(0);
         classNode.accept(classWriter);
         return classWriter.toByteArray();
+    }
+
+    private InsnList getLevelheadWidthCall(int index) {
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ALOAD, index));
+
+        insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+                "club/sk1er/mods/levelhead/forge/transform/Hooks",
+                "getLevelheadWith", "(Lbdc;)I", false));
+
+        insnList.add(new InsnNode(Opcodes.IADD));
+        return insnList;
     }
 
     private static InsnList getHookCall(MethodNode node, String name) {
