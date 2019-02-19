@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -205,10 +205,12 @@ public class Levelhead extends DummyModContainer {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void tick(TickEvent.ClientTickEvent event) {
 
-        if ((event.phase == TickEvent.Phase.START ||
-                !mod.isHypixel() ||
-                !getDisplayManager().getMasterConfig().isEnabled()
-                || !mod.isEnabled())) {
+        if (event.phase == TickEvent.Phase.START
+                || !mod.isHypixel()
+                || getDisplayManager() == null
+                || getDisplayManager().getMasterConfig() == null
+                || !getDisplayManager().getMasterConfig().isEnabled()
+                || !mod.isEnabled()) {
 
             return;
         }
