@@ -16,11 +16,8 @@ dependency-reduced-pom.xml
 
 # Gradle
 .gradle/
-gradle/
 build/
 classes/
-gradlew
-gradlew.bat
 out/
 
 # Minecraft Environment
