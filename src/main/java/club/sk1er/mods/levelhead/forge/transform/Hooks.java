@@ -6,6 +6,8 @@ import club.sk1er.mods.levelhead.display.LevelheadDisplay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.scoreboard.ScoreObjective;
+import net.minecraft.scoreboard.Scoreboard;
 
 import java.awt.Color;
 
@@ -29,6 +31,17 @@ public final class Hooks {
                 if (s != null) {
                     FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
                     int x1 = i + x - 12 - fontRendererObj.getStringWidth(s);
+
+                    Scoreboard board = Minecraft.getMinecraft().theWorld.getScoreboard();
+                    ScoreObjective objective = board.getObjectiveInDisplaySlot(0);
+
+                    if (objective != null) {
+                        int score = board.getValueFromObjective(playerInfo.getGameProfile().getName(), objective).getScorePoints();
+                        int extraWidth = fontRendererObj.getStringWidth(" " + score);
+
+                        x1 -= extraWidth;
+                    }
+
                     DisplayConfig config = tab.getConfig();
                     if (config.isFooterChroma()) {
                         fontRendererObj.drawString(s, x1, y, Levelhead.getRGBColor());
