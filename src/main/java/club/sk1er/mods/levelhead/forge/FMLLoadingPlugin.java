@@ -8,6 +8,7 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 @IFMLLoadingPlugin.MCVersion("1.8.9")
+@IFMLLoadingPlugin.SortingIndex(1000)
 public final class FMLLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override

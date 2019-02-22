@@ -465,7 +465,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
 
             String formattedText = thePlayer.getDisplayName().getFormattedText();
-            int totalTabWith = 9 + fontRendererObj.getStringWidth(formattedText) + Hooks.getLevelheadWith(playerInfo) + 15;
+            int totalTabWith = 9 + fontRendererObj.getStringWidth(formattedText) + Hooks.getLevelheadWidth(playerInfo) + 15;
             int fakeTabTop = height - 200;
             int centerOn = width / 3;
             int leftStart = centerOn - totalTabWith / 2;

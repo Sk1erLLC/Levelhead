@@ -4,14 +4,9 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,69 +27,53 @@ public final class ClassTransformer implements IClassTransformer {
 
         ClassReader classReader = new ClassReader(basicClass);
         ClassNode classNode = new ClassNode();
-        classReader.accept(classNode, 0);
+        classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 
         for (MethodNode method : classNode.methods) {
             String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(classNode.name, method.name, method.desc);
-            if (methodName.equals("func_175245_a")) {
+            if (methodName.equals("func_175245_a") || methodName.equals("drawPing")) {
                 method.instructions.insertBefore(method.instructions.getFirst(), getHookCall(method, "drawPing"));
-            } else if (methodName.equals("func_175249_a")) {
-                int found = 0;
-
-                ListIterator<AbstractInsnNode> iterator = method.instructions.iterator();
-                while (iterator.hasNext()) {
-                    AbstractInsnNode abstractInsnNode = iterator.next();
-
-                    if (abstractInsnNode.getOpcode() == Opcodes.ALOAD) {
-                        VarInsnNode node = (VarInsnNode) abstractInsnNode;
-                        if (node.var == 0) found = 1;
-                        else if (node.var == (vanillaEnhancements ? 8 : 9) && found == 1)  found = 2;
-                        else found = 0;
-                    } else if (abstractInsnNode.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-                        if (vanillaEnhancements) { // vanilla enhancements uses their own GuiPlayerTabOverlay impl
-                            MethodInsnNode node = (MethodInsnNode) abstractInsnNode;
-                            if (node.name.equals("func_175243_a") && found == 2 && // getPlayerName
-                                    node.owner.equals("com/orangemarshall/enhancements/modules/tab/CustomGuiPlayerTabOverlay") &&
-                                    node.desc.equals("(Lnet/minecraft/client/network/NetworkPlayerInfo;)Ljava/lang/String;")) {
-                                found = 3;
-                            } else if (node.name.equals("func_78256_a") && found == 3 && // getStringWidth
-                                    node.owner.equals("net/minecraft/client/gui/FontRenderer") &&
-                                    node.desc.equals("(Ljava/lang/String;)I")) {
-
-                                method.instructions.insert(node, this.getLevelheadWidthCall(8));
-                                break;
-                            }
-                        } else { // regular forge
-                            MethodInsnNode node = (MethodInsnNode) abstractInsnNode;
-                            if (node.name.equals("a") && found == 2 && // getPlayerName
-                                    node.owner.equals("awh") && // net/minecraft/client/gui/GuiPlayerTabOverlay
-                                    node.desc.equals("(Lbdc;)Ljava/lang/String;")) { // net/minecraft/client/network/NetworkPlayerInfo
-                                found = 3;
-                            } else if (node.name.equals("a") && found == 3 && // getStringWidth
-                                    node.owner.equals("avn") &&  // net/minecraft/client/gui/FontRenderer
-                                    node.desc.equals("(Ljava/lang/String;)I")) {
-
-                                method.instructions.insert(node, this.getLevelheadWidthCall(9));
-                                break;
-                            }
-                        }
-                    }
-                }
+            } else if (methodName.equals("func_175249_a") || methodName.equals("renderPlayerlist")) {
+                insertWidthCall(method, vanillaEnhancements);
             }
         }
 
-        ClassWriter classWriter = new ClassWriter(0);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);
         return classWriter.toByteArray();
     }
 
-    private InsnList getLevelheadWidthCall(int index) {
+    private void insertWidthCall(MethodNode method, boolean vanillaEnhancements) {
+        ListIterator<AbstractInsnNode> iterator = method.instructions.iterator();
+        while (iterator.hasNext()) {
+            AbstractInsnNode node = iterator.next();
+
+            if (node instanceof MethodInsnNode
+                    && node.getPrevious() instanceof MethodInsnNode
+                    && node.getNext() instanceof VarInsnNode) {
+
+                MethodInsnNode widthCall = (MethodInsnNode) node;
+                MethodInsnNode prevCall = (MethodInsnNode) node.getPrevious();
+                VarInsnNode storeCall = (VarInsnNode) node.getNext();
+
+                if (storeCall.getOpcode() == Opcodes.ISTORE
+                        && (widthCall.name.equals("func_78256_a") || widthCall.name.equals("getStringWidth") || widthCall.name.equals("a"))
+                        && (prevCall.name.equals("func_175243_a") || prevCall.name.equals("getPlayerName") || prevCall.name.equals("a"))) {
+                    System.out.println("Found insertion point.");
+
+                    method.instructions.insert(node, getLevelheadWidthCall(vanillaEnhancements ? 8 : 9, true));
+                }
+            }
+        }
+    }
+
+    private InsnList getLevelheadWidthCall(int index, boolean srg) {
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(Opcodes.ALOAD, index));
 
         insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
                 "club/sk1er/mods/levelhead/forge/transform/Hooks",
-                "getLevelheadWith", "(Lbdc;)I", false));
+                "getLevelheadWidth", srg ? "(Lnet/minecraft/client/network/NetworkPlayerInfo;)I" : "(Lbdc;)I", false));
 
         insnList.add(new InsnNode(Opcodes.IADD));
         return insnList;

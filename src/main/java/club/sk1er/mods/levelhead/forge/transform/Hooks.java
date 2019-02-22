@@ -43,7 +43,7 @@ public final class Hooks {
     }
 
 
-    public static int getLevelheadWith(NetworkPlayerInfo playerInfo) {
+    public static int getLevelheadWidth(NetworkPlayerInfo playerInfo) {
         if (!Levelhead.getInstance().getDisplayManager().getMasterConfig().isEnabled()) {
             return 0;
         }
