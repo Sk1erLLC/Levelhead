@@ -19,7 +19,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "6.1"
+version = "6.2"
 group = "club.sk1er" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "Sk1er Levelhead (1.8.9)"
 srcCompat = JavaVersion.VERSION_1_8
