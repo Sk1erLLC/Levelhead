@@ -24,6 +24,8 @@ public class DisplayManager {
     private File file;
 
     public DisplayManager(JsonHolder source, File file) {
+        if (source == null)
+            source = new JsonHolder();
         this.file = file;
         if (source.has("master")) {
             this.config = GSON.fromJson(source.optJsonObject("master").getObject(), MasterConfig.class);

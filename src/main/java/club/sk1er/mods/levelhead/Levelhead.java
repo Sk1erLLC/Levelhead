@@ -177,6 +177,7 @@ public class Levelhead extends DummyModContainer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
         Multithreading.runAsync(this::refreshPurchaseStates);
         Multithreading.runAsync(this::refreshRawPurchases);
