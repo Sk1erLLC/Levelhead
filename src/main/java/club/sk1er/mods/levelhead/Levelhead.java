@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -320,6 +320,8 @@ public class Levelhead extends DummyModContainer {
         //Ensure text values are present
         construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);
+        construct.put("exclude", object.optBoolean("exclude"));
+        construct.put("custom", object.optJsonObject("custom"));
         value.construct(construct);
         return value;
     }
