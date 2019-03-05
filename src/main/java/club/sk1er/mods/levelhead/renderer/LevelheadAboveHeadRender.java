@@ -33,7 +33,10 @@ public class LevelheadAboveHeadRender {
 
     @SubscribeEvent
     public void render(RenderPlayerEvent.Pre event) {
-        if (!levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
+        if (levelhead == null
+                || levelhead.getDisplayManager() == null
+                || levelhead.getDisplayManager().getMasterConfig() == null
+                || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
 
