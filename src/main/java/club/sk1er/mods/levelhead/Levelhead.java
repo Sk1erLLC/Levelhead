@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -51,7 +51,7 @@ public class Levelhead extends DummyModContainer {
         Hello !
      */
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "6.1";
+    public static final String VERSION = "6.2";
     private static Levelhead instance;
     public UUID userUuid = null;
     public int count = 1;
@@ -177,6 +177,7 @@ public class Levelhead extends DummyModContainer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
         Multithreading.runAsync(this::refreshPurchaseStates);
         Multithreading.runAsync(this::refreshRawPurchases);
@@ -319,6 +320,8 @@ public class Levelhead extends DummyModContainer {
         //Ensure text values are present
         construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);
+        construct.put("exclude", object.optBoolean("exclude"));
+        construct.put("custom", object.optJsonObject("custom"));
         value.construct(construct);
         return value;
     }
