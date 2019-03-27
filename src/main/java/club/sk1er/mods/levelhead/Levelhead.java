@@ -154,6 +154,16 @@ public class Levelhead extends DummyModContainer {
     @Subscribe
     @EventHandler
     public void init(FMLPreInitializationEvent event) {
+        JsonHolder config = new JsonHolder();
+
+        try {
+            config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
+
         Multithreading.runAsync(() -> types = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_config")));
         mod = new Sk1erMod(MODID, VERSION, "Levelhead", object -> {
             count = object.optInt("count");
@@ -171,14 +181,7 @@ public class Levelhead extends DummyModContainer {
             }
         });
         register(mod);
-        JsonHolder config = new JsonHolder();
-        try {
-            config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
         Multithreading.runAsync(this::refreshPurchaseStates);
         Multithreading.runAsync(this::refreshRawPurchases);
         Multithreading.runAsync(this::refreshPaidData);
