@@ -28,7 +28,11 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EnumPlayerModelParts;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiSlider;
@@ -39,8 +43,10 @@ import org.lwjgl.input.Mouse;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -381,6 +387,46 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             instance.getDisplayManager().getMasterConfig().setFontSize(slider.getValue() / 10D);
             updatePeopleToValues();
         }));
+
+        if (isCustom) {
+
+            reg(new GuiButton(++currentID, width - editWidth * 2 - 2, colorConfigStart + 88 + 22, editWidth * 2 + 1, 20, YELLOW + "Export Colors to Custom Levelhead"), guiButton -> {
+
+                final JsonHolder object;
+                String encode;
+                String url;
+                ChatComponentText text;
+                ChatStyle style;
+                ChatComponentText valueIn;
+                ChatStyle style2;
+                object = new JsonHolder();
+                object.put("header_obj", currentlyBeingEdited.getHeaderConfig());
+                object.put("footer_obj", currentlyBeingEdited.getFooterConfig());
+                try {
+                    encode = URLEncoder.encode(object.toString(), "UTF-8");
+                    url = "https://sk1er.club/user?levelhead_color=" + encode;
+                    text = new ChatComponentText("Click here to update your custom Levelhead colors");
+                    style = new ChatStyle();
+                    style.setBold(true);
+                    style.setColor(EnumChatFormatting.YELLOW);
+                    style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+                    valueIn = new ChatComponentText("Please be logged in to your Sk1er.club for this to work. Do /levelhead dumpcache after clicking to see new colors!");
+                    valueIn.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+                    style2 = new ChatStyle();
+                    style2.setColor(EnumChatFormatting.RED);
+                    valueIn.setChatStyle(style2);
+                    style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
+                    text.setChatStyle(style);
+                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(valueIn);
+                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
+
+                } catch (UnsupportedEncodingException e2) {
+                    e2.printStackTrace();
+                }
+                Minecraft.getMinecraft().displayGuiScreen(null);
+                return;
+            });
+        }
 
         //Draws the player
         GlStateManager.pushMatrix();

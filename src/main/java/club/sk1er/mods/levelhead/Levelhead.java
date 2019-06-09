@@ -33,13 +33,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -51,7 +50,7 @@ public class Levelhead extends DummyModContainer {
         Hello !
      */
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "6.3";
+    public static final String VERSION = "6.4";
     private static Levelhead instance;
     public UUID userUuid = null;
     public int count = 1;
@@ -83,7 +82,7 @@ public class Levelhead extends DummyModContainer {
         //noinspection deprecation
         meta.url = meta.updateUrl = "http://sk1er.club/levelhead";
 
-        meta.authorList = Arrays.asList("Sk1er", "boomboompower");
+        meta.authorList = Collections.singletonList("Sk1erLLC");
         meta.credits = "HypixelAPI";
     }
 
@@ -158,7 +157,7 @@ public class Levelhead extends DummyModContainer {
 
         try {
             config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile()));
-        } catch (IOException e) {
+        } catch (Exception e) { //Generalized to fix potential issues
             e.printStackTrace();
         }
 
