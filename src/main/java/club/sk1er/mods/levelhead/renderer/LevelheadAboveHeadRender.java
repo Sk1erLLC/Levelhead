@@ -96,10 +96,10 @@ public class LevelheadAboveHeadRender {
         int j = fontrenderer.getStringWidth(tag.getString()) / 2;
         GlStateManager.disableTexture2D();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        worldrenderer.pos((double) (-j - 1), (double) (-1 + i), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        worldrenderer.pos((double) (-j - 1), (double) (8 + i), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        worldrenderer.pos((double) (j + 1), (double) (8 + i), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        worldrenderer.pos((double) (j + 1), (double) (-1 + i), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(-j - 1, -1 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(-j - 1, 8 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(j + 1, 8 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(j + 1, -1 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
 
@@ -112,9 +112,6 @@ public class LevelheadAboveHeadRender {
     }
 
     private void renderString(FontRenderer renderer, LevelheadTag tag) {
-
-        int y = 0;
-
         int x = -renderer.getStringWidth(tag.getString()) / 2;
         //Render header
         LevelheadComponent header = tag.getHeader();
@@ -133,7 +130,6 @@ public class LevelheadAboveHeadRender {
 
         int y = 0;
         if (header.isRgb()) {
-//            GlStateManager.color(header.getRed()/2, header.getBlue()/2, header.getGreen()/2);
             renderer.drawString(header.getValue(), x, y, new Color((float) header.getRed() / 255F, (float) header.getGreen() / 255F, (float) header.getBlue() / 255F, .2F).getRGB());
         } else if (header.isChroma()) {
             renderer.drawString(header.getValue(), x, y, Levelhead.getRGBDarkColor());
@@ -155,7 +151,5 @@ public class LevelheadAboveHeadRender {
 
             renderer.drawString(header.getColor() + header.getValue(), x, y, Color.WHITE.darker().getRGB());
         }
-
-
     }
 }

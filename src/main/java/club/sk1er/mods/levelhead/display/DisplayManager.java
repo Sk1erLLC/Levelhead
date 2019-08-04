@@ -105,7 +105,7 @@ public class DisplayManager {
     }
 
     public void tick() {
-        if (!getMasterConfig().isEnabled()) {
+        if (!config.isEnabled()) {
             return;
         }
 
@@ -128,7 +128,7 @@ public class DisplayManager {
 
     public void save() {
         JsonHolder jsonHolder = new JsonHolder();
-        jsonHolder.put("master", new JsonHolder(GSON.toJson(getMasterConfig())));
+        jsonHolder.put("master", new JsonHolder(GSON.toJson(config)));
         if (tab != null) {
             jsonHolder.put("tab", new JsonHolder(GSON.toJson(tab.getConfig())));
         }
@@ -159,7 +159,7 @@ public class DisplayManager {
         }
         if (chat != null) {
             chat.cache.clear();
-            chat.cache.clear();
+            chat.trueValueCache.clear();
         }
     }
 }

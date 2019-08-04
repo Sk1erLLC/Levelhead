@@ -50,11 +50,11 @@ public class Levelhead extends DummyModContainer {
         Hello !
      */
     public static final String MODID = "LEVEL_HEAD";
-    public static final String VERSION = "6.4";
+    public static final String VERSION = "6.5";
     private static Levelhead instance;
     public UUID userUuid = null;
-    public int count = 1;
-    public int wait = 60;
+    public int count = 100;
+    public int wait = 1;
     private long waitUntil = System.currentTimeMillis();
     private int updates = 0;
     private Sk1erMod mod;
@@ -142,7 +142,7 @@ public class Levelhead extends DummyModContainer {
         levelheadPurchaseStates.setChat(purchaseStatus.optBoolean("chat"));
         levelheadPurchaseStates.setTab(purchaseStatus.optBoolean("tab"));
         levelheadPurchaseStates.setExtraHead(purchaseStatus.optInt("head"));
-        DisplayManager displayManager = getDisplayManager();
+        DisplayManager displayManager = this.displayManager;
         while (displayManager.getAboveHead().size() <= levelheadPurchaseStates.getExtraHead()) {
             displayManager.getAboveHead().add(new AboveHeadDisplay(new DisplayConfig()));
         }
@@ -176,7 +176,7 @@ public class Levelhead extends DummyModContainer {
         Multithreading.runAsync(() -> {
             auth.auth();
             if (auth.isFailed()) {
-                getSk1erMod().sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
+                mod.sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
             }
         });
         register(mod);
@@ -210,9 +210,9 @@ public class Levelhead extends DummyModContainer {
 
         if (event.phase == TickEvent.Phase.START
                 || !mod.isHypixel()
-                || getDisplayManager() == null
-                || getDisplayManager().getMasterConfig() == null
-                || !getDisplayManager().getMasterConfig().isEnabled()
+                || displayManager == null
+                || displayManager.getMasterConfig() == null
+                || !displayManager.getMasterConfig().isEnabled()
                 || !mod.isEnabled()) {
 
             return;
@@ -227,7 +227,7 @@ public class Levelhead extends DummyModContainer {
                 }
                 return;
             }
-            getDisplayManager().tick();
+            displayManager.tick();
 
         }
     }
@@ -349,7 +349,7 @@ public class Levelhead extends DummyModContainer {
 
     //Remote runaway memory leak from storing levels in ram.
     private void clearCache() {
-        getDisplayManager().checkCacheSizes();
+        displayManager.checkCacheSizes();
     }
 
     private void register(Object... events) {
