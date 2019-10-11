@@ -15,6 +15,7 @@ import net.minecraftforge.fml.client.config.GuiSlider;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
@@ -67,7 +68,7 @@ public class CustomLevelheadConfigurer extends GuiScreen {
             refresh();
         });
         reg(new GuiButton(nextId(), width / 2 + 5, 55, 200, 20, "Send for review"), button -> {
-            Sk1erMod.getInstance().rawWithAgent("https://api.sk1er.club/customlevelhead/propose?hash=" + Levelhead.getInstance().getAuth().getHash() + "&footer=" + level.getText() + "&header=" + header.getText());
+            Sk1erMod.getInstance().rawWithAgent("https://api.sk1er.club/customlevelhead/propose?hash=" + Levelhead.getInstance().getAuth().getHash() + "&footer=" + URLEncoder.encode(level.getText()) + "&header=" + URLEncoder.encode(header.getText()));
             refresh();
         });
         reg(new GuiButton(nextId(), width / 2 - 50, 80, 100, 20, "Refresh"), button -> {
