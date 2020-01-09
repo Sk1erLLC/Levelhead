@@ -20,39 +20,25 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     }
 
     public boolean loadOrRender(EntityPlayer player) {
-
         for (PotionEffect effect : player.getActivePotionEffects()) {
-            if (effect.getPotionID() == 14)
+            if (effect.getPotionID() == 14) {
                 return false;
+            }
         }
-        if (!renderFromTeam(player))
-            return false;
-        if (player.riddenByEntity != null)
-            return false;
+
+        if (!renderFromTeam(player) || player.riddenByEntity != null) return false;
+
         int renderDistance = Levelhead.getInstance().getDisplayManager().getMasterConfig().getRenderDistance();
         int min = Math.min(64 * 64, renderDistance * renderDistance);
-        if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min) {
-            return false;
-        }
 
-
-        if (player.hasCustomName() && player.getCustomNameTag().isEmpty()) {
-            return false;
-        }
-        if (player.getDisplayNameString().isEmpty())
-            return false;
-        if (!existedMorethan5Seconds.contains(player.getUniqueID())) {
-            return false;
-        }
-
-        if (player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")) {
-            return false;
-        }
-        if (player.isInvisible() || player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer))
-            return false;
-        if (player.isSneaking())
-            return false;
-        return true;
+        return !(player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min)
+                && (!player.hasCustomName() || !player.getCustomNameTag().isEmpty())
+                && !player.getDisplayNameString().isEmpty()
+                && existedMorethan5Seconds.contains(player.getUniqueID())
+                && !player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")
+                && !player.isInvisible()
+                && !player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer)
+                && !player.isSneaking();
     }
 
     protected boolean renderFromTeam(EntityPlayer player) {
@@ -108,17 +94,20 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     public void setBottomValue(boolean bottomValue) {
         this.bottomValue = bottomValue;
     }
+
     private int index;
+
     @Override
     public void checkCacheSize() {
         int max = Math.max(150, Levelhead.getInstance().getDisplayManager().getMasterConfig().getPurgeSize());
-        if(cache.size() > max) {
+        if (cache.size() > max) {
             ArrayList<UUID> safePlayers = new ArrayList<>();
             for (EntityPlayer player : Minecraft.getMinecraft().theWorld.playerEntities) {
                 if (existedMorethan5Seconds.contains(player.getUniqueID())) {
                     safePlayers.add(player.getUniqueID());
                 }
             }
+
             existedMorethan5Seconds.clear();
             existedMorethan5Seconds.addAll(safePlayers);
 

@@ -79,14 +79,14 @@ public class CustomLevelheadConfigurer extends GuiScreen {
 
     public void refresh() {
         Multithreading.runAsync(() -> {
-            JsonHolder jsonHolder = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://sk1er.club/newlevel/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")));
+            JsonHolder jsonHolder = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://sk1er.club/newlevel/" +
+                    Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")));
             header.setText(jsonHolder.optString("header"));
             level.setText(jsonHolder.optString("true_footer"));
         });
-        Multithreading.runAsync(() -> {
-            levelhead_propose = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://api.hyperium.cc/levelhead_propose/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")));
-
-        });
+        Multithreading.runAsync(() ->
+                levelhead_propose = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://api.hyperium.cc/levelhead_propose/" +
+                        Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", ""))));
     }
 
     private void drawScaledText(String text, int trueX, int trueY, double scaleFac, int color, boolean shadow, boolean centered) {

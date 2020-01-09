@@ -28,7 +28,6 @@ public class DisplayConfig {
     private boolean showSelf = true;
 
 
-
     public boolean isShowSelf() {
         return showSelf;
     }
@@ -156,7 +155,6 @@ public class DisplayConfig {
     public void setHeaderAlpha(double headerAlpha) {
         this.headerAlpha = headerAlpha;
     }
-
 
     public String getCustomHeader() {
         return customHeader;
