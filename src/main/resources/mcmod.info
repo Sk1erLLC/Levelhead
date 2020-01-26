@@ -1,6 +1,6 @@
 [
 	{
-		"modid": "LEVEL_HEAD",
+		"modid": "level_head",
 		"name": "Sk1er Level Head",
 		"description": "Display a player's network level above their head",
 		"version": "${version}",
