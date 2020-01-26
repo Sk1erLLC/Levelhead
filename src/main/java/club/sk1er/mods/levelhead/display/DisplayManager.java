@@ -153,10 +153,12 @@ public class DisplayManager {
             aboveHeadDisplay.cache.clear();
             aboveHeadDisplay.trueValueCache.clear();
         }
+
         if (tab != null) {
             tab.cache.clear();
             tab.trueValueCache.clear();
         }
+
         if (chat != null) {
             chat.cache.clear();
             chat.trueValueCache.clear();

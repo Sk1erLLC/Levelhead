@@ -2,12 +2,13 @@ package club.sk1er.mods.levelhead.forge;
 
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.forge.transform.ClassTransformer;
+import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;
 
 @SuppressWarnings("unused")
-@IFMLLoadingPlugin.MCVersion("1.8.9")
+@IFMLLoadingPlugin.MCVersion(ForgeVersion.mcVersion)
 @IFMLLoadingPlugin.SortingIndex(1000)
 public final class FMLLoadingPlugin implements IFMLLoadingPlugin {
 

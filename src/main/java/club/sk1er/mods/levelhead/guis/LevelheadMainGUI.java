@@ -128,7 +128,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         Levelhead instance = Levelhead.getInstance();
         currentID = 0;
         buttonList.clear();
-        drawScaledText(UNDERLINE.toString() + BOLD + "Levelhead " + Levelhead.getInstance().getVersion(), width / 2, 5, 2, new Color(255, 61, 214).getRGB(), true, true);
+        drawScaledText(UNDERLINE.toString() + BOLD + "Levelhead " + Levelhead.VERSION, width / 2, 5, 2, new Color(255, 61, 214).getRGB(), true, true);
         drawScaledText("By Sk1er LLC", width / 2, 30, 1.5, new Color(255, 230, 96).getRGB(), true, true);
 
         reg(new GuiButton(++currentID, 1, 2, 150, 20, YELLOW + "Mod Status: " + (instance.getDisplayManager().getMasterConfig().isEnabled() ? GREEN + "Enabled" : RED + "Disabled")), button -> {

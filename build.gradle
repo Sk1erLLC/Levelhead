@@ -36,7 +36,7 @@ minecraft {
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "stable_22"
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
 dependencies {
@@ -86,6 +86,8 @@ processResources
 
 jar {
     manifest {
-        attributes "FMLCorePlugin": "club.sk1er.mods.levelhead.forge.FMLLoadingPlugin", "ModSide": "CLIENT"
+        attributes "FMLCorePlugin": "club.sk1er.mods.levelhead.forge.FMLLoadingPlugin",
+                "ModSide": "CLIENT",
+                "FMLCorePluginContainsFMLMod": "Yes, yes it does"
     }
 }

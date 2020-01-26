@@ -1,16 +1,21 @@
 [
-	{
-		"modid": "level_head",
-		"name": "Sk1er Level Head",
-		"description": "Display a player's network level above their head",
-		"version": "${version}",
-		"mcversion": "${mcversion}",
-		"url": "https://sk1er.club/levelhead",
-		"updateUrl": "https://sk1er.club/levelhead",
-		"authorList": ["Sk1er", "boomboompower","FalseHonesty","Sk1erLLC"],
-		"credits": "HypixelAPI, Codename_B",
-		"logoFile": "",
-		"screenshots": [],
-		"dependencies": []
-	}
+  {
+    "modid": "level_head",
+    "name": "Sk1er Level Head",
+    "description": "Display a player's network level above their head",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://sk1er.club/levelhead",
+    "updateUrl": "https://sk1er.club/levelhead",
+    "authorList": [
+      "Sk1er",
+      "boomboompower",
+      "FalseHonesty",
+      "Sk1erLLC"
+    ],
+    "credits": "HypixelAPI, Codename_B",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]

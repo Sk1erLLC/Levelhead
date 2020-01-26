@@ -34,9 +34,9 @@ public class TabDisplay extends LevelheadDisplay {
                     safePlayers.add(id);
                 }
             }
+
             existedMorethan5Seconds.clear();
             existedMorethan5Seconds.addAll(safePlayers);
-
 
             for (UUID uuid : cache.keySet()) {
                 if (!safePlayers.contains(uuid)) {

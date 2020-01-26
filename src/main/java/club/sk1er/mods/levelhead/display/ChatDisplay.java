@@ -15,13 +15,14 @@ public class ChatDisplay extends LevelheadDisplay {
 
     @Override
     public void tick() {
-        if (Levelhead.getInstance().getLevelheadPurchaseStates().isChat())
+        if (Levelhead.getInstance().getLevelheadPurchaseStates().isChat()) {
             for (NetworkPlayerInfo networkPlayerInfo : Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap()) {
                 UUID id = networkPlayerInfo.getGameProfile().getId();
-                if (id != null)
-                    if (!cache.containsKey(id))
-                        Levelhead.getInstance().fetch(id, this, false);
+                if (id != null && !cache.containsKey(id)) {
+                    Levelhead.getInstance().fetch(id, this, false);
+                }
             }
+        }
     }
 
     @Override
@@ -34,9 +35,9 @@ public class ChatDisplay extends LevelheadDisplay {
                     safePlayers.add(id);
                 }
             }
+
             existedMorethan5Seconds.clear();
             existedMorethan5Seconds.addAll(safePlayers);
-
 
             for (UUID uuid : cache.keySet()) {
                 if (!safePlayers.contains(uuid)) {
