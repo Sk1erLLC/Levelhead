@@ -45,11 +45,7 @@ import java.util.UUID;
 
 public class Levelhead extends DummyModContainer {
 
-
-    /*
-        Hello !
-     */
-    public static final String MODID = "LEVEL_HEAD";
+    public static final String MODID = "level_head";
     public static final String VERSION = "6.5.2";
     private static Levelhead instance;
     public UUID userUuid = null;
