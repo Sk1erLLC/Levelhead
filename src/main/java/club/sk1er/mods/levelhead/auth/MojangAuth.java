@@ -1,8 +1,8 @@
 package club.sk1er.mods.levelhead.auth;
 
+import club.sk1er.mods.core.util.JsonHolder;
+import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.utils.JsonHolder;
-import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import me.semx11.autotip.util.LoginUtil;
 import net.minecraft.client.Minecraft;
 
@@ -12,14 +12,13 @@ public class MojangAuth {
 
     private String accessKey;
 
-    private Sk1erMod sk1erMod;
     private boolean failed = false;
     private String failMessage = null;
     private boolean success = false;
     private String hash;
 
-    public MojangAuth(Sk1erMod sk1erMod) {
-        this.sk1erMod = sk1erMod;
+    public MojangAuth() {
+
     }
 
     public String getAccessKey() {
@@ -49,7 +48,7 @@ public class MojangAuth {
 
     public void auth() {
         UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
-        JsonHolder jsonHolder = new JsonHolder(sk1erMod.rawWithAgent("https://api.sk1er.club/auth/begin?uuid=" + uuid + "&mod=" + Levelhead.MODID + "&ver=" + Levelhead.VERSION));
+        JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.sk1er.club/auth/begin?uuid=" + uuid + "&mod=" + Levelhead.MODID + "&ver=" + Levelhead.VERSION);
         if (!jsonHolder.optBoolean("success")) {
             fail("Error during init: " + jsonHolder);
             return;
@@ -64,7 +63,7 @@ public class MojangAuth {
             fail("Error during Mojang Auth (1) " + statusCode);
             return;
         }
-        JsonHolder finalResponse = new JsonHolder(sk1erMod.rawWithAgent("https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().getSession().getProfile().getName()));
+        JsonHolder finalResponse = WebUtil.fetchJSON("https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().getSession().getProfile().getName());
         System.out.println("FINAL RESPONSE: " + finalResponse);
         if (finalResponse.optBoolean("success")) {
 

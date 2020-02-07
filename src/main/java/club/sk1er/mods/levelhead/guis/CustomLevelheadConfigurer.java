@@ -1,10 +1,11 @@
 package club.sk1er.mods.levelhead.guis;
 
+import club.sk1er.mods.core.util.JsonHolder;
+import club.sk1er.mods.core.util.MinecraftUtils;
+import club.sk1er.mods.core.util.Multithreading;
+import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.utils.ChatColor;
-import club.sk1er.mods.levelhead.utils.JsonHolder;
-import club.sk1er.mods.levelhead.utils.Multithreading;
-import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -47,28 +48,29 @@ public class CustomLevelheadConfigurer extends GuiScreen {
         header.setMaxStringLength(50);
         level.setMaxStringLength(50);
 
+        String trimmedUUid = Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "");
         Multithreading.runAsync(() -> {
-            JsonHolder jsonHolder = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://sk1er.club/newlevel/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")));
+            JsonHolder jsonHolder = WebUtil.fetchJSON("https://sk1er.club/newlevel/" + trimmedUUid);
             header.setText(jsonHolder.optString("header"));
             level.setText(jsonHolder.optString("true_footer"));
         });
-        Multithreading.runAsync(() -> levelhead_propose = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://api.hyperium.cc/levelhead_propose/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", ""))));
+        Multithreading.runAsync(() -> levelhead_propose = WebUtil.fetchJSON("https://api.hyperium.cc/levelhead_propose/" + trimmedUUid));
         Multithreading.runAsync(() -> {
-            JsonHolder jsonHolder = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://api.hyperium.cc/levelhead/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")));
+            JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.hyperium.cc/levelhead/" + trimmedUUid);
             if (!jsonHolder.optBoolean("levelhead")) {
                 if (Minecraft.getMinecraft().currentScreen instanceof CustomLevelheadConfigurer) {
                     Minecraft.getMinecraft().displayGuiScreen(null);
-                    Sk1erMod.getInstance().sendMessage("You must purchase Custom Levelhead to use this!");
+                    MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "You must purchase Custom Levelhead to use this!");
                 }
             }
         });
         refresh();
         reg(new GuiButton(nextId(), width / 2 - 205, 55, 200, 20, "Reset to default"), button -> {
-            Sk1erMod.getInstance().rawWithAgent("https://api.sk1er.club/customlevelhead/reset?hash=" + Levelhead.getInstance().getAuth().getHash() + "&level=default&header=default");
+            WebUtil.fetchJSON("https://api.sk1er.club/customlevelhead/reset?hash=" + Levelhead.getInstance().getAuth().getHash() + "&level=default&header=default");
             refresh();
         });
         reg(new GuiButton(nextId(), width / 2 + 5, 55, 200, 20, "Send for review"), button -> {
-            Sk1erMod.getInstance().rawWithAgent("https://api.sk1er.club/customlevelhead/propose?hash=" + Levelhead.getInstance().getAuth().getHash() + "&footer=" + URLEncoder.encode(level.getText()) + "&header=" + URLEncoder.encode(header.getText()));
+            WebUtil.fetchJSON("https://api.sk1er.club/customlevelhead/propose?hash=" + Levelhead.getInstance().getAuth().getHash() + "&footer=" + URLEncoder.encode(level.getText()) + "&header=" + URLEncoder.encode(header.getText()));
             refresh();
         });
         reg(new GuiButton(nextId(), width / 2 - 50, 80, 100, 20, "Refresh"), button -> {
@@ -78,15 +80,13 @@ public class CustomLevelheadConfigurer extends GuiScreen {
     }
 
     public void refresh() {
+        String trimmedUuid = Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "");
         Multithreading.runAsync(() -> {
-            JsonHolder jsonHolder = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://sk1er.club/newlevel/" +
-                    Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")));
+            JsonHolder jsonHolder = WebUtil.fetchJSON("https://sk1er.club/newlevel/" + trimmedUuid);
             header.setText(jsonHolder.optString("header"));
             level.setText(jsonHolder.optString("true_footer"));
         });
-        Multithreading.runAsync(() ->
-                levelhead_propose = new JsonHolder(Sk1erMod.getInstance().rawWithAgent("https://api.hyperium.cc/levelhead_propose/" +
-                        Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", ""))));
+        Multithreading.runAsync(() -> levelhead_propose = WebUtil.fetchJSON("https://api.hyperium.cc/levelhead_propose/" + trimmedUuid));
     }
 
     private void drawScaledText(String text, int trueX, int trueY, double scaleFac, int color, boolean shadow, boolean centered) {

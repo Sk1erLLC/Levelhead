@@ -1,6 +1,6 @@
 package club.sk1er.mods.levelhead.renderer;
 
-import club.sk1er.mods.levelhead.utils.JsonHolder;
+import club.sk1er.mods.core.util.JsonHolder;
 
 import java.util.UUID;
 
@@ -50,9 +50,9 @@ public class LevelheadTag {
 
     private LevelheadComponent build(JsonHolder holder, boolean isHeader) {
         String seek = isHeader ? "header" : "footer";
-        JsonHolder json = holder.optJsonObject(seek);
+        JsonHolder json = holder.optJSONObject(seek);
 
-        LevelheadComponent component = new LevelheadComponent(json.optString(seek, "UMM BIG ERROR REPORT TO SK1ER"));
+        LevelheadComponent component = new LevelheadComponent(json.defaultOptString(seek, "UMM BIG ERROR REPORT TO SK1ER"));
         boolean custom = json.optBoolean("custom");
 
         component.setCustom(custom);

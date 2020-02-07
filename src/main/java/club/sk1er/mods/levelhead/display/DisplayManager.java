@@ -1,8 +1,8 @@
 package club.sk1er.mods.levelhead.display;
 
+import club.sk1er.mods.core.util.JsonHolder;
+import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.config.MasterConfig;
-import club.sk1er.mods.levelhead.utils.JsonHolder;
-import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,14 +28,14 @@ public class DisplayManager {
         this.file = file;
         if (source.has("master")) {
             try {
-                this.config = GSON.fromJson(source.optJsonObject("master").getObject(), MasterConfig.class);
+                this.config = GSON.fromJson(source.optJSONObject("master").getObject(), MasterConfig.class);
             } catch (Exception ignored) {
 
             }
         }
         if (config == null) {
             this.config = new MasterConfig();
-            Sk1erMod.getInstance().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
+          MinecraftUtils.sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
         }
         for (JsonElement head : source.optJSONArray("head")) {
             try {
@@ -46,14 +46,14 @@ public class DisplayManager {
         }
         if (source.has("chat")) {
             try {
-                this.chat = new ChatDisplay(GSON.fromJson(source.optJsonObject("chat").getObject(), DisplayConfig.class));
+                this.chat = new ChatDisplay(GSON.fromJson(source.optJSONObject("chat").getObject(), DisplayConfig.class));
             } catch (Exception ignored) {
 
             }
         }
         if (source.has("tab")) {
             try {
-                this.tab = new TabDisplay(GSON.fromJson(source.optJsonObject("tab").getObject(), DisplayConfig.class));
+                this.tab = new TabDisplay(GSON.fromJson(source.optJSONObject("tab").getObject(), DisplayConfig.class));
             } catch (Exception ignored) {
 
             }

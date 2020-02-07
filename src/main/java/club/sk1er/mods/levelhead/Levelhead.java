@@ -1,5 +1,8 @@
 package club.sk1er.mods.levelhead;
 
+import club.sk1er.mods.core.util.JsonHolder;
+import club.sk1er.mods.core.util.MinecraftUtils;
+import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.levelhead.auth.MojangAuth;
 import club.sk1er.mods.levelhead.commands.LevelheadCommand;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
@@ -11,12 +14,10 @@ import club.sk1er.mods.levelhead.renderer.LevelheadAboveHeadRender;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.renderer.NullLevelheadTag;
-import club.sk1er.mods.levelhead.utils.JsonHolder;
-import club.sk1er.mods.levelhead.utils.Multithreading;
-import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -46,15 +48,14 @@ import java.util.UUID;
 public class Levelhead extends DummyModContainer {
 
     public static final String MODID = "level_head";
-    public static final String VERSION = "6.5.2";
+    public static final String VERSION = "7.0";
+    public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
     public int count = 100;
     public int wait = 1;
     private long waitUntil = System.currentTimeMillis();
     private int updates = 0;
-    private Sk1erMod mod;
-
     private MojangAuth auth;
     private JsonHolder types = new JsonHolder();
     private DecimalFormat format = new DecimalFormat("#,###");
@@ -145,6 +146,11 @@ public class Levelhead extends DummyModContainer {
         displayManager.adjustIndexes();
 
     }
+    @Subscribe
+    @EventHandler
+    public void init(FMLInitializationEvent event) {
+        ModCoreInstaller.initializeModCore(Minecraft.getMinecraft().mcDataDir);
+    }
 
     @Subscribe
     @EventHandler
@@ -160,22 +166,13 @@ public class Levelhead extends DummyModContainer {
         displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
 
         Multithreading.runAsync(() -> types = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_config")));
-        mod = new Sk1erMod(MODID, VERSION, "Levelhead", object -> {
-            count = object.optInt("count");
-            this.wait = object.optInt("wait", Integer.MAX_VALUE);
-            if (count == 0 || wait == Integer.MAX_VALUE) {
-                mod.sendMessage("An error occurred whilst loading internal Levelhead info. ");
-            }
-        });
-        mod.checkStatus();
-        auth = new MojangAuth(mod);
+        auth = new MojangAuth();
         Multithreading.runAsync(() -> {
             auth.auth();
             if (auth.isFailed()) {
-                mod.sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
+                MinecraftUtils.sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
             }
         });
-        register(mod);
 
         Multithreading.runAsync(this::refreshPurchaseStates);
         Multithreading.runAsync(this::refreshRawPurchases);
@@ -205,11 +202,10 @@ public class Levelhead extends DummyModContainer {
     public void tick(TickEvent.ClientTickEvent event) {
 
         if (event.phase == TickEvent.Phase.START
-                || !mod.isHypixel()
+                || !MinecraftUtils.isHypixel()
                 || displayManager == null
                 || displayManager.getMasterConfig() == null
-                || !displayManager.getMasterConfig().isEnabled()
-                || !mod.isEnabled()) {
+                || !displayManager.getMasterConfig().isEnabled()) {
 
             return;
         }
@@ -300,11 +296,11 @@ public class Levelhead extends DummyModContainer {
         //Support for serverside override for Custom Levelhead
         //Apply values from server if present
         if (object.has("header_obj") && allowOverride) {
-            headerObj = object.optJsonObject("header_obj");
+            headerObj = object.optJSONObject("header_obj");
             headerObj.put("custom", true);
         }
         if (object.has("footer_obj") && allowOverride) {
-            footerObj = object.optJsonObject("footer_obj");
+            footerObj = object.optJSONObject("footer_obj");
             footerObj.put("custom", true);
         }
         if (object.has("header") && allowOverride) {
@@ -314,12 +310,12 @@ public class Levelhead extends DummyModContainer {
 
         //Get config based values and merge
         headerObj.merge(display.getHeaderConfig(), !allowOverride);
-        footerObj.merge(display.getFooterConfig().put("footer", object.optString("strlevel", format.format(object.getInt("level")))), !allowOverride);
+        footerObj.merge(display.getFooterConfig().put("footer", object.defaultOptString("strlevel", format.format(object.optInt("level")))), !allowOverride);
         //Ensure text values are present
         construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);
         construct.put("exclude", object.optBoolean("exclude"));
-        construct.put("custom", object.optJsonObject("custom"));
+        construct.put("custom", object.optJSONObject("custom"));
         value.construct(construct);
         return value;
     }
@@ -328,12 +324,12 @@ public class Levelhead extends DummyModContainer {
         HashMap<String, String> data = new HashMap<>();
         List<String> keys = types.getKeys();
         for (String key : keys) {
-            data.put(key, types.optJsonObject(key).optString("name"));
+            data.put(key, types.optJSONObject(key).optString("name"));
         }
-        JsonHolder stats = paidData.optJsonObject("stats");
+        JsonHolder stats = paidData.optJSONObject("stats");
         for (String s : stats.getKeys()) {
             if (purchaseStatus.optBoolean(s)) {
-                data.put(s, stats.optJsonObject(s).optString("name"));
+                data.put(s, stats.optJSONObject(s).optString("name"));
             }
         }
         return data;
@@ -354,9 +350,5 @@ public class Levelhead extends DummyModContainer {
         }
     }
 
-
-    public Sk1erMod getSk1erMod() {
-        return mod;
-    }
 
 }

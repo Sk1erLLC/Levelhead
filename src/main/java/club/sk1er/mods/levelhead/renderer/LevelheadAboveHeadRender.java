@@ -1,8 +1,8 @@
 package club.sk1er.mods.levelhead.renderer;
 
+import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
-import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -52,7 +52,7 @@ public class LevelheadAboveHeadRender {
                 continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
-                if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !Sk1erMod.getInstance().isHypixel())
+                if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !MinecraftUtils.isHypixel())
                     continue;
 
                 if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {

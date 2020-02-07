@@ -25,20 +25,27 @@ public class AboveHeadDisplay extends LevelheadDisplay {
                 return false;
             }
         }
-
         if (!renderFromTeam(player) || player.riddenByEntity != null) return false;
 
         int renderDistance = Levelhead.getInstance().getDisplayManager().getMasterConfig().getRenderDistance();
         int min = Math.min(64 * 64, renderDistance * renderDistance);
 
-        return !(player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min)
-                && (!player.hasCustomName() || !player.getCustomNameTag().isEmpty())
-                && !player.getDisplayNameString().isEmpty()
-                && existedMorethan5Seconds.contains(player.getUniqueID())
-                && !player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")
-                && !player.isInvisible()
-                && !player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer)
-                && !player.isSneaking();
+
+        if (!(player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min)) {
+
+            if (!player.hasCustomName() || !player.getCustomNameTag().isEmpty()) {
+                if (!player.getDisplayNameString().isEmpty()) {
+                    if (existedMorethan5Seconds.contains(player.getUniqueID())) {
+                        System.out.println("sadme");
+                        if (!player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k"))
+                            if (!player.isInvisible())
+                                if (!player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer))
+                                    if (!player.isSneaking()) return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     protected boolean renderFromTeam(EntityPlayer player) {
@@ -65,7 +72,6 @@ public class AboveHeadDisplay extends LevelheadDisplay {
 
     @Override
     public void tick() {
-
         for (EntityPlayer entityPlayer : Minecraft.getMinecraft().theWorld.playerEntities) {
             if (!existedMorethan5Seconds.contains(entityPlayer.getUniqueID())) {
                 if (!timeCheck.containsKey(entityPlayer.getUniqueID()))

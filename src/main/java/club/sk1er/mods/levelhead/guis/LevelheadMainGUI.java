@@ -1,5 +1,9 @@
 package club.sk1er.mods.levelhead.guis;
 
+import club.sk1er.mods.core.util.JsonHolder;
+import club.sk1er.mods.core.util.MinecraftUtils;
+import club.sk1er.mods.core.util.Multithreading;
+import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
 import club.sk1er.mods.levelhead.display.ChatDisplay;
@@ -10,9 +14,6 @@ import club.sk1er.mods.levelhead.forge.transform.Hooks;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
 import club.sk1er.mods.levelhead.utils.ChatColor;
-import club.sk1er.mods.levelhead.utils.JsonHolder;
-import club.sk1er.mods.levelhead.utils.Multithreading;
-import club.sk1er.mods.levelhead.utils.Sk1erMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -105,9 +106,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     public void initGui() {
         Minecraft.getMinecraft().gameSettings.hideGUI = true;
         Multithreading.runAsync(() -> {
-            String raw = Sk1erMod.getInstance().rawWithAgent("https://api.sk1er.club/levelhead/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", ""));
-            System.out.println(raw);
-            this.isCustom = new JsonHolder(raw).optBoolean("custom");
+            this.isCustom = WebUtil.fetchJSON("https://api.sk1er.club/levelhead/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")).optBoolean("custom");
         });
         textField = new GuiTextField(-500, fontRendererObj, width - 124, 74, 120, 19);
     }
@@ -146,12 +145,12 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             drawScaledText("Purchase Extra Stats", width / 2, 50, 2.0, Color.WHITE.getRGB(), true, true);
             drawScaledText("These stats can be displayed above players' heads, in lobbies or in tab.", width / 2, 67, 1, Color.WHITE.getRGB(), true, true);
 
-            JsonHolder stats = instance.getPaidData().optJsonObject("stats");
+            JsonHolder stats = instance.getPaidData().optJSONObject("stats");
 
             int pos = 75 - offset;
 
             for (String key : stats.getKeys()) {
-                JsonHolder jsonHolder = stats.optJsonObject(key);
+                JsonHolder jsonHolder = stats.optJSONObject(key);
                 boolean purchased = instance.getPurchaseStatus().optBoolean(key);
                 String name = jsonHolder.optString("name");
                 if (purchased) {
@@ -262,7 +261,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             config.setEnabled(!config.isEnabled());
         });
 
-        reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, YELLOW + "Type: " + AQUA + instance.getTypes().optJsonObject(config.getType()).optString("name")), button -> {
+        reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name")), button -> {
             String currentType = config.getType();
             HashMap<String, String> typeMap = instance.allowedTypes();
             Set<String> keys = typeMap.keySet();
@@ -595,8 +594,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         Levelhead instance = Levelhead.getInstance();
         JsonHolder paidData = instance.getPaidData();
         System.out.println(paidData);
-        JsonHolder extra_displays = paidData.optJsonObject("extra_displays");
-        JsonHolder stats = paidData.optJsonObject("stats");
+        JsonHolder extra_displays = paidData.optJSONObject("extra_displays");
+        JsonHolder stats = paidData.optJSONObject("stats");
         boolean found = false;
         boolean display = false;
         String name = null;
@@ -605,9 +604,9 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         JsonHolder seed = null;
         boolean single = false;
         if (extra_displays.has(chat)) {
-            seed = extra_displays.optJsonObject(chat);
+            seed = extra_displays.optJSONObject(chat);
         } else if (stats.has(chat)) {
-            seed = stats.optJsonObject(chat);
+            seed = stats.optJSONObject(chat);
         }
         found = seed != null;
         if (seed != null) {
@@ -616,30 +615,29 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             cost = seed.optInt("cost");
             single = seed.optBoolean("single");
         }
-        Sk1erMod sk1erMod = Sk1erMod.getInstance();
         int remaining_levelhead_credits = instance.getRawPurchases().optInt("remaining_levelhead_credits");
         if (remaining_levelhead_credits < cost) {
             Minecraft.getMinecraft().displayGuiScreen(null);
-            sk1erMod.sendMessage("Insufficient credits! " + name + " costs " + cost + " credits but you only have " + remaining_levelhead_credits);
-            sk1erMod.sendMessage("You can purchase more credits here: https://purchase.sk1er.club/category/1050972 (CLICK IT!)");
+            MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Insufficient credits! " + name + " costs " + cost + " credits but you only have " + remaining_levelhead_credits);
+            MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "You can purchase more credits here: https://purchase.sk1er.club/category/1050972 (CLICK IT!)");
             return;
         }
         if (instance.getAuth().isFailed()) {
-            sk1erMod.sendMessage("Could not verify your identify. Please restart the client. If issues persists, contact Sk1er");
+            MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Could not verify your identify. Please restart the client. If issues persists, contact Sk1er");
             Minecraft.getMinecraft().displayGuiScreen(null);
             return;
         }
         if (found) {
             String finalName = name;
             ids.put(chat.hashCode(), () -> {
-                sk1erMod.sendMessage("Attempting to purchase: " + finalName);
+                MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Attempting to purchase: " + finalName);
                 Multithreading.runAsync(() -> {
-                    JsonHolder jsonHolder = new JsonHolder(sk1erMod.rawWithAgent("https://api.sk1er.club/levelhead_purchase?access_token=" + instance.getAuth().getAccessKey() + "&request=" + chat + "&hash=" + instance.getAuth().getHash()));
+                    JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.sk1er.club/levelhead_purchase?access_token=" + instance.getAuth().getAccessKey() + "&request=" + chat + "&hash=" + instance.getAuth().getHash());
                     if (jsonHolder.optBoolean("success")) {
                         instance.refreshPurchaseStates();
-                        sk1erMod.sendMessage("Successfully purchased: " + finalName);
+                        MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Successfully purchased: " + finalName);
                     } else {
-                        sk1erMod.sendMessage("Failed to purchase: " + finalName + ". Cause: " + jsonHolder.optString("cause"));
+                        MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Failed to purchase: " + finalName + ". Cause: " + jsonHolder.optString("cause"));
 
                     }
                 });
@@ -648,7 +646,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             GuiYesNo gui = new GuiYesNo(this, "Purchase " + finalName, "Description: " + description + ". This item may be purchased " + (single ? "one time" : "many times") + ". Type: " + (display ? "Display" : "Extra Stat"), "Purchase for " + cost + " credits", "Cancel", chat.hashCode());
             Minecraft.getMinecraft().displayGuiScreen(gui);
         } else {
-            sk1erMod.sendMessage("Could not find package: " + chat + ". Please contact Sk1er immediately");
+            MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Could not find package: " + chat + ". Please contact Sk1er immediately");
         }
     }
 
