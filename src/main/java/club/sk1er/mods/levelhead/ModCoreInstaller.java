@@ -115,7 +115,7 @@ public class ModCoreInstaller {
         }
         JsonHolder jsonHolder = fetchJSON(VERSION_URL);
         String latestRemote = jsonHolder.optString(minecraftVersion);
-        boolean failed = jsonHolder.getKeys().size() == 0;
+        boolean failed = jsonHolder.getKeys().size() == 0 || (jsonHolder.has("success") && !jsonHolder.optBoolean("success"));
 
         File metadataFile = new File(dataDir, "metadata.json");
         JsonHolder localMetadata = readFile(metadataFile);
