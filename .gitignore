@@ -11,9 +11,6 @@ log/
 target/
 dependency-reduced-pom.xml
 
-# Java
-*.jar
-
 # Gradle
 .gradle/
 build/
