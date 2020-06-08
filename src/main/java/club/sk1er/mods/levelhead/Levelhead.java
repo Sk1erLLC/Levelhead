@@ -48,7 +48,7 @@ import java.util.UUID;
 public class Levelhead extends DummyModContainer {
 
     public static final String MODID = "level_head";
-    public static final String VERSION = "7.0.2";
+    public static final String VERSION = "7.0.3";
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
@@ -226,21 +226,34 @@ public class Levelhead extends DummyModContainer {
     }
 
     public String rawWithAgent(String url) {
-        System.out.println("Fetching: " + url);
+        HttpURLConnection connection = null;
+        InputStream is = null;
         try {
             URL u = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            connection = (HttpURLConnection) u.openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(true);
             connection.addRequestProperty("User-Agent", "Mozilla/4.76 (SK1ER LEVEL HEAD V" + VERSION + ")");
             connection.setReadTimeout(15000);
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);
-            InputStream is = connection.getInputStream();
+            is = connection.getInputStream();
             return IOUtils.toString(is, Charset.defaultCharset());
-
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Failed to cleanup rawWithAgent.");
+                e.printStackTrace();
+            }
         }
         return new JsonHolder().put("success", false).put("cause", "API_DOWN").toString();
     }
