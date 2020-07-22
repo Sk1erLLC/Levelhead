@@ -81,7 +81,7 @@ public class AboveHeadDisplay extends LevelheadDisplay {
             if (loadOrRender(entityPlayer)) {
                 final UUID uuid = entityPlayer.getUniqueID();
                 if (!cache.containsKey(uuid)) {
-                    Levelhead.getInstance().fetch(uuid, this, bottomValue);
+                    Levelhead.getInstance().fetch(uuid, this, bottomValue || this instanceof SongDisplay);
                 }
             }
         }

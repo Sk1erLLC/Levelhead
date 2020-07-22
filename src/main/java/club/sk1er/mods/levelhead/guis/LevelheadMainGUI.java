@@ -5,25 +5,14 @@ import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
-import club.sk1er.mods.levelhead.display.ChatDisplay;
-import club.sk1er.mods.levelhead.display.DisplayConfig;
-import club.sk1er.mods.levelhead.display.LevelheadDisplay;
-import club.sk1er.mods.levelhead.display.TabDisplay;
+import club.sk1er.mods.levelhead.display.*;
 import club.sk1er.mods.levelhead.forge.transform.Hooks;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
 import club.sk1er.mods.levelhead.utils.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.GuiYesNo;
-import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
@@ -41,28 +30,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
-import java.awt.Color;
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
-import static net.minecraft.util.EnumChatFormatting.AQUA;
-import static net.minecraft.util.EnumChatFormatting.BOLD;
-import static net.minecraft.util.EnumChatFormatting.GREEN;
-import static net.minecraft.util.EnumChatFormatting.LIGHT_PURPLE;
-import static net.minecraft.util.EnumChatFormatting.RED;
-import static net.minecraft.util.EnumChatFormatting.UNDERLINE;
-import static net.minecraft.util.EnumChatFormatting.WHITE;
-import static net.minecraft.util.EnumChatFormatting.YELLOW;
+import static net.minecraft.util.EnumChatFormatting.*;
 
 public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
@@ -261,7 +239,13 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             config.setEnabled(!config.isEnabled());
         });
 
-        reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name")), button -> {
+        String name = YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name");
+        if (currentlyBeingEdited instanceof SongDisplay) {
+            name = YELLOW + "Type: "+AQUA+"Current Song";
+        }
+
+        reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, name), button -> {
+            if(currentlyBeingEdited instanceof SongDisplay) return;
             String currentType = config.getType();
             HashMap<String, String> typeMap = instance.allowedTypes();
             Set<String> keys = typeMap.keySet();
@@ -289,10 +273,12 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     private void doHead(DisplayConfig config, Levelhead instance, int editWidth, int mouseX, int mouseY) {
         List<AboveHeadDisplay> aboveHead = instance.getDisplayManager().getAboveHead();
 
-        textField.drawTextBox();
-        if (!textField.getText().equalsIgnoreCase(config.getCustomHeader())) {
-            config.setCustomHeader(textField.getText());
-            updatePeopleToValues();
+        if (!(currentlyBeingEdited instanceof SongDisplay)) {
+            textField.drawTextBox();
+            if (!textField.getText().equalsIgnoreCase(config.getCustomHeader())) {
+                config.setCustomHeader(textField.getText());
+                updatePeopleToValues();
+            }
         }
         reg(new GuiButton(++currentID, width / 3 - 100, height - 137, 200, 20, YELLOW + "Purchase Additional Above Head Layer"), button -> {
             attemptPurchase("head");
@@ -446,8 +432,15 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableDepth();
         GlStateManager.popMatrix();
+        if (!(currentlyBeingEdited instanceof SongDisplay)) {
+            drawScaledText("Custom Prefix: ", width - editWidth * 3 / 2 - 3, 77, 1.5, Color.WHITE.getRGB(), true, true);
+        } else {
+            String text = "Song Display uses MediaMod. ";
+            drawScaledText(text, width - editWidth * 2, 71, 1, Color.WHITE.getRGB(), true, false);
+            text = "Sk1er.club/mediamod for more info";
+            drawScaledText(text, width - editWidth * 2, 80, 1, Color.WHITE.getRGB(), true, false);
 
-        drawScaledText("Custom Prefix: ", width - editWidth * 3 / 2 - 3, 77, 1.5, Color.WHITE.getRGB(), true, true);
+        }
 
     }
 
@@ -554,7 +547,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (currentlyBeingEdited instanceof AboveHeadDisplay) {
-            textField.mouseClicked(mouseX, mouseY, mouseButton);
+            if (!(currentlyBeingEdited instanceof SongDisplay))
+                textField.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
@@ -562,7 +556,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
         if (currentlyBeingEdited instanceof AboveHeadDisplay) {
-            textField.textboxKeyTyped(typedChar, keyCode);
+            if (!(currentlyBeingEdited instanceof SongDisplay))
+                textField.textboxKeyTyped(typedChar, keyCode);
         }
     }
 

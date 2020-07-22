@@ -21,6 +21,15 @@ public class LevelheadTag {
         return header;
     }
 
+    @Override
+    public String toString() {
+        return "LevelheadTag{" +
+            "header=" + header +
+            ", footer=" + footer +
+            ", owner=" + owner +
+            '}';
+    }
+
     public LevelheadComponent getFooter() {
         return footer;
     }

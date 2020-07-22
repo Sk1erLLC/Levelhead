@@ -16,8 +16,9 @@ public class LevelheadComponent {
     private int blue;
     private int alpha;
     private boolean custom;
+
     public LevelheadComponent(String value) {
-        this.value = value.replace("&","\u00a7");
+        this.value = value.replace("&", "\u00a7");
     }
 
     public String getColor() {
@@ -73,6 +74,10 @@ public class LevelheadComponent {
         return value;
     }
 
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public boolean isChroma() {
         return chroma;
     }
@@ -89,7 +94,18 @@ public class LevelheadComponent {
         this.custom = custom;
     }
 
-    public void setValue(String value) {
-        this.value=value;
+    @Override
+    public String toString() {
+        return "LevelheadComponent{" +
+            "value='" + value + '\'' +
+            ", chroma=" + chroma +
+            ", color='" + color + '\'' +
+            ", rgb=" + rgb +
+            ", red=" + red +
+            ", green=" + green +
+            ", blue=" + blue +
+            ", alpha=" + alpha +
+            ", custom=" + custom +
+            '}';
     }
 }

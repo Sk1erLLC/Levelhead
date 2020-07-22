@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.renderer;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
+import club.sk1er.mods.levelhead.display.SongDisplay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -12,11 +13,12 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.util.JsonUtils;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Created by mitchellkatz
@@ -34,9 +36,9 @@ public class LevelheadAboveHeadRender {
     @SubscribeEvent
     public void render(RenderPlayerEvent.Pre event) {
         if (levelhead == null
-                || levelhead.getDisplayManager() == null
-                || levelhead.getDisplayManager().getMasterConfig() == null
-                || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
+            || levelhead.getDisplayManager() == null
+            || levelhead.getDisplayManager().getMasterConfig() == null
+            || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
 
@@ -51,6 +53,13 @@ public class LevelheadAboveHeadRender {
             if (!display.getConfig().isEnabled())
                 continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
+            if (levelheadTag !=null &&
+                display instanceof SongDisplay
+                && !(levelheadTag instanceof NullLevelheadTag)
+                && levelheadTag.getFooter().getValue().equals("NONE")) {
+                continue;
+            }
+
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
                 if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !MinecraftUtils.isHypixel())
                     continue;
