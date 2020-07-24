@@ -47,7 +47,7 @@ public class LevelheadAboveHeadRender {
         for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
             int index = display.getIndex();
             int extraHead = levelhead.getLevelheadPurchaseStates().getExtraHead();
-            if (index > extraHead) {
+            if (index > extraHead && !(display instanceof SongDisplay)) {
                 continue;
             }
             if (!display.getConfig().isEnabled())
