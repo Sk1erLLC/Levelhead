@@ -11,11 +11,16 @@ public class LevelheadTag {
     private LevelheadComponent header;
     private LevelheadComponent footer;
     private UUID owner;
+    private long time = System.currentTimeMillis();
 
     public LevelheadTag(UUID owner) {
         this.owner = owner;
+
     }
 
+    public long getTime() {
+        return time;
+    }
 
     public LevelheadComponent getHeader() {
         return header;
@@ -46,11 +51,12 @@ public class LevelheadTag {
             this.footer = build(holder, false);
         }
     }
+
     public void reApply(LevelheadTag holder) {
-        if(!this.header.isCustom()) {
+        if (!this.header.isCustom()) {
             this.header = holder.header;
         }
-        if(!this.footer.isCustom()) {
+        if (!this.footer.isCustom()) {
             this.footer = holder.footer;
 
         }
