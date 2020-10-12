@@ -1,16 +1,15 @@
 package club.sk1er.mods.levelhead.guis;
 
+import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.JsonHolder;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.utils.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.client.config.GuiSlider;
 
@@ -32,7 +31,7 @@ public class CustomLevelheadConfigurer extends GuiScreen {
     private GuiTextField header;
     private GuiTextField level;
     private JsonHolder levelhead_propose = new JsonHolder();
-    private HashMap<GuiButton, Consumer<GuiButton>> clicks = new HashMap<>();
+    private final HashMap<GuiButton, Consumer<GuiButton>> clicks = new HashMap<>();
 
     public int nextId() {
         return (++idIteration);
@@ -42,7 +41,6 @@ public class CustomLevelheadConfigurer extends GuiScreen {
     public void initGui() {
         super.initGui();
 
-        int i = new ScaledResolution(Minecraft.getMinecraft()).getScaledWidth() - 20;
         header = new GuiTextField(nextId(), fontRendererObj, width / 2 - 205, 30, 200, 20);
         level = new GuiTextField(nextId(), fontRendererObj, width / 2 + 5, 30, 200, 20);
         header.setMaxStringLength(50);
@@ -93,7 +91,7 @@ public class CustomLevelheadConfigurer extends GuiScreen {
         GlStateManager.pushMatrix();
         GlStateManager.scale(scaleFac, scaleFac, scaleFac);
         fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (centered ?
-                fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
+            fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
         GlStateManager.scale(1 / scaleFac, 1 / scaleFac, 1 / scaleFac);
         GlStateManager.popMatrix();
     }

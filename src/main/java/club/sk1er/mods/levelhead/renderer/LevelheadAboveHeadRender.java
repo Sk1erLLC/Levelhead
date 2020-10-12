@@ -13,12 +13,11 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.util.JsonUtils;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Created by mitchellkatz
@@ -27,7 +26,7 @@ import java.awt.*;
  */
 public class LevelheadAboveHeadRender {
 
-    private Levelhead levelhead;
+    private final Levelhead levelhead;
 
     public LevelheadAboveHeadRender(Levelhead levelhead) {
         this.levelhead = levelhead;
@@ -53,7 +52,7 @@ public class LevelheadAboveHeadRender {
             if (!display.getConfig().isEnabled())
                 continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
-            if (levelheadTag !=null &&
+            if (levelheadTag != null &&
                 display instanceof SongDisplay
                 && !(levelheadTag instanceof NullLevelheadTag)
                 && levelheadTag.getFooter().getValue().equals("NONE")) {

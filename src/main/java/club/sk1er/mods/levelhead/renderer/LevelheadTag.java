@@ -10,8 +10,8 @@ import java.util.UUID;
 public class LevelheadTag {
     private LevelheadComponent header;
     private LevelheadComponent footer;
-    private UUID owner;
-    private long time = System.currentTimeMillis();
+    private final UUID owner;
+    private final long time = System.currentTimeMillis();
 
     public LevelheadTag(UUID owner) {
         this.owner = owner;

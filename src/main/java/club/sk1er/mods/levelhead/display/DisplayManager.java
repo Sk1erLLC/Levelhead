@@ -16,12 +16,12 @@ import java.util.List;
 
 public class DisplayManager {
 
-    private Gson GSON = new Gson();
-    private List<AboveHeadDisplay> aboveHead = new ArrayList<>();
+    private final Gson GSON = new Gson();
+    private final List<AboveHeadDisplay> aboveHead = new ArrayList<>();
     private LevelheadDisplay chat = null;
     private TabDisplay tab = null;
     private MasterConfig config = new MasterConfig();
-    private File file;
+    private final File file;
 
     public DisplayManager(JsonHolder source, File file) {
         if (source == null)
@@ -130,7 +130,10 @@ public class DisplayManager {
             return;
         }
 
-        aboveHead.forEach(LevelheadDisplay::tick);
+        for (AboveHeadDisplay aboveHeadDisplay : aboveHead) {
+            aboveHeadDisplay.tick();
+        }
+
         if (tab != null)
             tab.tick();
         if (chat != null)
@@ -138,7 +141,10 @@ public class DisplayManager {
     }
 
     public void checkCacheSizes() {
-        aboveHead.forEach(LevelheadDisplay::checkCacheSize);
+        for (AboveHeadDisplay aboveHeadDisplay : aboveHead) {
+            aboveHeadDisplay.checkCacheSize();
+        }
+
         if (tab != null) {
             tab.checkCacheSize();
         }

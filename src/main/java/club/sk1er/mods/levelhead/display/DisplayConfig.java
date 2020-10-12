@@ -1,6 +1,6 @@
 package club.sk1er.mods.levelhead.display;
 
-import club.sk1er.mods.levelhead.utils.ChatColor;
+import club.sk1er.mods.core.universal.ChatColor;
 
 /**
  * Created by mitchellkatz on 12/23/17. Designed for production use on Sk1er.club

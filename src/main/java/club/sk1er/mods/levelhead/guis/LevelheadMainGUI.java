@@ -1,18 +1,30 @@
 package club.sk1er.mods.levelhead.guis;
 
+import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.JsonHolder;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.display.*;
+import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
+import club.sk1er.mods.levelhead.display.ChatDisplay;
+import club.sk1er.mods.levelhead.display.DisplayConfig;
+import club.sk1er.mods.levelhead.display.LevelheadDisplay;
+import club.sk1er.mods.levelhead.display.SongDisplay;
+import club.sk1er.mods.levelhead.display.TabDisplay;
 import club.sk1er.mods.levelhead.forge.transform.Hooks;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
-import club.sk1er.mods.levelhead.utils.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
@@ -30,25 +42,36 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
-import static net.minecraft.util.EnumChatFormatting.*;
+import static net.minecraft.util.EnumChatFormatting.AQUA;
+import static net.minecraft.util.EnumChatFormatting.BOLD;
+import static net.minecraft.util.EnumChatFormatting.GREEN;
+import static net.minecraft.util.EnumChatFormatting.LIGHT_PURPLE;
+import static net.minecraft.util.EnumChatFormatting.RED;
+import static net.minecraft.util.EnumChatFormatting.UNDERLINE;
+import static net.minecraft.util.EnumChatFormatting.WHITE;
+import static net.minecraft.util.EnumChatFormatting.YELLOW;
 
 public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
     public static final String COLOR_CHAR = "\u00a7";
     private final String colors = "0123456789abcdef";
     private int currentID = 2;
-    private HashMap<GuiButton, Consumer<GuiButton>> clicks = new HashMap<>();
-    private HashMap<Integer, Runnable> ids = new HashMap<>();
+    private final HashMap<GuiButton, Consumer<GuiButton>> clicks = new HashMap<>();
+    private final HashMap<Integer, Runnable> ids = new HashMap<>();
     private LevelheadDisplay currentlyBeingEdited;
     private boolean bigChange = false;
     private boolean isCustom = false;
@@ -241,11 +264,11 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
         String name = YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name");
         if (currentlyBeingEdited instanceof SongDisplay) {
-            name = YELLOW + "Type: "+AQUA+"Current Song";
+            name = YELLOW + "Type: " + AQUA + "Current Song";
         }
 
         reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, name), button -> {
-            if(currentlyBeingEdited instanceof SongDisplay) return;
+            if (currentlyBeingEdited instanceof SongDisplay) return;
             String currentType = config.getType();
             HashMap<String, String> typeMap = instance.allowedTypes();
             Set<String> keys = typeMap.keySet();

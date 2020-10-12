@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class LevelheadChatRenderer {
 
-    private Levelhead levelhead;
+    private final Levelhead levelhead;
 
     public LevelheadChatRenderer(Levelhead levelhead) {
         this.levelhead = levelhead;
@@ -25,8 +25,8 @@ public class LevelheadChatRenderer {
 
     public static IChatComponent modifyChat(IChatComponent component, String tag, DisplayConfig config) {
         ChatComponentText text = new ChatComponentText(config.getHeaderColor() + "[" + config.getFooterColor() +
-                tag +
-                config.getHeaderColor() + "]" + EnumChatFormatting.RESET);
+            tag +
+            config.getHeaderColor() + "]" + EnumChatFormatting.RESET);
         text.appendSibling(component);
         return text;
     }

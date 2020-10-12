@@ -8,17 +8,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class LevelheadDisplay {
     protected final ConcurrentHashMap<UUID, LevelheadTag> cache = new ConcurrentHashMap<>();
     protected final ConcurrentHashMap<UUID, String> trueValueCache = new ConcurrentHashMap<>();
-    protected final java.util.List<UUID> existedMorethan5Seconds = new ArrayList<>();
-    protected final HashMap<UUID, Integer> timeCheck = new HashMap<>();
+    protected final List<UUID> existedMorethan5Seconds = new ArrayList<>();
+    protected final Map<UUID, Integer> timeCheck = new HashMap<>();
 
-    private DisplayPosition position;
-    private DisplayConfig config;
+    private final DisplayPosition position;
+    private final DisplayConfig config;
 
     public LevelheadDisplay(DisplayPosition position, DisplayConfig config) {
         this.position = position;
@@ -81,7 +82,7 @@ public abstract class LevelheadDisplay {
         return existedMorethan5Seconds;
     }
 
-    public HashMap<UUID, Integer> getTimeCheck() {
+    public Map<UUID, Integer> getTimeCheck() {
         return timeCheck;
     }
 

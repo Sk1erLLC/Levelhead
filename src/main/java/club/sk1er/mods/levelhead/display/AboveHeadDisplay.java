@@ -12,7 +12,6 @@ import java.util.UUID;
 
 public class AboveHeadDisplay extends LevelheadDisplay {
 
-
     boolean bottomValue = true;
 
     public AboveHeadDisplay(DisplayConfig config) {
@@ -20,25 +19,31 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     }
 
     public boolean loadOrRender(EntityPlayer player) {
+        if (player == null) {
+            return false;
+        }
+
         for (PotionEffect effect : player.getActivePotionEffects()) {
             if (effect.getPotionID() == 14) {
                 return false;
             }
         }
-        if (!renderFromTeam(player) || player.riddenByEntity != null) return false;
+        if (!renderFromTeam(player) || player.riddenByEntity != null) {
+            return false;
+        }
 
         int renderDistance = Levelhead.getInstance().getDisplayManager().getMasterConfig().getRenderDistance();
         int min = Math.min(64 * 64, renderDistance * renderDistance);
 
 
         return !(player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min)
-                && (!player.hasCustomName() || !player.getCustomNameTag().isEmpty())
-                && !player.getDisplayNameString().isEmpty()
-                && existedMorethan5Seconds.contains(player.getUniqueID())
-                && !player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")
-                && !player.isInvisible()
-                && !player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer)
-                && !player.isSneaking();
+            && (!player.hasCustomName() || !player.getCustomNameTag().isEmpty())
+            && !player.getDisplayNameString().isEmpty()
+            && existedMorethan5Seconds.contains(player.getUniqueID())
+            && !player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")
+            && !player.isInvisible()
+            && !player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer)
+            && !player.isSneaking();
     }
 
     protected boolean renderFromTeam(EntityPlayer player) {
@@ -48,14 +53,13 @@ public class AboveHeadDisplay extends LevelheadDisplay {
         if (team != null) {
             Team.EnumVisible enumVisible = team.getNameTagVisibility();
             switch (enumVisible) {
-                case ALWAYS:
-                    return true;
                 case NEVER:
                     return false;
                 case HIDE_FOR_OTHER_TEAMS:
                     return team1 == null || team.isSameTeam(team1);
                 case HIDE_FOR_OWN_TEAM:
                     return team1 == null || !team.isSameTeam(team1);
+                case ALWAYS:
                 default:
                     return true;
             }
@@ -65,7 +69,6 @@ public class AboveHeadDisplay extends LevelheadDisplay {
 
     @Override
     public void tick() {
-
         for (EntityPlayer entityPlayer : Minecraft.getMinecraft().theWorld.playerEntities) {
             if (!existedMorethan5Seconds.contains(entityPlayer.getUniqueID())) {
                 if (!timeCheck.containsKey(entityPlayer.getUniqueID()))
@@ -118,7 +121,6 @@ public class AboveHeadDisplay extends LevelheadDisplay {
                 }
             }
         }
-
     }
 
     @Override

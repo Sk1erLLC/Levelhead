@@ -53,6 +53,7 @@ public class MojangAuth {
             fail("Error during init: " + jsonHolder);
             return;
         }
+
         hash = jsonHolder.optString("hash");
 
         String session = Minecraft.getMinecraft().getSession().getToken();
@@ -63,10 +64,10 @@ public class MojangAuth {
             fail("Error during Mojang Auth (1) " + statusCode);
             return;
         }
+
         JsonHolder finalResponse = WebUtil.fetchJSON("https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().getSession().getProfile().getName());
         System.out.println("FINAL RESPONSE: " + finalResponse);
         if (finalResponse.optBoolean("success")) {
-
             this.accessKey = finalResponse.optString("access_key");
             this.success = true;
             System.out.println("Successfully authenticated with Sk1er.club Levelhead");

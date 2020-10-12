@@ -227,7 +227,6 @@ public class Levelhead extends DummyModContainer {
 
     public String rawWithAgent(String url) {
         HttpURLConnection connection = null;
-        InputStream is = null;
         try {
             URL u = new URL(url);
             connection = (HttpURLConnection) u.openConnection();
@@ -237,18 +236,15 @@ public class Levelhead extends DummyModContainer {
             connection.setReadTimeout(15000);
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);
-            is = connection.getInputStream();
-            return IOUtils.toString(is, Charset.defaultCharset());
+            try (InputStream is = connection.getInputStream()) {
+                return IOUtils.toString(is, Charset.defaultCharset());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
                 if (connection != null) {
                     connection.disconnect();
-                }
-
-                if (is != null) {
-                    is.close();
                 }
             } catch (Exception e) {
                 System.out.println("Failed to cleanup rawWithAgent.");

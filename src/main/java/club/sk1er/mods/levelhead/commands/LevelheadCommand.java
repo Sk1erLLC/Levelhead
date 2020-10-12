@@ -1,9 +1,9 @@
 package club.sk1er.mods.levelhead.commands;
 
+import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.guis.LevelheadMainGUI;
-import club.sk1er.mods.levelhead.utils.ChatColor;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
