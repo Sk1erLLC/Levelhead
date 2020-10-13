@@ -48,7 +48,7 @@ import java.util.UUID;
 public class Levelhead extends DummyModContainer {
 
     public static final String MODID = "level_head";
-    public static final String VERSION = "7.1";
+    public static final String VERSION = "7.1.1";
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
@@ -203,10 +203,10 @@ public class Levelhead extends DummyModContainer {
     public void tick(TickEvent.ClientTickEvent event) {
 
         if (event.phase == TickEvent.Phase.START
-                || !MinecraftUtils.isHypixel()
-                || displayManager == null
-                || displayManager.getMasterConfig() == null
-                || !displayManager.getMasterConfig().isEnabled()) {
+            || !MinecraftUtils.isHypixel()
+            || displayManager == null
+            || displayManager.getMasterConfig() == null
+            || !displayManager.getMasterConfig().isEnabled()) {
 
             return;
         }
@@ -261,7 +261,7 @@ public class Levelhead extends DummyModContainer {
 
     public void fetch(final UUID uuid, LevelheadDisplay display, boolean allowOverride) {
         if (updates >= count) {
-            waitUntil = System.currentTimeMillis() + 1000 * wait;
+            waitUntil = System.currentTimeMillis() + 1000L * wait;
             updates = 0;
             return;
         }
@@ -270,18 +270,18 @@ public class Levelhead extends DummyModContainer {
         String type = display.getConfig().getType();
 
         if (purchaseStatus.has(type) && !purchaseStatus.optBoolean(type)) {
-            JsonHolder fakeValue = new JsonHolder();
-            fakeValue.put("header", "Error");
-            fakeValue.put("strlevel", "Item '" + type + "' not purchased. If you believe this is an error, contact Sk1er");
-            fakeValue.put("success", true);
+            JsonHolder fakeValue = new JsonHolder()
+                .put("header", "Error")
+                .put("strlevel", "Item '" + type + "' not purchased. If you believe this is an error, contact Sk1er")
+                .put("success", true);
             display.getCache().put(uuid, buildTag(fakeValue, uuid, display, allowOverride));
             return;
         }
         Multithreading.runAsync(() -> {
             String raw = rawWithAgent(
-                    "https://api.sk1er.club/levelheadv5/" + trimUuid(uuid) + "/" + type
-                            + "/" + trimUuid(Minecraft.getMinecraft().getSession().getProfile().getId()) +
-                            "/" + VERSION + "/" + auth.getHash() + "/" + display.getPosition().name());
+                "https://api.sk1er.club/levelheadv5/" + trimUuid(uuid) + "/" + type
+                    + "/" + trimUuid(Minecraft.getMinecraft().getSession().getProfile().getId()) +
+                    "/" + VERSION + "/" + auth.getHash() + "/" + display.getPosition().name());
             JsonHolder object = new JsonHolder(raw);
             if (!object.optBoolean("success")) {
                 object.put("strlevel", "Error");

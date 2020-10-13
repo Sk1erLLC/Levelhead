@@ -35,28 +35,26 @@ public abstract class LevelheadDisplay {
     }
 
     public JsonHolder getHeaderConfig() {
-        JsonHolder holder = new JsonHolder();
-        holder.put("chroma", config.isHeaderChroma());
-        holder.put("rgb", config.isHeaderRgb());
-        holder.put("red", config.getHeaderRed());
-        holder.put("green", config.getHeaderGreen());
-        holder.put("blue", config.getHeaderBlue());
-        holder.put("color", config.getHeaderColor());
-        holder.put("alpha", config.getHeaderAlpha());
-        holder.put("header", config.getCustomHeader() + ": ");
-        return holder;
+        return new JsonHolder()
+            .put("chroma", config.isHeaderChroma())
+            .put("rgb", config.isHeaderRgb())
+            .put("red", config.getHeaderRed())
+            .put("green", config.getHeaderGreen())
+            .put("blue", config.getHeaderBlue())
+            .put("color", config.getHeaderColor())
+            .put("alpha", config.getHeaderAlpha())
+            .put("header", config.getCustomHeader() + ": ");
     }
 
     public JsonHolder getFooterConfig() {
-        JsonHolder holder = new JsonHolder();
-        holder.put("chroma", config.isFooterChroma());
-        holder.put("rgb", config.isFooterRgb());
-        holder.put("color", config.getFooterColor());
-        holder.put("red", config.getFooterRed());
-        holder.put("green", config.getFooterGreen());
-        holder.put("blue", config.getFooterBlue());
-        holder.put("alpha", config.getFooterAlpha());
-        return holder;
+        return new JsonHolder()
+            .put("chroma", config.isFooterChroma())
+            .put("rgb", config.isFooterRgb())
+            .put("color", config.getFooterColor())
+            .put("red", config.getFooterRed())
+            .put("green", config.getFooterGreen())
+            .put("blue", config.getFooterBlue())
+            .put("alpha", config.getFooterAlpha());
     }
 
     public abstract void tick();

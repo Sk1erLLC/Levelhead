@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,21 +155,25 @@ public class DisplayManager {
     }
 
     public void save() {
-        JsonHolder jsonHolder = new JsonHolder();
-        jsonHolder.put("master", new JsonHolder(GSON.toJson(config)));
+        JsonHolder jsonHolder = new JsonHolder().put("master", new JsonHolder(GSON.toJson(config)));
         if (tab != null) {
             jsonHolder.put("tab", new JsonHolder(GSON.toJson(tab.getConfig())));
         }
+
         if (chat != null) {
             jsonHolder.put("chat", new JsonHolder(GSON.toJson(chat.getConfig())));
         }
+
         JsonArray head = new JsonArray();
+
         for (AboveHeadDisplay aboveHeadDisplay : this.aboveHead) {
             head.add(new JsonHolder(GSON.toJson(aboveHeadDisplay.getConfig())).getObject());
         }
+
         jsonHolder.put("head", head);
+
         try {
-            FileUtils.writeStringToFile(this.file, jsonHolder.toString());
+            FileUtils.writeStringToFile(this.file, jsonHolder.toString(), Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
