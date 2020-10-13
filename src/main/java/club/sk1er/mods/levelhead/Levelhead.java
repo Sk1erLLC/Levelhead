@@ -34,7 +34,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -48,7 +48,7 @@ import java.util.UUID;
 public class Levelhead extends DummyModContainer {
 
     public static final String MODID = "level_head";
-    public static final String VERSION = "7.1.1";
+    public static final String VERSION = "7.1.2";
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
@@ -140,7 +140,7 @@ public class Levelhead extends DummyModContainer {
         levelheadPurchaseStates.setTab(purchaseStatus.optBoolean("tab"));
         levelheadPurchaseStates.setExtraHead(purchaseStatus.optInt("head"));
         DisplayManager displayManager = this.displayManager;
-        while (displayManager.getAboveHead().size() <= levelheadPurchaseStates.getExtraHead()) {
+        while (displayManager.getAboveHead().size() - 1 <= levelheadPurchaseStates.getExtraHead()) { //-1 for song display
             displayManager.getAboveHead().add(new AboveHeadDisplay(new DisplayConfig()));
         }
         displayManager.adjustIndexes();
