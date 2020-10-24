@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead.display;
 
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
+import club.sk1er.mods.levelhead.renderer.NullLevelheadTag;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class SongDisplay extends AboveHeadDisplay {
     public void tick() {
         Set<UUID> remove = new HashSet<>();
         for (Map.Entry<UUID, LevelheadTag> entry : cache.entrySet()) {
-            if (entry.getKey() == null || entry.getValue() == null) {
+            if (entry.getValue() instanceof NullLevelheadTag) {
                 return;
             }
 
