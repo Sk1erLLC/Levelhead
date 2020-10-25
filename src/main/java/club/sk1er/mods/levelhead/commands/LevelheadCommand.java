@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead.commands;
 
+import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
@@ -45,6 +46,7 @@ public class LevelheadCommand extends CommandBase {
                 return;
             }
         }
-        new LevelheadMainGUI().display();
+
+        ModCore.getInstance().getGuiHandler().open(new LevelheadMainGUI());
     }
 }

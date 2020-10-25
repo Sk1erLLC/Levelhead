@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.guis;
 import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.JsonHolder;
 import club.sk1er.mods.core.util.MinecraftUtils;
+import club.sk1er.mods.core.util.ModCoreDesktop;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
@@ -14,7 +15,6 @@ import club.sk1er.mods.levelhead.display.TabDisplay;
 import club.sk1er.mods.levelhead.forge.transform.Hooks;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -35,14 +35,10 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiSlider;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -235,21 +231,18 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     if (isCustom) {
                         mc.displayGuiScreen(new CustomLevelheadConfigurer());
                     } else {
-                        Desktop.getDesktop().browse(new URI("http://sk1er.club/customlevelhead"));
+                        ModCoreDesktop.INSTANCE.browse(new URI("http://sk1er.club/customlevelhead"));
                     }
-                } catch (IOException | URISyntaxException e) {
+                } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
 
             });
             reg(new GuiButton(++currentID, 1, 23, 150, 20, YELLOW + "Purchase Levelhead Credits"), button -> {
-                Desktop desktop = Desktop.getDesktop();
-                if (desktop != null) {
-                    try {
-                        desktop.browse(new URI("https://purchase.sk1er.club/category/1050972"));
-                    } catch (IOException | URISyntaxException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    ModCoreDesktop.INSTANCE.browse(new URI("https://purchase.sk1er.club/category/1050972"));
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
                 }
             });
 
@@ -683,16 +676,6 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         this.zLevel += 100.0F;
         this.drawTexturedModalRect(x - 11, y, 0, 176 + j * 8, 10, 8);
         this.zLevel -= 100.0F;
-    }
-
-    public void display() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event) {
-        MinecraftForge.EVENT_BUS.unregister(this);
-        Minecraft.getMinecraft().displayGuiScreen(this);
     }
 
     @Override

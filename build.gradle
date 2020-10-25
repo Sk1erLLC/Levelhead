@@ -14,7 +14,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "7.1.2"
+version = "7.2"
 group = "club.sk1er"
 archivesBaseName = "Levelhead"
 
