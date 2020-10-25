@@ -41,11 +41,7 @@ public class DisplayManager {
         }
         for (JsonElement head : source.optJSONArray("head")) {
             try {
-                final JsonObject asJsonObject = head.getAsJsonObject();
-                if (asJsonObject.has("type") && asJsonObject.get("type").getAsString().equalsIgnoreCase("SONG"))
-                    aboveHead.add(new SongDisplay(GSON.fromJson(asJsonObject, DisplayConfig.class)));
-                else
-                    aboveHead.add(new AboveHeadDisplay(GSON.fromJson(asJsonObject, DisplayConfig.class)));
+                aboveHead.add(new AboveHeadDisplay(GSON.fromJson(head.getAsJsonObject(), DisplayConfig.class)));
             } catch (Exception ignored) {
 
             }
@@ -70,17 +66,6 @@ public class DisplayManager {
             aboveHead.add(new AboveHeadDisplay(new DisplayConfig()));
         }
 
-        boolean song = false;
-        for (AboveHeadDisplay aboveHeadDisplay : aboveHead) {
-            if (aboveHeadDisplay.getConfig().getType().equalsIgnoreCase("SONG")) {
-                song = true;
-                break;
-            }
-        }
-
-        if (!song) {
-            aboveHead.add(new SongDisplay(new DisplayConfig()));
-        }
         if (tab == null) {
             DisplayConfig config = new DisplayConfig();
             config.setType("QUESTS");
@@ -99,11 +84,6 @@ public class DisplayManager {
     }
 
     public void adjustIndexes() {
-        aboveHead.sort((o1, o2) -> o1 instanceof SongDisplay && o2 instanceof SongDisplay ? 0 : (
-            o1 instanceof SongDisplay ? 1 : (
-                o2 instanceof SongDisplay ? -1 : 1
-            )
-        ));
         for (int i = 0; i < aboveHead.size(); i++) {
             aboveHead.get(i).setBottomValue(i == 0);
             aboveHead.get(i).setIndex(i);

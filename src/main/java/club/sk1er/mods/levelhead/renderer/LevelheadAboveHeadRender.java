@@ -3,7 +3,6 @@ package club.sk1er.mods.levelhead.renderer;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
-import club.sk1er.mods.levelhead.display.SongDisplay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -46,18 +45,10 @@ public class LevelheadAboveHeadRender {
         for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
             int index = display.getIndex();
             int extraHead = levelhead.getLevelheadPurchaseStates().getExtraHead();
-            if (index > extraHead && !(display instanceof SongDisplay)) {
+            if (index > extraHead || !display.getConfig().isEnabled()) {
                 continue;
             }
-            if (!display.getConfig().isEnabled())
-                continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
-            if (levelheadTag != null &&
-                display instanceof SongDisplay
-                && !(levelheadTag instanceof NullLevelheadTag)
-                && levelheadTag.getFooter().getValue().equals("NONE")) {
-                continue;
-            }
 
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
                 if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !MinecraftUtils.isHypixel())

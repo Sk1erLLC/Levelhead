@@ -10,7 +10,6 @@ import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
 import club.sk1er.mods.levelhead.display.ChatDisplay;
 import club.sk1er.mods.levelhead.display.DisplayConfig;
 import club.sk1er.mods.levelhead.display.LevelheadDisplay;
-import club.sk1er.mods.levelhead.display.SongDisplay;
 import club.sk1er.mods.levelhead.display.TabDisplay;
 import club.sk1er.mods.levelhead.forge.transform.Hooks;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
@@ -105,16 +104,18 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
     @Override
     public void initGui() {
-        Minecraft.getMinecraft().gameSettings.hideGUI = true;
-        Multithreading.runAsync(() -> {
-            this.isCustom = WebUtil.fetchJSON("https://api.sk1er.club/levelhead/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString().replace("-", "")).optBoolean("custom");
-        });
+        mc.gameSettings.hideGUI = true;
+        Multithreading.runAsync(() ->
+            this.isCustom = WebUtil.fetchJSON("https://api.sk1er.club/levelhead/" + mc.getSession()
+                .getProfile().getId()
+                .toString().replace("-", ""))
+                .optBoolean("custom"));
         textField = new GuiTextField(-500, fontRendererObj, width - 124, 74, 120, 19);
     }
 
     @Override
     public void onGuiClosed() {
-        Minecraft.getMinecraft().gameSettings.hideGUI = false;
+        mc.gameSettings.hideGUI = false;
         if (bigChange) {
             Levelhead.getInstance().getDisplayManager().clearCache();
         }
@@ -137,7 +138,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         });
 
 
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+        FontRenderer fontRenderer = mc.fontRendererObj;
 
         if (purchasingStats) {
             reg(new GuiButton(++currentID, 1, height - 21, 100, 20, "Back"), guiButton -> {
@@ -232,7 +233,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             reg(new GuiButton(++currentID, 2, height - 44, 220, 20, (isCustom ? ChatColor.YELLOW + "Click to change custom Levelhead." : ChatColor.YELLOW + "Click to purchase custom Levelhead")), button -> {
                 try {
                     if (isCustom) {
-                        Minecraft.getMinecraft().displayGuiScreen(new CustomLevelheadConfigurer());
+                        mc.displayGuiScreen(new CustomLevelheadConfigurer());
                     } else {
                         Desktop.getDesktop().browse(new URI("http://sk1er.club/customlevelhead"));
                     }
@@ -262,13 +263,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             config.setEnabled(!config.isEnabled());
         });
 
-        String name = YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name");
-        if (currentlyBeingEdited instanceof SongDisplay) {
-            name = YELLOW + "Type: " + AQUA + "Current Song";
-        }
-
-        reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, name), button -> {
-            if (currentlyBeingEdited instanceof SongDisplay) return;
+        reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name")), button -> {
             String currentType = config.getType();
             HashMap<String, String> typeMap = instance.allowedTypes();
             Set<String> keys = typeMap.keySet();
@@ -286,7 +281,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     textField.setText(config.getCustomHeader());
                 }
             }
-            EntityPlayerSP thePlayer = Minecraft.getMinecraft().thePlayer;
+            EntityPlayerSP thePlayer = mc.thePlayer;
             currentlyBeingEdited.getCache().remove(thePlayer.getUniqueID());
             currentlyBeingEdited.getTrueValueCache().remove(thePlayer.getUniqueID());
             bigChange = true;
@@ -296,12 +291,10 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     private void doHead(DisplayConfig config, Levelhead instance, int editWidth, int mouseX, int mouseY) {
         List<AboveHeadDisplay> aboveHead = instance.getDisplayManager().getAboveHead();
 
-        if (!(currentlyBeingEdited instanceof SongDisplay)) {
-            textField.drawTextBox();
-            if (!textField.getText().equalsIgnoreCase(config.getCustomHeader())) {
-                config.setCustomHeader(textField.getText());
-                updatePeopleToValues();
-            }
+        textField.drawTextBox();
+        if (!textField.getText().equalsIgnoreCase(config.getCustomHeader())) {
+            config.setCustomHeader(textField.getText());
+            updatePeopleToValues();
         }
         reg(new GuiButton(++currentID, width / 3 - 100, height - 137, 200, 20, YELLOW + "Purchase Additional Above Head Layer"), button -> {
             attemptPurchase("head");
@@ -425,13 +418,13 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     valueIn.setChatStyle(style2);
                     style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
                     text.setChatStyle(style);
-                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(valueIn);
-                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(text);
+                    mc.thePlayer.addChatComponentMessage(valueIn);
+                    mc.thePlayer.addChatComponentMessage(text);
 
                 } catch (UnsupportedEncodingException e2) {
                     e2.printStackTrace();
                 }
-                Minecraft.getMinecraft().displayGuiScreen(null);
+                mc.displayGuiScreen(null);
                 return;
             });
         }
@@ -445,26 +438,17 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         GlStateManager.enableAlpha();
         GlStateManager.enableDepth();
         GlStateManager.translate(0, 0, 50);
-        ScaledResolution current = new ScaledResolution(Minecraft.getMinecraft());
+        ScaledResolution current = new ScaledResolution(mc);
 
         int posX = current.getScaledWidth() / 3;
         int posY = current.getScaledHeight() / 2;
-        GuiInventory.drawEntityOnScreen(posX, posY + 50, 50, posX - mouseX, posY - mouseY, Minecraft.getMinecraft().thePlayer);
+        GuiInventory.drawEntityOnScreen(posX, posY + 50, 50, posX - mouseX, posY - mouseY, mc.thePlayer);
         GlStateManager.depthFunc(515);
         GlStateManager.resetColor();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableDepth();
         GlStateManager.popMatrix();
-        if (!(currentlyBeingEdited instanceof SongDisplay)) {
-            drawScaledText("Custom Prefix: ", width - editWidth * 3 / 2 - 3, 77, 1.5, Color.WHITE.getRGB(), true, true);
-        } else {
-            String text = "Song Display uses MediaMod. ";
-            drawScaledText(text, width - editWidth * 2, 71, 1, Color.WHITE.getRGB(), true, false);
-            text = "Sk1er.club/mediamod for more info";
-            drawScaledText(text, width - editWidth * 2, 80, 1, Color.WHITE.getRGB(), true, false);
-
-        }
-
+        drawScaledText("Custom Prefix: ", width - editWidth * 3 / 2 - 3, 77, 1.5, Color.WHITE.getRGB(), true, true);
     }
 
     private void incrementColor(DisplayConfig config, boolean header) {
@@ -481,7 +465,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
 
     private void doChat(DisplayConfig config, Levelhead instance, int editWidth) {
-        EntityPlayerSP thePlayer = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP thePlayer = mc.thePlayer;
         LevelheadPurchaseStates levelheadPurchaseStates = instance.getLevelheadPurchaseStates();
         String formattedText = thePlayer.getDisplayName().getFormattedText();
         IChatComponent component = new ChatComponentText(formattedText + WHITE + ": Levelhead rocks!");
@@ -519,8 +503,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     }
 
     private void doTab(Levelhead instance) {
-        EntityPlayerSP thePlayer = Minecraft.getMinecraft().thePlayer;
-        NetworkPlayerInfo playerInfo = Minecraft.getMinecraft().getNetHandler().getPlayerInfo(thePlayer.getUniqueID());
+        EntityPlayerSP thePlayer = mc.thePlayer;
+        NetworkPlayerInfo playerInfo = mc.getNetHandler().getPlayerInfo(thePlayer.getUniqueID());
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
 
@@ -570,8 +554,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (currentlyBeingEdited instanceof AboveHeadDisplay) {
-            if (!(currentlyBeingEdited instanceof SongDisplay))
-                textField.mouseClicked(mouseX, mouseY, mouseButton);
+            textField.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
 
@@ -579,13 +562,12 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
         if (currentlyBeingEdited instanceof AboveHeadDisplay) {
-            if (!(currentlyBeingEdited instanceof SongDisplay))
-                textField.textboxKeyTyped(typedChar, keyCode);
+            textField.textboxKeyTyped(typedChar, keyCode);
         }
     }
 
     private void updatePeopleToValues() {
-        UUID uniqueID = Minecraft.getMinecraft().thePlayer.getUniqueID();
+        UUID uniqueID = mc.thePlayer.getUniqueID();
         currentlyBeingEdited.getCache().remove(uniqueID);
         currentlyBeingEdited.getTrueValueCache().remove(uniqueID);
         bigChange = true;
@@ -635,14 +617,14 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         }
         int remaining_levelhead_credits = instance.getRawPurchases().optInt("remaining_levelhead_credits");
         if (remaining_levelhead_credits < cost) {
-            Minecraft.getMinecraft().displayGuiScreen(null);
+            mc.displayGuiScreen(null);
             MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Insufficient credits! " + name + " costs " + cost + " credits but you only have " + remaining_levelhead_credits);
             MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "You can purchase more credits here: https://purchase.sk1er.club/category/1050972 (CLICK IT!)");
             return;
         }
         if (instance.getAuth().isFailed()) {
             MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Could not verify your identify. Please restart the client. If issues persists, contact Sk1er");
-            Minecraft.getMinecraft().displayGuiScreen(null);
+            mc.displayGuiScreen(null);
             return;
         }
         if (found) {
@@ -662,7 +644,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
             });
             GuiYesNo gui = new GuiYesNo(this, "Purchase " + finalName, "Description: " + description + ". This item may be purchased " + (single ? "one time" : "many times") + ". Type: " + (display ? "Display" : "Extra Stat"), "Purchase for " + cost + " credits", "Cancel", chat.hashCode());
-            Minecraft.getMinecraft().displayGuiScreen(gui);
+            mc.displayGuiScreen(gui);
         } else {
             MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "Could not find package: " + chat + ". Please contact Sk1er immediately");
         }
@@ -677,7 +659,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                 runnable.run();
             }
         }
-        Minecraft.getMinecraft().displayGuiScreen(this);
+        mc.displayGuiScreen(this);
     }
 
     private void drawPing(int x, int y, NetworkPlayerInfo networkPlayerInfoIn) {
@@ -699,7 +681,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         }
 
         this.zLevel += 100.0F;
-        this.drawTexturedModalRect(x - 11, y, i * 10, 176 + j * 8, 10, 8);
+        this.drawTexturedModalRect(x - 11, y, 0, 176 + j * 8, 10, 8);
         this.zLevel -= 100.0F;
     }
 

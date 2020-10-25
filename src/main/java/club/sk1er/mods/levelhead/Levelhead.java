@@ -140,7 +140,7 @@ public class Levelhead extends DummyModContainer {
         levelheadPurchaseStates.setTab(purchaseStatus.optBoolean("tab"));
         levelheadPurchaseStates.setExtraHead(purchaseStatus.optInt("head"));
         DisplayManager displayManager = this.displayManager;
-        while (displayManager.getAboveHead().size() - 1 <= levelheadPurchaseStates.getExtraHead()) { //-1 for song display
+        while (displayManager.getAboveHead().size() <= levelheadPurchaseStates.getExtraHead()) {
             displayManager.getAboveHead().add(new AboveHeadDisplay(new DisplayConfig()));
         }
         displayManager.adjustIndexes();
