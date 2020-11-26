@@ -47,6 +47,7 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     }
 
     protected boolean renderFromTeam(EntityPlayer player) {
+        if (player == Minecraft.getMinecraft().thePlayer) return true;
         Team team = player.getTeam();
         Team team1 = Minecraft.getMinecraft().thePlayer.getTeam();
 
