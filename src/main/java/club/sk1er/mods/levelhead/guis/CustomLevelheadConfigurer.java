@@ -41,8 +41,8 @@ public class CustomLevelheadConfigurer extends GuiScreen {
     public void initGui() {
         super.initGui();
 
-        header = new GuiTextField(nextId(), fontRendererObj, width / 2 - 205, 30, 200, 20);
-        level = new GuiTextField(nextId(), fontRendererObj, width / 2 + 5, 30, 200, 20);
+        header = new GuiTextField(nextId(), this.fontRendererObj, width / 2 - 205, 30, 200, 20);
+        level = new GuiTextField(nextId(), this.fontRendererObj, width / 2 + 5, 30, 200, 20);
         header.setMaxStringLength(50);
         level.setMaxStringLength(50);
 
@@ -90,8 +90,8 @@ public class CustomLevelheadConfigurer extends GuiScreen {
     private void drawScaledText(String text, int trueX, int trueY, double scaleFac, int color, boolean shadow, boolean centered) {
         GlStateManager.pushMatrix();
         GlStateManager.scale(scaleFac, scaleFac, scaleFac);
-        fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (centered ?
-            fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
+        this.fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (centered ?
+            this.fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
         GlStateManager.scale(1 / scaleFac, 1 / scaleFac, 1 / scaleFac);
         GlStateManager.popMatrix();
     }

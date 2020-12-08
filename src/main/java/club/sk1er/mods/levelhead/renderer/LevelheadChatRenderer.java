@@ -45,7 +45,11 @@ public class LevelheadChatRenderer {
         }
         if (!chat.getConfig().isEnabled())
             return;
+        //#if MC<=10809
         List<IChatComponent> siblings = event.message.getSiblings();
+        //#else
+        //$$ List<ITextComponent> siblings = event.getMessage().getSiblings();
+        //#endif
         if (siblings.size() == 0) {
             return;
         }
@@ -66,7 +70,11 @@ public class LevelheadChatRenderer {
                                 UUID key = UUID.fromString(uuid);
                                 String tag = chat.getTrueValueCache().get(key);
                                 if (tag != null) {
+                                    //#if MC<=10809
                                     event.message = modifyChat(event.message, tag, chat.getConfig());
+                                    //#else
+                                    //$$  event.setMessage(modifyChat(event.getMessage(), tag, chat.getConfig()));
+                                    //#endif
                                 } else {
                                     if (!(chat.getCache().get(key) instanceof NullLevelheadTag)) {
                                         levelhead.fetch(key, chat, false);

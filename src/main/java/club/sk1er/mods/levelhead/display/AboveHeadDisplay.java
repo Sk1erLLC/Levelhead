@@ -24,13 +24,28 @@ public class AboveHeadDisplay extends LevelheadDisplay {
         }
 
         for (PotionEffect effect : player.getActivePotionEffects()) {
+            //#if MC<=10809
             if (effect.getPotionID() == 14) {
                 return false;
             }
+            //#else
+            //$$ if (effect.getPotion().getName().equalsIgnoreCase("invisibility")) {
+            //$$     return false;
+            //$$ }
+            //#endif
         }
-        if (!renderFromTeam(player) || player.riddenByEntity != null) {
+        if (!renderFromTeam(player)) {
             return false;
         }
+        //#if MC<=10809
+        if(player.riddenByEntity != null) {
+            return false;
+        }
+        //#else
+        //$$ if(player.isBeingRidden()) {
+        //$$     return false;
+        //$$ }
+        //#endif
 
         int renderDistance = Levelhead.getInstance().getDisplayManager().getMasterConfig().getRenderDistance();
         int min = Math.min(64 * 64, renderDistance * renderDistance);

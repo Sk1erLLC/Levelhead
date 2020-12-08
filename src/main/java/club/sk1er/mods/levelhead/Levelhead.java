@@ -52,16 +52,16 @@ public class Levelhead extends DummyModContainer {
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
-    public int count = 100;
-    public int wait = 1;
+    public final int count = 100;
+    public final int wait = 1;
     private long waitUntil = System.currentTimeMillis();
     private int updates = 0;
     private MojangAuth auth;
     private JsonHolder types = new JsonHolder();
-    private DecimalFormat format = new DecimalFormat("#,###");
+    private final DecimalFormat format = new DecimalFormat("#,###");
     private JsonHolder paidData = new JsonHolder();
     private DisplayManager displayManager;
-    private LevelheadPurchaseStates levelheadPurchaseStates = new LevelheadPurchaseStates();
+    private final LevelheadPurchaseStates levelheadPurchaseStates = new LevelheadPurchaseStates();
     private JsonHolder purchaseStatus = new JsonHolder();
     private LevelheadChatRenderer levelheadChatRenderer;
     private JsonHolder rawPurchases = new JsonHolder();
@@ -147,11 +147,6 @@ public class Levelhead extends DummyModContainer {
 
     }
 
-    @Subscribe
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
-        ModCoreInstaller.initializeModCore(Minecraft.getMinecraft().mcDataDir);
-    }
 
     @Subscribe
     @EventHandler

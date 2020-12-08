@@ -1,7 +1,9 @@
 package club.sk1er.mods.levelhead.commands;
 
 import club.sk1er.mods.core.ModCore;
+import club.sk1er.mods.core.command.ModCoreCommand;
 import club.sk1er.mods.core.universal.ChatColor;
+import club.sk1er.mods.core.util.GuiUtil;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.guis.LevelheadMainGUI;
@@ -12,33 +14,25 @@ import net.minecraft.command.ICommandSender;
 /**
  * Created by Mitchell Katz on 5/8/2017.
  */
-public class LevelheadCommand extends CommandBase {
+public class LevelheadCommand extends ModCoreCommand {
 
-    @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
         return true;
     }
 
-    @Override
     public String getCommandName() {
         return "levelhead";
     }
 
-    @Override
     public String getCommandUsage(ICommandSender sender) {
         return "/" + getCommandName();
     }
 
-    @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-        //TODO update
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("limit")) {
-                MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Count: " + Levelhead.getInstance().count);
-                MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Wait: " + Levelhead.getInstance().wait);
-                MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Hypixel: " + MinecraftUtils.isHypixel());
                 MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
-                //TODO add more debug
+                MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Hypixel: " + MinecraftUtils.isHypixel());
                 return;
             } else if (args[0].equalsIgnoreCase("dumpcache")) {
                 Levelhead.getInstance().getDisplayManager().clearCache();
@@ -47,6 +41,6 @@ public class LevelheadCommand extends CommandBase {
             }
         }
 
-        ModCore.getInstance().getGuiHandler().open(new LevelheadMainGUI());
+        GuiUtil.open(new LevelheadMainGUI());
     }
 }

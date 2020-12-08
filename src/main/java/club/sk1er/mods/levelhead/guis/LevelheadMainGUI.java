@@ -1,9 +1,12 @@
 package club.sk1er.mods.levelhead.guis;
 
+import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.universal.ChatColor;
+import club.sk1er.mods.core.universal.UniversalChat;
+import club.sk1er.mods.core.universal.UniversalDesktop;
+import club.sk1er.mods.core.universal.wrappers.message.UniversalTextComponent;
 import club.sk1er.mods.core.util.JsonHolder;
 import club.sk1er.mods.core.util.MinecraftUtils;
-import club.sk1er.mods.core.util.ModCoreDesktop;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
@@ -106,7 +109,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                 .getProfile().getId()
                 .toString().replace("-", ""))
                 .optBoolean("custom"));
-        textField = new GuiTextField(-500, fontRendererObj, width - 124, 74, 120, 19);
+        textField = new GuiTextField(-500, this.fontRendererObj, width - 124, 74, 120, 19);
     }
 
     @Override
@@ -134,7 +137,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         });
 
 
-        FontRenderer fontRenderer = mc.fontRendererObj;
+        FontRenderer fontRenderer = this.fontRendererObj;
 
         if (purchasingStats) {
             reg(new GuiButton(++currentID, 1, height - 21, 100, 20, "Back"), guiButton -> {
@@ -231,7 +234,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     if (isCustom) {
                         mc.displayGuiScreen(new CustomLevelheadConfigurer());
                     } else {
-                        ModCoreDesktop.INSTANCE.browse(new URI("http://sk1er.club/customlevelhead"));
+                        UniversalDesktop.browse(new URI("http://sk1er.club/customlevelhead"));
                     }
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
@@ -240,7 +243,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             });
             reg(new GuiButton(++currentID, 1, 23, 150, 20, YELLOW + "Purchase Levelhead Credits"), button -> {
                 try {
-                    ModCoreDesktop.INSTANCE.browse(new URI("https://purchase.sk1er.club/category/1050972"));
+                    UniversalDesktop.browse(new URI("https://purchase.sk1er.club/category/1050972"));
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
@@ -411,14 +414,14 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     valueIn.setChatStyle(style2);
                     style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
                     text.setChatStyle(style);
-                    mc.thePlayer.addChatComponentMessage(valueIn);
-                    mc.thePlayer.addChatComponentMessage(text);
+                    MinecraftUtils.sendMessage(UniversalTextComponent.from(valueIn).get());
+                    MinecraftUtils.sendMessage(UniversalTextComponent.from(text).get());
+
 
                 } catch (UnsupportedEncodingException e2) {
                     e2.printStackTrace();
                 }
                 mc.displayGuiScreen(null);
-                return;
             });
         }
 
@@ -471,7 +474,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         String fakeChatText = chatComponent.getFormattedText();
 
         int fakeChatTop = height - 200;
-        drawRect(width / 3 - fontRendererObj.getStringWidth(fakeChatText) / 2, fakeChatTop, width / 3 + fontRendererObj.getStringWidth(fakeChatText) / 2, fakeChatTop + 10, Integer.MIN_VALUE);
+        drawRect(width / 3 - this.fontRendererObj.getStringWidth(fakeChatText) / 2, fakeChatTop, width / 3 + this.fontRendererObj.getStringWidth(fakeChatText) / 2, fakeChatTop + 10, Integer.MIN_VALUE);
         drawScaledText(fakeChatText, width / 3, fakeChatTop + 1, 1.0, Color.WHITE.getRGB(), true, true);
 
         if (!levelheadPurchaseStates.isChat()) {
@@ -479,11 +482,11 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             int i = 2;
             for (String s : text.split("\n")) {
                 int offset = i * 10;
-                int stringWidth = fontRendererObj.getStringWidth(s);
+                int stringWidth = this.fontRendererObj.getStringWidth(s);
                 int tmpLeft = width / 3 - stringWidth / 2;
                 fakeChatTop = height - 180;
                 drawRect(tmpLeft, fakeChatTop + offset, tmpLeft + stringWidth, fakeChatTop + offset + 8, Integer.MIN_VALUE);
-                fontRendererObj.drawString(s, tmpLeft, fakeChatTop + offset, Color.YELLOW.getRGB(), true);
+                this.fontRendererObj.drawString(s, tmpLeft, fakeChatTop + offset, Color.YELLOW.getRGB(), true);
                 i++;
             }
             reg(new GuiButton(++currentID, width / 3 - 60, height - 140, 120, 20, YELLOW.toString() + "Purchase Chat Display"), button -> this.attemptPurchase("chat"));
@@ -503,13 +506,13 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
 
             String formattedText = thePlayer.getDisplayName().getFormattedText();
-            int totalTabWith = 9 + fontRendererObj.getStringWidth(formattedText) + Hooks.getLevelheadWidth(playerInfo) + 15;
+            int totalTabWith = 9 + this.fontRendererObj.getStringWidth(formattedText) + Hooks.getLevelheadWidth(playerInfo) + 15;
             int fakeTabTop = height - 200;
             int centerOn = width / 3;
             int leftStart = centerOn - totalTabWith / 2;
             drawRect(leftStart, fakeTabTop, centerOn + totalTabWith / 2, fakeTabTop + 8, Integer.MIN_VALUE);
             drawRect(leftStart, fakeTabTop, centerOn + totalTabWith / 2, fakeTabTop + 8, 553648127);
-            fontRendererObj.drawString(formattedText, leftStart + 9, fakeTabTop, Color.WHITE.getRGB(), true);
+            this.fontRendererObj.drawString(formattedText, leftStart + 9, fakeTabTop, Color.WHITE.getRGB(), true);
 
             this.mc.getTextureManager().bindTexture(thePlayer.getLocationSkin());
             int l2 = 8;
@@ -529,11 +532,11 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                 int i = 1;
                 for (String s : text.split("\n")) {
                     int offset = i * 10;
-                    int stringWidth = fontRendererObj.getStringWidth(s);
+                    int stringWidth = this.fontRendererObj.getStringWidth(s);
                     int tmpLeft = width / 3 - stringWidth / 2;
                     fakeTabTop = height - 180;
                     drawRect(tmpLeft, fakeTabTop + offset, tmpLeft + stringWidth, fakeTabTop + offset + 8, Integer.MIN_VALUE);
-                    fontRendererObj.drawString(s, tmpLeft, fakeTabTop + offset, Color.YELLOW.getRGB(), true);
+                    this.fontRendererObj.drawString(s, tmpLeft, fakeTabTop + offset, Color.YELLOW.getRGB(), true);
                     i++;
                 }
                 reg(new GuiButton(++currentID, centerOn - 60, height - 140, 120, 20, YELLOW.toString() + "Purchase Tab Display"), button -> {
@@ -569,7 +572,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     private void drawScaledText(String text, int trueX, int trueY, double scaleFac, int color, boolean shadow, boolean centered) {
         GlStateManager.pushMatrix();
         GlStateManager.scale(scaleFac, scaleFac, scaleFac);
-        fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (centered ? fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
+        this.fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (centered ? this.fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
         GlStateManager.scale(1 / scaleFac, 1 / scaleFac, 1 / scaleFac);
         GlStateManager.popMatrix();
     }
@@ -657,7 +660,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
     private void drawPing(int x, int y, NetworkPlayerInfo networkPlayerInfoIn) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        this.mc.getTextureManager().bindTexture(icons);
+        this.mc.getTextureManager().bindTexture(this.icons);
         int i = 0;
         int j = 0;
 

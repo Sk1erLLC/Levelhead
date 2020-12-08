@@ -39,8 +39,11 @@ public class LevelheadAboveHeadRender {
             || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
-
+        //#if MC<=10809
         EntityPlayer player = event.entityPlayer;
+        //#else
+        //$$ EntityPlayer player = event.getEntityPlayer();
+        //#endif
         int o = 0;
         for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
             int index = display.getIndex();
@@ -51,7 +54,7 @@ public class LevelheadAboveHeadRender {
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
 
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
-                if ((event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !MinecraftUtils.isHypixel())
+                if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !MinecraftUtils.isHypixel())
                     continue;
 
                 if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
@@ -59,13 +62,17 @@ public class LevelheadAboveHeadRender {
                     Scoreboard scoreboard = player.getWorldScoreboard();
                     ScoreObjective scoreObjective = scoreboard.getObjectiveInDisplaySlot(2);
 
-                    if (scoreObjective != null && event.entityPlayer.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 10 * 10) {
+                    if (scoreObjective != null && player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 10 * 10) {
                         offset *= 2;
                     }
-                    if (event.entityPlayer.getUniqueID().equals(Levelhead.getInstance().userUuid))
+                    if (player.getUniqueID().equals(Levelhead.getInstance().userUuid))
                         offset = 0;
                     offset += levelhead.getDisplayManager().getMasterConfig().getOffset();
+                    //#if MC<=10809
                     renderName(event, levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
+                    //#else
+                    //$$ renderName(event, levelheadTag, player, event.getX(), event.getY() + offset + o * .3D, event.getZ());
+                    //#endif
                 }
             }
             o++;
@@ -74,7 +81,11 @@ public class LevelheadAboveHeadRender {
     }
 
     public void renderName(RenderPlayerEvent event, LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
+        //#if MC<=10809
         FontRenderer fontrenderer = event.renderer.getFontRendererFromRenderManager();
+        //#else
+        //$$ FontRenderer fontrenderer = event.getRenderer().getFontRendererFromRenderManager();
+        //#endif
         float f = (float) (1.6F * Levelhead.getInstance().getDisplayManager().getMasterConfig().getFontSize());
         float f1 = 0.016666668F * f;
         GlStateManager.pushMatrix();
@@ -86,8 +97,13 @@ public class LevelheadAboveHeadRender {
 
         GlStateManager.translate((float) x + 0.0F, (float) y + entityIn.height + 0.5F, (float) z);
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+        //#if MC<=10809
         GlStateManager.rotate(-event.renderer.getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(event.renderer.getRenderManager().playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
+        //#else
+        //$$ GlStateManager.rotate(-event.getRenderer().getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
+        //$$ GlStateManager.rotate(event.getRenderer().getRenderManager().playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
+        //#endif
         GlStateManager.scale(-f1, -f1, f1);
         GlStateManager.disableLighting();
         GlStateManager.depthMask(false);
