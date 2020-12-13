@@ -312,8 +312,8 @@ dependencies {
         exclude module: "kotlin-stdlib"
     }
 
-    implementation("club.sk1er:ModCore:554-${mcVersion}-SNAPSHOT") {
-        exclude module: "Vigilance"
+    implementation("club.sk1er:ModCore:579-${mcVersion}-SNAPSHOT") {
+//        exclude module: "Vigilance"
     }
 
     implementation("com.github.Sk1erLLC:HookInjection:b9ac92c31e") {

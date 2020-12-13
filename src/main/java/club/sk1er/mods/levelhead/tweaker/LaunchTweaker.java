@@ -23,14 +23,14 @@ public class LaunchTweaker implements ITweaker {
 
         //#if FORGE
         try {
-            version = ForgeVersion.class.getDeclaredField("mcVersion").get(null) + "_forge";
+            version = "forge_"+ForgeVersion.class.getDeclaredField("mcVersion").get(null) ;
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
 
         //#else
         //$$ version=net.minecraft.MinecraftVersion.create().getName()+"_fabric";
-        //#endif-
+        //#endif
         int initialize = ModCoreInstaller.initialize(gameDir, version);
         System.out.println("ModCore Init Status From Scrollable Tooltips " + initialize);
     }

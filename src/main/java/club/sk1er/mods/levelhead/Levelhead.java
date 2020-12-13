@@ -1,5 +1,7 @@
 package club.sk1er.mods.levelhead;
 
+import club.sk1er.mods.core.ModCore;
+import club.sk1er.mods.core.commands.ModCoreCommandManager;
 import club.sk1er.mods.core.util.JsonHolder;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
@@ -48,7 +50,7 @@ import java.util.UUID;
 public class Levelhead extends DummyModContainer {
 
     public static final String MODID = "level_head";
-    public static final String VERSION = "7.2";
+    public static final String VERSION = "7.3";
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
@@ -183,7 +185,7 @@ public class Levelhead extends DummyModContainer {
         Minecraft minecraft = FMLClientHandler.instance().getClient();
         userUuid = minecraft.getSession().getProfile().getId();
         register(new LevelheadAboveHeadRender(this), this);
-        ClientCommandHandler.instance.registerCommand(new LevelheadCommand());
+        ModCoreCommandManager.registerCommand(new LevelheadCommand());
         levelheadChatRenderer = new LevelheadChatRenderer(this);
         register(levelheadChatRenderer);
     }

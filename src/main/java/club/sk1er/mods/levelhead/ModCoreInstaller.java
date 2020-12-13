@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public class ModCoreInstaller {
-    private static final String VERSION_URL = "https://api.sk1er.club/modcore_versions";
+    private static final String VERSION_URL = "http://api.modcore.net/api/v1/versions";
     private static final String className = "club.sk1er.mods.core.tweaker.ModCoreTweaker";
     private static boolean errored = false;
     private static String error;
@@ -84,11 +84,12 @@ public class ModCoreInstaller {
         return false;
     }
 
+
     public static int initialize(File gameDir, String minecraftVersion) {
         if (inClassPath()) {
             if (isInitialized())
                 return -1;
-            else return  initializeModCore(gameDir) ? 0 : 4;
+            else return initializeModCore(gameDir) ? 0 : 4;
         }
         dataDir = new File(gameDir, "modcore");
         if (!dataDir.exists()) {
@@ -97,7 +98,7 @@ public class ModCoreInstaller {
                 return 1;
             }
         }
-        JsonHolder jsonHolder = fetchJSON(VERSION_URL);
+        JsonHolder jsonHolder = fetchJSON(VERSION_URL).optJSONObject("versions");
         if (!jsonHolder.has(minecraftVersion)) {
             System.out.println("No ModCore target for " + minecraftVersion + ". Aborting install");
             return -2;
@@ -191,13 +192,18 @@ public class ModCoreInstaller {
             int contentLength = connection.getContentLength();
             FileOutputStream outputStream = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
-            System.out.println("MAX: " + contentLength);
-            bar.setMaximum(contentLength);
+            bar.setMaximum(100);
             int read;
             bar.setValue(0);
+            int lastPercent = 0;
+            int read2 = 0;
             while ((read = is.read(buffer)) > 0) {
+                read2 += 1024;
+                if (read2 * 100 / contentLength != lastPercent) {
+                    lastPercent = read * 100 / contentLength;
+                    bar.setValue(bar.getValue() + 1);
+                }
                 outputStream.write(buffer, 0, read);
-                bar.setValue(bar.getValue() + 1024);
             }
             outputStream.close();
             FileUtils.write(new File(dataDir, "metadata.json"), versionData.put(mcver, version).toString());
@@ -216,7 +222,6 @@ public class ModCoreInstaller {
 
     public static final String fetchString(String url) {
         url = url.replace(" ", "%20");
-        System.out.println("Fetching " + url);
         try {
             URL u = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) u.openConnection();
