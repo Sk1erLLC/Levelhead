@@ -1,24 +1,19 @@
 package club.sk1er.mods.levelhead.commands;
 
-import club.sk1er.mods.core.ModCore;
-import club.sk1er.mods.core.commands.api.DefaultHandler;
-import club.sk1er.mods.core.commands.api.ModCoreCommand;
-import club.sk1er.mods.core.commands.api.SubCommand;
-import club.sk1er.mods.core.gui.studio.CosmeticStudio;
+
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.util.GuiUtil;
-import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.guis.LevelheadMainGUI;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import org.jetbrains.annotations.NotNull;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.commands.Command;
+import net.modcore.api.commands.DefaultHandler;
+import net.modcore.api.commands.SubCommand;
+import net.modcore.api.utils.GuiUtil;
 
 /**
  * Created by Mitchell Katz on 5/8/2017.
  */
-public class LevelheadCommand extends ModCoreCommand {
+public class LevelheadCommand extends Command {
 
     public LevelheadCommand() {
         super("levelhead");
@@ -30,15 +25,15 @@ public class LevelheadCommand extends ModCoreCommand {
         GuiUtil.open(new LevelheadMainGUI());
     }
 
-    @SubCommand(name = "limit")
+    @SubCommand(value = "limit")
     public void handleLimit() {
-        MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
-        MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Hypixel: " + MinecraftUtils.isHypixel());
+        ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
+        ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Hypixel: " + ModCoreAPI.getMinecraftUtil().isHypixel());
     }
 
-    @SubCommand(name = "dumpcache")
+    @SubCommand(value = "dumpcache")
     public void handleDumpCache() {
         Levelhead.getInstance().getDisplayManager().clearCache();
-        MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Cleared Cache");
+        ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Cleared Cache");
     }
 }

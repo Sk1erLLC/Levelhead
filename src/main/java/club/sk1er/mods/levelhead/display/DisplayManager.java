@@ -1,12 +1,12 @@
 package club.sk1er.mods.levelhead.display;
 
-import club.sk1er.mods.core.util.JsonHolder;
-import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.levelhead.config.MasterConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.MinecraftUtils;
+import net.modcore.api.utils.JsonHolder;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class DisplayManager {
         }
         if (config == null) {
             this.config = new MasterConfig();
-            MinecraftUtils.sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
+            ModCoreAPI.getMinecraftUtil().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
         }
         for (JsonElement head : source.optJSONArray("head")) {
             try {

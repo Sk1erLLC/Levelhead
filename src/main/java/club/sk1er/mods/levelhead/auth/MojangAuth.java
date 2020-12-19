@@ -1,10 +1,10 @@
 package club.sk1er.mods.levelhead.auth;
 
-import club.sk1er.mods.core.util.JsonHolder;
-import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
 import me.semx11.autotip.util.LoginUtil;
 import net.minecraft.client.Minecraft;
+import net.modcore.api.utils.JsonHolder;
+import net.modcore.api.utils.WebUtil;
 
 import java.util.UUID;
 
@@ -47,6 +47,7 @@ public class MojangAuth {
     }
 
     public void auth() {
+
         UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
         JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.sk1er.club/auth/begin?uuid=" + uuid + "&mod=" + Levelhead.MODID + "&ver=" + Levelhead.VERSION);
         if (!jsonHolder.optBoolean("success")) {

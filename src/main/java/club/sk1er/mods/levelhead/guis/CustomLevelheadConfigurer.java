@@ -1,10 +1,6 @@
 package club.sk1er.mods.levelhead.guis;
 
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.util.JsonHolder;
-import club.sk1er.mods.core.util.MinecraftUtils;
-import club.sk1er.mods.core.util.Multithreading;
-import club.sk1er.mods.core.util.WebUtil;
 import club.sk1er.mods.levelhead.Levelhead;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -12,6 +8,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.client.config.GuiSlider;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.JsonHolder;
+import net.modcore.api.utils.Multithreading;
+import net.modcore.api.utils.WebUtil;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class CustomLevelheadConfigurer extends GuiScreen {
             if (!jsonHolder.optBoolean("levelhead")) {
                 if (Minecraft.getMinecraft().currentScreen instanceof CustomLevelheadConfigurer) {
                     Minecraft.getMinecraft().displayGuiScreen(null);
-                    MinecraftUtils.sendMessage(Levelhead.CHAT_PREFIX, "You must purchase Custom Levelhead to use this!");
+                    ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "You must purchase Custom Levelhead to use this!");
                 }
             }
         });

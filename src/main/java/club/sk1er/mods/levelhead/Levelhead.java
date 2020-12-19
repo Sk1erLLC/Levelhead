@@ -1,10 +1,5 @@
 package club.sk1er.mods.levelhead;
 
-import club.sk1er.mods.core.ModCore;
-import club.sk1er.mods.core.commands.ModCoreCommandManager;
-import club.sk1er.mods.core.util.JsonHolder;
-import club.sk1er.mods.core.util.MinecraftUtils;
-import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.levelhead.auth.MojangAuth;
 import club.sk1er.mods.levelhead.commands.LevelheadCommand;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
@@ -20,19 +15,20 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.ModMetadata;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.JsonHolder;
+import net.modcore.api.utils.Multithreading;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -168,7 +164,7 @@ public class Levelhead extends DummyModContainer {
         Multithreading.runAsync(() -> {
             auth.auth();
             if (auth.isFailed()) {
-                MinecraftUtils.sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
+                ModCoreAPI.getMinecraftUtil().sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
             }
         });
 
@@ -185,7 +181,7 @@ public class Levelhead extends DummyModContainer {
         Minecraft minecraft = FMLClientHandler.instance().getClient();
         userUuid = minecraft.getSession().getProfile().getId();
         register(new LevelheadAboveHeadRender(this), this);
-        ModCoreCommandManager.registerCommand(new LevelheadCommand());
+        ModCoreAPI.getCommandRegistry().registerCommand(new LevelheadCommand());
         levelheadChatRenderer = new LevelheadChatRenderer(this);
         register(levelheadChatRenderer);
     }
@@ -200,7 +196,7 @@ public class Levelhead extends DummyModContainer {
     public void tick(TickEvent.ClientTickEvent event) {
 
         if (event.phase == TickEvent.Phase.START
-            || !MinecraftUtils.isHypixel()
+            || ! ModCoreAPI.getMinecraftUtil().isHypixel()
             || displayManager == null
             || displayManager.getMasterConfig() == null
             || !displayManager.getMasterConfig().isEnabled()) {
@@ -292,7 +288,7 @@ public class Levelhead extends DummyModContainer {
             display.getCache().put(uuid, value);
             display.getTrueValueCache().put(uuid, object.optString("strlevel"));
         });
-        Multithreading.POOL.submit(this::clearCache);
+        Multithreading.getPool().submit(this::clearCache);
     }
 
     public LevelheadTag buildTag(JsonHolder object, UUID uuid, LevelheadDisplay display, boolean allowOverride) {

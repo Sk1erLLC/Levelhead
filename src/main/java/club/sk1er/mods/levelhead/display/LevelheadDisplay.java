@@ -1,9 +1,9 @@
 package club.sk1er.mods.levelhead.display;
 
-import club.sk1er.mods.core.util.JsonHolder;
 import club.sk1er.mods.levelhead.guis.LevelheadMainGUI;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.modcore.api.utils.JsonHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

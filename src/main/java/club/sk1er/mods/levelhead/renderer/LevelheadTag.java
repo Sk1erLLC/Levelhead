@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead.renderer;
 
-import club.sk1er.mods.core.util.JsonHolder;
+
+import net.modcore.api.utils.JsonHolder;
 
 import java.util.UUID;
 

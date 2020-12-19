@@ -1,9 +1,7 @@
 package club.sk1er.mods.levelhead.forge;
 
 import club.sk1er.mods.levelhead.Levelhead;
-import club.sk1er.mods.levelhead.ModCoreInstaller;
 import club.sk1er.mods.levelhead.forge.transform.ClassTransformer;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 

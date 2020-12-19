@@ -312,9 +312,10 @@ dependencies {
         exclude module: "kotlin-stdlib"
     }
 
-    implementation("club.sk1er:ModCore:579-${mcVersion}-SNAPSHOT") {
+    implementation("club.sk1er:ModCore:626-${mcVersion}-SNAPSHOT") {
 //        exclude module: "Vigilance"
     }
+    embed("net.modcore:Loader:1.4")
 
     implementation("com.github.Sk1erLLC:HookInjection:b9ac92c31e") {
         exclude module: "koffee"
@@ -459,7 +460,7 @@ jar {
             attributes "FMLCorePlugin": "club.sk1er.mods.levelhead.forge.FMLLoadingPlugin",
                     "ModSide": "CLIENT",
                     "FMLCorePluginContainsFMLMod": "Yes, yes it does",
-                    "TweakClass": "club.sk1er.mods.levelhead.tweaker.LaunchTweaker",
+                    "TweakClass": "club.sk1er.mods.levelhead.tweaker.LevelheadTweaker",
                     "TweakOrder": "0"
         }
     }
