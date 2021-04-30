@@ -43,7 +43,7 @@ public class LevelheadAboveHeadRender {
             return;
         }
         //#if MC<=10809
-        EntityPlayer player = (EntityPlayer)event.entityPlayer;
+        EntityPlayer player = (EntityPlayer)event.entity;
         //#else
         //$$ EntityPlayer player = event.getEntityPlayer();
         //#endif
