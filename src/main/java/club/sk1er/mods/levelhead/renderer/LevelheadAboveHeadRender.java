@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.modcore.api.ModCoreAPI;
 import org.lwjgl.opengl.GL11;
@@ -32,15 +32,18 @@ public class LevelheadAboveHeadRender {
     }
 
     @SubscribeEvent
-    public void render(RenderPlayerEvent.Pre event) {
+    public void render(RenderLivingEvent.Specials.Pre<EntityLivingBase> event) {
         if (levelhead == null
             || levelhead.getDisplayManager() == null
             || levelhead.getDisplayManager().getMasterConfig() == null
             || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
+        if (!(event.entity instanceof EntityPlayer)) {
+            return;
+        }
         //#if MC<=10809
-        EntityPlayer player = event.entityPlayer;
+        EntityPlayer player = (EntityPlayer)event.entityPlayer;
         //#else
         //$$ EntityPlayer player = event.getEntityPlayer();
         //#endif
