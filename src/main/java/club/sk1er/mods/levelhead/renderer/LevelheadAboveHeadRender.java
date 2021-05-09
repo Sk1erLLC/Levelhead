@@ -7,7 +7,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
@@ -45,7 +47,7 @@ public class LevelheadAboveHeadRender {
         //#if MC<=10809
         EntityPlayer player = (EntityPlayer)event.entity;
         //#else
-        //$$ EntityPlayer player = event.getEntityPlayer();
+        //$$ EntityPlayer player = (EntityPlayer)event.getEntity();
         //#endif
         int o = 0;
         for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
@@ -72,9 +74,9 @@ public class LevelheadAboveHeadRender {
                         offset = 0;
                     offset += levelhead.getDisplayManager().getMasterConfig().getOffset();
                     //#if MC<=10809
-                    renderName(event, levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
+                    renderName(levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
                     //#else
-                    //$$ renderName(event, levelheadTag, player, event.getX(), event.getY() + offset + o * .3D, event.getZ());
+                    //$$ renderName(levelheadTag, player, event.getX(), event.getY() + offset + o * .3D, event.getZ());
                     //#endif
                 }
             }
@@ -83,11 +85,11 @@ public class LevelheadAboveHeadRender {
 
     }
 
-    public void renderName(RenderPlayerEvent event, LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
+    public void renderName(LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
         //#if MC<=10809
-        FontRenderer fontrenderer = event.renderer.getFontRendererFromRenderManager();
+        FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
         //#else
-        //$$ FontRenderer fontrenderer = event.getRenderer().getFontRendererFromRenderManager();
+        //$$ FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
         //#endif
         float f = (float) (1.6F * Levelhead.getInstance().getDisplayManager().getMasterConfig().getFontSize());
         float f1 = 0.016666668F * f;
@@ -101,11 +103,13 @@ public class LevelheadAboveHeadRender {
         GlStateManager.translate((float) x + 0.0F, (float) y + entityIn.height + 0.5F, (float) z);
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
         //#if MC<=10809
-        GlStateManager.rotate(-event.renderer.getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(event.renderer.getRenderManager().playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
+        RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+        GlStateManager.rotate(-renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(renderManager.playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
         //#else
-        //$$ GlStateManager.rotate(-event.getRenderer().getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
-        //$$ GlStateManager.rotate(event.getRenderer().getRenderManager().playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
+        //$$ RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+        //$$ GlStateManager.rotate(-renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
+        //$$ GlStateManager.rotate(renderManager.playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
         //#endif
         GlStateManager.scale(-f1, -f1, f1);
         GlStateManager.disableLighting();
