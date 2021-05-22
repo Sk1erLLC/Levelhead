@@ -1,9 +1,8 @@
 package club.sk1er.mods.levelhead.guis;
 
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.universal.UniversalChat;
-import club.sk1er.mods.core.universal.UniversalDesktop;
-import club.sk1er.mods.core.universal.wrappers.message.UniversalTextComponent;
+import club.sk1er.mods.core.universal.UDesktop;
+import club.sk1er.mods.core.universal.wrappers.message.UTextComponent;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
 import club.sk1er.mods.levelhead.display.ChatDisplay;
@@ -35,9 +34,9 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.client.config.GuiSlider;
 import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.JsonHolder;
 import net.modcore.api.utils.Multithreading;
 import net.modcore.api.utils.WebUtil;
-import net.modcore.api.utils.JsonHolder;
 import org.lwjgl.input.Mouse;
 
 import java.awt.Color;
@@ -49,6 +48,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -233,7 +233,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     if (isCustom) {
                         mc.displayGuiScreen(new CustomLevelheadConfigurer());
                     } else {
-                        UniversalDesktop.browse(new URI("http://sk1er.club/customlevelhead"));
+                        UDesktop.browse(new URI("http://sk1er.club/customlevelhead"));
                     }
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
@@ -242,7 +242,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             });
             reg(new GuiButton(++currentID, 1, 23, 150, 20, YELLOW + "Purchase Levelhead Credits"), button -> {
                 try {
-                    UniversalDesktop.browse(new URI("https://purchase.sk1er.club/category/1050972"));
+                    UDesktop.browse(new URI("https://purchase.sk1er.club/category/1050972"));
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
@@ -413,10 +413,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     valueIn.setChatStyle(style2);
                     style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
                     text.setChatStyle(style);
-                    ModCoreAPI.getMinecraftUtil().sendMessage(UniversalTextComponent.from(valueIn).get());
-                    ModCoreAPI.getMinecraftUtil().sendMessage(UniversalTextComponent.from(text).get());
-
-
+                    ModCoreAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(valueIn)));
+                    ModCoreAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(text)));
                 } catch (UnsupportedEncodingException e2) {
                     e2.printStackTrace();
                 }

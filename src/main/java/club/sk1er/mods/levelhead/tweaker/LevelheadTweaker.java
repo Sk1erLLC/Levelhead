@@ -9,8 +9,8 @@ import net.modcore.loader.ModCoreSetupTweaker;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class LevelheadTweaker extends ModCoreSetupTweaker {
-
     public LevelheadTweaker() {
         super(new String[]{FMLLoadingPlugin.class.getName()});
     }

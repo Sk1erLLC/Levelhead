@@ -1,7 +1,0 @@
-<p>Levelhead is built for the Hypixel server. The mod displays the Hypixel Network Level & other statistics of a player above their head,
-in chat and in tab.</p>
-<br>
-<p>Custom Levelhead is an optional addon that allows players to customize what appears above their own head. 
-<a href="https://sk1er.club/customlevelhead">Click here to learn more about Custom Levelhead</a></p>
-<br>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/LiAaFdyqLho" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
