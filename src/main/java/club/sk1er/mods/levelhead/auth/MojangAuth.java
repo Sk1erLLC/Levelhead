@@ -1,10 +1,10 @@
 package club.sk1er.mods.levelhead.auth;
 
 import club.sk1er.mods.levelhead.Levelhead;
+import gg.essential.api.utils.JsonHolder;
+import gg.essential.api.utils.WebUtil;
 import me.semx11.autotip.util.LoginUtil;
 import net.minecraft.client.Minecraft;
-import net.modcore.api.utils.JsonHolder;
-import net.modcore.api.utils.WebUtil;
 
 import java.util.UUID;
 

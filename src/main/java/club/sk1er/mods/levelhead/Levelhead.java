@@ -13,6 +13,9 @@ import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.renderer.NullLevelheadTag;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import gg.essential.api.EssentialAPI;
+import gg.essential.api.utils.JsonHolder;
+import gg.essential.api.utils.Multithreading;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,13 +29,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.modcore.api.ModCoreAPI;
-import net.modcore.api.utils.JsonHolder;
-import net.modcore.api.utils.Multithreading;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -164,7 +164,7 @@ public class Levelhead extends DummyModContainer {
         Multithreading.runAsync(() -> {
             auth.auth();
             if (auth.isFailed()) {
-                ModCoreAPI.getMinecraftUtil().sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
+                EssentialAPI.getMinecraftUtil().sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
             }
         });
 
@@ -181,7 +181,7 @@ public class Levelhead extends DummyModContainer {
         Minecraft minecraft = FMLClientHandler.instance().getClient();
         userUuid = minecraft.getSession().getProfile().getId();
         register(new LevelheadAboveHeadRender(this), this);
-        ModCoreAPI.getCommandRegistry().registerCommand(new LevelheadCommand());
+        EssentialAPI.getCommandRegistry().registerCommand(new LevelheadCommand());
         levelheadChatRenderer = new LevelheadChatRenderer(this);
         register(levelheadChatRenderer);
     }
@@ -196,7 +196,7 @@ public class Levelhead extends DummyModContainer {
     public void tick(TickEvent.ClientTickEvent event) {
 
         if (event.phase == TickEvent.Phase.START
-            || ! ModCoreAPI.getMinecraftUtil().isHypixel()
+            || !EssentialAPI.getMinecraftUtil().isHypixel()
             || displayManager == null
             || displayManager.getMasterConfig() == null
             || !displayManager.getMasterConfig().isEnabled()) {

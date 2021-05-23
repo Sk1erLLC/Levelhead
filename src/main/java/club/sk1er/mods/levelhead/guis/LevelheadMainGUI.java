@@ -1,8 +1,5 @@
 package club.sk1er.mods.levelhead.guis;
 
-import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.universal.UDesktop;
-import club.sk1er.mods.core.universal.wrappers.message.UTextComponent;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
 import club.sk1er.mods.levelhead.display.ChatDisplay;
@@ -12,6 +9,13 @@ import club.sk1er.mods.levelhead.display.TabDisplay;
 import club.sk1er.mods.levelhead.forge.transform.Hooks;
 import club.sk1er.mods.levelhead.purchases.LevelheadPurchaseStates;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
+import gg.essential.api.EssentialAPI;
+import gg.essential.api.utils.JsonHolder;
+import gg.essential.api.utils.Multithreading;
+import gg.essential.api.utils.WebUtil;
+import gg.essential.universal.ChatColor;
+import gg.essential.universal.UDesktop;
+import gg.essential.universal.wrappers.message.UTextComponent;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -33,10 +37,6 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.client.config.GuiSlider;
-import net.modcore.api.ModCoreAPI;
-import net.modcore.api.utils.JsonHolder;
-import net.modcore.api.utils.Multithreading;
-import net.modcore.api.utils.WebUtil;
 import org.lwjgl.input.Mouse;
 
 import java.awt.Color;
@@ -413,8 +413,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     valueIn.setChatStyle(style2);
                     style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
                     text.setChatStyle(style);
-                    ModCoreAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(valueIn)));
-                    ModCoreAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(text)));
+                    EssentialAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(valueIn)));
+                    EssentialAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(text)));
                 } catch (UnsupportedEncodingException e2) {
                     e2.printStackTrace();
                 }
@@ -611,26 +611,26 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         int remaining_levelhead_credits = instance.getRawPurchases().optInt("remaining_levelhead_credits");
         if (remaining_levelhead_credits < cost) {
             mc.displayGuiScreen(null);
-            ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Insufficient credits! " + name + " costs " + cost + " credits but you only have " + remaining_levelhead_credits);
-            ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "You can purchase more credits here: https://purchase.sk1er.club/category/1050972 (CLICK IT!)");
+            EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Insufficient credits! " + name + " costs " + cost + " credits but you only have " + remaining_levelhead_credits);
+            EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "You can purchase more credits here: https://purchase.sk1er.club/category/1050972 (CLICK IT!)");
             return;
         }
         if (instance.getAuth().isFailed()) {
-            ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Could not verify your identify. Please restart the client. If issues persists, contact Sk1er");
+            EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Could not verify your identify. Please restart the client. If issues persists, contact Sk1er");
             mc.displayGuiScreen(null);
             return;
         }
         if (found) {
             String finalName = name;
             ids.put(chat.hashCode(), () -> {
-                ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Attempting to purchase: " + finalName);
+                EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Attempting to purchase: " + finalName);
                 Multithreading.runAsync(() -> {
-                    net.modcore.api.utils.JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.sk1er.club/levelhead_purchase?access_token=" + instance.getAuth().getAccessKey() + "&request=" + chat + "&hash=" + instance.getAuth().getHash());
+                    gg.essential.api.utils.JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.sk1er.club/levelhead_purchase?access_token=" + instance.getAuth().getAccessKey() + "&request=" + chat + "&hash=" + instance.getAuth().getHash());
                     if (jsonHolder.optBoolean("success")) {
                         instance.refreshPurchaseStates();
-                        ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Successfully purchased: " + finalName);
+                        EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Successfully purchased: " + finalName);
                     } else {
-                        ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Failed to purchase: " + finalName + ". Cause: " + jsonHolder.optString("cause"));
+                        EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Failed to purchase: " + finalName + ". Cause: " + jsonHolder.optString("cause"));
 
                     }
                 });
@@ -639,7 +639,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             GuiYesNo gui = new GuiYesNo(this, "Purchase " + finalName, "Description: " + description + ". This item may be purchased " + (single ? "one time" : "many times") + ". Type: " + (display ? "Display" : "Extra Stat"), "Purchase for " + cost + " credits", "Cancel", chat.hashCode());
             mc.displayGuiScreen(gui);
         } else {
-            ModCoreAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Could not find package: " + chat + ". Please contact Sk1er immediately");
+            EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Could not find package: " + chat + ". Please contact Sk1er immediately");
         }
     }
 

@@ -4,9 +4,8 @@ import club.sk1er.mods.levelhead.config.MasterConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import net.modcore.api.ModCoreAPI;
-import net.modcore.api.utils.MinecraftUtils;
-import net.modcore.api.utils.JsonHolder;
+import gg.essential.api.EssentialAPI;
+import gg.essential.api.utils.JsonHolder;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -37,7 +36,7 @@ public class DisplayManager {
         }
         if (config == null) {
             this.config = new MasterConfig();
-            ModCoreAPI.getMinecraftUtil().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
+            EssentialAPI.getMinecraftUtil().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
         }
         for (JsonElement head : source.optJSONArray("head")) {
             try {

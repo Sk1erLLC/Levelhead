@@ -277,10 +277,10 @@ dependencies {
         ][mcVersion]
     }
 
-    implementation("net.modcore:ModCore:815-${mcVersion}-SNAPSHOT") {
+    embed("gg.essential:Loader:0.9.2-SNAPSHOT")
+    implementation("gg.essential:Essential:829-${mcVersion}-SNAPSHOT") {
         exclude module: 'WaifUPnP'
     }
-    embed("net.modcore:Loader:2.0.0")
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {

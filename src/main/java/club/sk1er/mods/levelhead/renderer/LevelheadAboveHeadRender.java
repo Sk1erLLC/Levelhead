@@ -2,6 +2,7 @@ package club.sk1er.mods.levelhead.renderer;
 
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
+import gg.essential.api.EssentialAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -13,7 +14,6 @@ import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.modcore.api.ModCoreAPI;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.Color;
@@ -54,7 +54,7 @@ public class LevelheadAboveHeadRender {
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
 
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
-                if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || ! ModCoreAPI.getMinecraftUtil().isHypixel())
+                if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !EssentialAPI.getMinecraftUtil().isHypixel())
                     continue;
 
                 if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
