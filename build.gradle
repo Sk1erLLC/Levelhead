@@ -277,8 +277,8 @@ dependencies {
         ][mcVersion]
     }
 
-    embed("gg.essential:Loader:0.9.2-SNAPSHOT")
-    implementation("gg.essential:Essential:829-${mcVersion}-SNAPSHOT") {
+    embed("gg.essential:Loader:0.9.8-SNAPSHOT")
+    implementation("gg.essential:Essential:835-${mcVersion}-SNAPSHOT") {
         exclude module: 'WaifUPnP'
     }
 
@@ -436,14 +436,16 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            name 'nexus'
-            url "https://repo.sk1er.club/repository/maven-private-${this.properties.getOrDefault("IS_CI", false) ? "snapshots" : "releases"}/"
+    if (project.hasProperty("nexus_user") && project.hasProperty("nexus_password")) {
+        repositories {
+            maven {
+                name 'nexus'
+                url "https://repo.sk1er.club/repository/maven-private-${this.properties.getOrDefault("IS_CI", false) ? "snapshots" : "releases"}/"
 
-            credentials {
-                username project.nexus_user
-                password project.nexus_password
+                credentials {
+                    username project.nexus_user
+                    password project.nexus_password
+                }
             }
         }
     }
