@@ -3,15 +3,19 @@ package club.sk1er.mods.levelhead.renderer;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
 import gg.essential.api.EssentialAPI;
+import gg.essential.universal.UMinecraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -32,46 +36,50 @@ public class LevelheadAboveHeadRender {
     }
 
     @SubscribeEvent
-    public void render(RenderPlayerEvent.Pre event) {
+    public void render(RenderLivingEvent.Specials.Pre<EntityLivingBase> event) {
         if (levelhead == null
             || levelhead.getDisplayManager() == null
             || levelhead.getDisplayManager().getMasterConfig() == null
             || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
+
         //#if MC<=10809
-        EntityPlayer player = event.entityPlayer;
+        if (!(event.entity instanceof EntityPlayer)) return;
         //#else
-        //$$ EntityPlayer player = event.getEntityPlayer();
+        //$$ if (!(event.getEntity() instanceof EntityPlayer)) return;
+        //#endif
+
+        //#if MC<=10809
+        EntityPlayer player = (EntityPlayer) event.entity;
+        //#else
+        //$$ EntityPlayer player = (EntityPlayer) event.getEntity();
         //#endif
         int o = 0;
         for (AboveHeadDisplay display : levelhead.getDisplayManager().getAboveHead()) {
             int index = display.getIndex();
             int extraHead = levelhead.getLevelheadPurchaseStates().getExtraHead();
-            if (index > extraHead || !display.getConfig().isEnabled()) {
-                continue;
-            }
+            if (index > extraHead || !display.getConfig().isEnabled()) continue;
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
 
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
                 if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !EssentialAPI.getMinecraftUtil().isHypixel())
                     continue;
 
-                if (player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 64 * 64) {
+                if (player.getDistanceSqToEntity(UMinecraft.getPlayer()) < 4096) {
                     double offset = 0.3;
                     Scoreboard scoreboard = player.getWorldScoreboard();
                     ScoreObjective scoreObjective = scoreboard.getObjectiveInDisplaySlot(2);
 
-                    if (scoreObjective != null && player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) < 10 * 10) {
+                    if ((scoreObjective != null) && (player.getDistanceSqToEntity(UMinecraft.getPlayer()) < 100)) {
                         offset *= 2;
                     }
-                    if (player.getUniqueID().equals(Levelhead.getInstance().userUuid))
-                        offset = 0;
+                    if (player.getUniqueID().equals(Levelhead.getInstance().userUuid)) offset = 0;
                     offset += levelhead.getDisplayManager().getMasterConfig().getOffset();
                     //#if MC<=10809
-                    renderName(event, levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
+                    renderName(levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
                     //#else
-                    //$$ renderName(event, levelheadTag, player, event.getX(), event.getY() + offset + o * .3D, event.getZ());
+                    //$$ renderName(levelheadTag, player, event.getX(), event.getY() + offset + o * .3D, event.getZ());
                     //#endif
                 }
             }
@@ -80,47 +88,38 @@ public class LevelheadAboveHeadRender {
 
     }
 
-    public void renderName(RenderPlayerEvent event, LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
-        //#if MC<=10809
-        FontRenderer fontrenderer = event.renderer.getFontRendererFromRenderManager();
-        //#else
-        //$$ FontRenderer fontrenderer = event.getRenderer().getFontRendererFromRenderManager();
-        //#endif
+    public void renderName(LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
+        FontRenderer fontrenderer = UMinecraft.getFontRenderer();
         float f = (float) (1.6F * Levelhead.getInstance().getDisplayManager().getMasterConfig().getFontSize());
         float f1 = 0.016666668F * f;
         GlStateManager.pushMatrix();
 
         int xMultiplier = 1;
-        if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().gameSettings != null && Minecraft.getMinecraft().gameSettings.thirdPersonView == 2) {
+        final Minecraft mc = UMinecraft.getMinecraft();
+        if (mc.gameSettings != null && mc.gameSettings.thirdPersonView == 2) {
             xMultiplier = -1;
         }
 
         GlStateManager.translate((float) x + 0.0F, (float) y + entityIn.height + 0.5F, (float) z);
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-        //#if MC<=10809
-        GlStateManager.rotate(-event.renderer.getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(event.renderer.getRenderManager().playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
-        //#else
-        //$$ GlStateManager.rotate(-event.getRenderer().getRenderManager().playerViewY, 0.0F, 1.0F, 0.0F);
-        //$$ GlStateManager.rotate(event.getRenderer().getRenderManager().playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
-        //#endif
+        final RenderManager renderManager = mc.getRenderManager();
+        GlStateManager.rotate(-renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(renderManager.playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
         GlStateManager.scale(-f1, -f1, f1);
         GlStateManager.disableLighting();
         GlStateManager.depthMask(false);
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        int i = 0;
-
-        int j = fontrenderer.getStringWidth(tag.getString()) / 2;
+        int stringWidth = fontrenderer.getStringWidth(tag.getString()) >> 1;
         GlStateManager.disableTexture2D();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        worldrenderer.pos(-j - 1, -1 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        worldrenderer.pos(-j - 1, 8 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        worldrenderer.pos(j + 1, 8 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
-        worldrenderer.pos(j + 1, -1 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(-stringWidth - 1, -1, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(-stringWidth - 1, 8, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(stringWidth + 1, 8, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+        worldrenderer.pos(stringWidth + 1, -1, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
 
@@ -133,7 +132,7 @@ public class LevelheadAboveHeadRender {
     }
 
     private void renderString(FontRenderer renderer, LevelheadTag tag) {
-        int x = -renderer.getStringWidth(tag.getString()) / 2;
+        int x = -renderer.getStringWidth(tag.getString()) >> 1;
         //Render header
         LevelheadComponent header = tag.getHeader();
         render(renderer, header, x);
