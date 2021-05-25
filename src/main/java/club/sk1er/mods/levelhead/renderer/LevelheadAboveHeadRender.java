@@ -16,7 +16,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -46,13 +45,9 @@ public class LevelheadAboveHeadRender {
 
         //#if MC<=10809
         if (!(event.entity instanceof EntityPlayer)) return;
-        //#else
-        //$$ if (!(event.getEntity() instanceof EntityPlayer)) return;
-        //#endif
-
-        //#if MC<=10809
         EntityPlayer player = (EntityPlayer) event.entity;
         //#else
+        //$$ if (!(event.getEntity() instanceof EntityPlayer)) return;
         //$$ EntityPlayer player = (EntityPlayer) event.getEntity();
         //#endif
         int o = 0;
