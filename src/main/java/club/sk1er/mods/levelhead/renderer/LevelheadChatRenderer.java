@@ -14,10 +14,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class LevelheadChatRenderer {
 
     private final Levelhead levelhead;
+    private final Pattern UUID_PATTERN = Pattern.compile("/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i");
 
     public LevelheadChatRenderer(Levelhead levelhead) {
         this.levelhead = levelhead;
@@ -67,6 +69,7 @@ public class LevelheadChatRenderer {
                             String[] split = value.split(" ");
                             if (split.length == 2) {
                                 String uuid = split[1];
+                                if (!UUID_PATTERN.matcher(uuid).matches()) return;
                                 UUID key = UUID.fromString(uuid);
                                 String tag = chat.getTrueValueCache().get(key);
                                 if (tag != null) {
