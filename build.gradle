@@ -277,10 +277,8 @@ dependencies {
         ][mcVersion]
     }
 
-    embed("gg.essential:Loader:0.9.8-SNAPSHOT")
-    implementation("gg.essential:Essential:835-${mcVersion}-SNAPSHOT") {
-        exclude module: 'WaifUPnP'
-    }
+    embed "gg.essential:loader-launchwrapper:1.0.2"
+    implementation "gg.essential:Essential:1062-${mcVersion}-SNAPSHOT"
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {
@@ -407,7 +405,7 @@ jar {
             attributes "FMLCorePlugin": "club.sk1er.mods.levelhead.forge.FMLLoadingPlugin",
                     "ModSide": "CLIENT",
                     "FMLCorePluginContainsFMLMod": "Yes, yes it does",
-                    "TweakClass": "club.sk1er.mods.levelhead.tweaker.LevelheadTweaker",
+                    "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
                     "TweakOrder": "0"
         }
     }

@@ -46,7 +46,7 @@ import java.util.UUID;
 public class Levelhead extends DummyModContainer {
 
     public static final String MODID = "level_head";
-    public static final String VERSION = "7.3";
+    public static final String VERSION = "7.3.0";
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
     private static Levelhead instance;
     public UUID userUuid = null;
