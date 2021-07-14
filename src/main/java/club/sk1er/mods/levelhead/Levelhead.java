@@ -31,12 +31,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.Color;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +66,7 @@ public class Levelhead extends DummyModContainer {
     private JsonHolder purchaseStatus = new JsonHolder();
     private LevelheadChatRenderer levelheadChatRenderer;
     private JsonHolder rawPurchases = new JsonHolder();
+    private final Logger logger = LogManager.getLogger();
 
     public Levelhead() {
         super(new ModMetadata());
@@ -154,7 +158,7 @@ public class Levelhead extends DummyModContainer {
         try {
             config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile()));
         } catch (Exception e) { //Generalized to fix potential issues
-            e.printStackTrace();
+            this.logger.error("Failed to create config.", e);
         }
 
         displayManager = new DisplayManager(config, event.getSuggestedConfigurationFile());
@@ -200,7 +204,6 @@ public class Levelhead extends DummyModContainer {
             || displayManager == null
             || displayManager.getMasterConfig() == null
             || !displayManager.getMasterConfig().isEnabled()) {
-
             return;
         }
 
@@ -221,8 +224,7 @@ public class Levelhead extends DummyModContainer {
     public String rawWithAgent(String url) {
         HttpURLConnection connection = null;
         try {
-            URL u = new URL(url);
-            connection = (HttpURLConnection) u.openConnection();
+            connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(true);
             connection.addRequestProperty("User-Agent", "Mozilla/4.76 (SK1ER LEVEL HEAD V" + VERSION + ")");
@@ -230,20 +232,16 @@ public class Levelhead extends DummyModContainer {
             connection.setConnectTimeout(15000);
             connection.setDoOutput(true);
             try (InputStream is = connection.getInputStream()) {
-                return IOUtils.toString(is, Charset.defaultCharset());
+                return IOUtils.toString(is, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Levelhead.getInstance().getLogger().error("Failed to fetch url: {}", url, e);
         } finally {
-            try {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            } catch (Exception e) {
-                System.out.println("Failed to cleanup rawWithAgent.");
-                e.printStackTrace();
+            if (connection != null) {
+                connection.disconnect();
             }
         }
+
         return new JsonHolder().put("success", false).put("cause", "API_DOWN").toString();
     }
 
@@ -353,5 +351,7 @@ public class Levelhead extends DummyModContainer {
         }
     }
 
-
+    public Logger getLogger() {
+        return logger;
+    }
 }

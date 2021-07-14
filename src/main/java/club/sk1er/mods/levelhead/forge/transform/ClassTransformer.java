@@ -59,8 +59,6 @@ public final class ClassTransformer implements IClassTransformer {
                 if (storeCall.getOpcode() == Opcodes.ISTORE
                         && (widthCall.name.equals("func_78256_a") || widthCall.name.equals("getStringWidth") || widthCall.name.equals("a"))
                         && (prevCall.name.equals("func_175243_a") || prevCall.name.equals("getPlayerName") || prevCall.name.equals("a"))) {
-                    System.out.println("Found insertion point.");
-
                     method.instructions.insert(node, getLevelheadWidthCall(vanillaEnhancements ? 8 : 9, true));
                 }
             }

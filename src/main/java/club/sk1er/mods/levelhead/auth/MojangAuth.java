@@ -5,6 +5,7 @@ import gg.essential.api.utils.JsonHolder;
 import gg.essential.api.utils.WebUtil;
 import me.semx11.autotip.util.LoginUtil;
 import net.minecraft.client.Minecraft;
+import org.apache.logging.log4j.Logger;
 
 import java.util.UUID;
 
@@ -14,12 +15,7 @@ public class MojangAuth {
 
     private boolean failed = false;
     private String failMessage = null;
-    private boolean success = false;
     private String hash;
-
-    public MojangAuth() {
-
-    }
 
     public String getAccessKey() {
         return accessKey;
@@ -38,16 +34,11 @@ public class MojangAuth {
         this.failed = true;
     }
 
-    public boolean isSuccess() {
-        return success;
-    }
-
     public String getHash() {
         return hash;
     }
 
     public void auth() {
-
         UUID uuid = Minecraft.getMinecraft().getSession().getProfile().getId();
         JsonHolder jsonHolder = WebUtil.fetchJSON("https://api.sk1er.club/auth/begin?uuid=" + uuid + "&mod=" + Levelhead.MODID + "&ver=" + Levelhead.VERSION);
         if (!jsonHolder.optBoolean("success")) {
@@ -58,7 +49,8 @@ public class MojangAuth {
         hash = jsonHolder.optString("hash");
 
         String session = Minecraft.getMinecraft().getSession().getToken();
-        System.out.println("Logging in with details: Server-Hash: " + hash + " Session: " + session + " UUID=" + uuid);
+        final Logger logger = Levelhead.getInstance().getLogger();
+        logger.debug("Logging in with details: Server-Hash: {}, Session: {}, UUID={}", hash, session, uuid);
 
         int statusCode = LoginUtil.joinServer(session, uuid.toString().replace("-", ""), hash);
         if (statusCode != 204) {
@@ -67,16 +59,12 @@ public class MojangAuth {
         }
 
         JsonHolder finalResponse = WebUtil.fetchJSON("https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().getSession().getProfile().getName());
-        System.out.println("FINAL RESPONSE: " + finalResponse);
+        logger.debug("Final auth response: {}", finalResponse);
         if (finalResponse.optBoolean("success")) {
             this.accessKey = finalResponse.optString("access_key");
-            this.success = true;
-            System.out.println("Successfully authenticated with Sk1er.club Levelhead");
+            logger.debug("Successfully authenticated with Levelhead");
         } else {
             fail("Error during final auth. Reason: " + finalResponse.optString("cause"));
         }
-
     }
-
-
 }

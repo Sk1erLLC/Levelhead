@@ -1,47 +1,22 @@
 package me.semx11.autotip.util;
 
+import club.sk1er.mods.levelhead.Levelhead;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 public class LoginUtil {
-
-    private static SecureRandom random = new SecureRandom();
-
-    public static String getNextSalt() {
-        return new BigInteger(130, random).toString(32);
-    }
-
-    public static String hash(String str) {
+    public static int joinServer(String token, String uuid, String serverHash) {
+        HttpURLConnection connection = null;
         try {
-            byte[] digest = digest(str, "SHA-1");
-            return new BigInteger(digest).toString(16);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+            connection = (HttpURLConnection) new URL("https://sessionserver.mojang.com/session/minecraft/join").openConnection();
 
-    private static byte[] digest(String str, String algorithm) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance(algorithm);
-        byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
-        return md.digest(strBytes);
-    }
-
-    public static int  joinServer(String token, String uuid, String serverHash) {
-        try {
-            URL url = new URL("https://sessionserver.mojang.com/session/minecraft/join");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
 
             JsonObject obj = new JsonObject();
             obj.addProperty("accessToken", token);
@@ -50,20 +25,22 @@ public class LoginUtil {
 
             byte[] jsonBytes = obj.toString().getBytes(StandardCharsets.UTF_8);
 
-            conn.setFixedLengthStreamingMode(jsonBytes.length);
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.connect();
+            connection.setFixedLengthStreamingMode(jsonBytes.length);
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.connect();
 
-            try (OutputStream out = conn.getOutputStream()) {
+            try (OutputStream out = connection.getOutputStream()) {
                 out.write(jsonBytes);
             }
-            int responseCode = conn.getResponseCode();
-            System.out.println("MOJANG RESPONSE CODE: " + responseCode);
-
+            int responseCode = connection.getResponseCode();
+            Levelhead.getInstance().getLogger().debug("Mojang response code: {}", responseCode);
             return responseCode;
         } catch (IOException e) {
             return -1;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
-
 }

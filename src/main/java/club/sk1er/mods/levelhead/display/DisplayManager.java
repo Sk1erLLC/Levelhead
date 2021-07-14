@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead.display;
 
+import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.config.MasterConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -10,7 +11,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,9 +153,9 @@ public class DisplayManager {
         jsonHolder.put("head", head);
 
         try {
-            FileUtils.writeStringToFile(this.file, jsonHolder.toString(), Charset.defaultCharset());
+            FileUtils.writeStringToFile(this.file, jsonHolder.toString(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
+            Levelhead.getInstance().getLogger().error("Failed to write Display config.", e);
         }
 
     }
