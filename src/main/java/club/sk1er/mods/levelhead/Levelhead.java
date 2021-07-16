@@ -156,7 +156,7 @@ public class Levelhead extends DummyModContainer {
         JsonHolder config = new JsonHolder();
 
         try {
-            config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile()));
+            config = new JsonHolder(FileUtils.readFileToString(event.getSuggestedConfigurationFile(), StandardCharsets.UTF_8));
         } catch (Exception e) { //Generalized to fix potential issues
             this.logger.error("Failed to create config.", e);
         }
