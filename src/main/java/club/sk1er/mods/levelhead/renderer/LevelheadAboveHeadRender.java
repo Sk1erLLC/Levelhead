@@ -39,7 +39,9 @@ public class LevelheadAboveHeadRender {
         if (levelhead == null
             || levelhead.getDisplayManager() == null
             || levelhead.getDisplayManager().getMasterConfig() == null
-            || !levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
+            || !levelhead.getDisplayManager().getMasterConfig().isEnabled()
+            || !EssentialAPI.getMinecraftUtil().isHypixel()
+            || Minecraft.getMinecraft().gameSettings.hideGUI) {
             return;
         }
 
@@ -58,7 +60,7 @@ public class LevelheadAboveHeadRender {
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
 
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
-                if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()) || !EssentialAPI.getMinecraftUtil().isHypixel())
+                if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()))
                     continue;
 
                 if (player.getDistanceSqToEntity(UMinecraft.getPlayer()) < 4096) {
