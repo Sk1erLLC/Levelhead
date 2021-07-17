@@ -10,15 +10,11 @@ import gg.essential.api.commands.SubCommand;
 import gg.essential.api.utils.GuiUtil;
 import gg.essential.universal.ChatColor;
 
-/**
- * Created by Mitchell Katz on 5/8/2017.
- */
 public class LevelheadCommand extends Command {
 
     public LevelheadCommand() {
         super("levelhead");
     }
-
 
     @DefaultHandler
     public void handle() {
@@ -27,13 +23,13 @@ public class LevelheadCommand extends Command {
 
     @SubCommand(value = "limit")
     public void handleLimit() {
-        EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Callback_types: " + Levelhead.getInstance().getTypes());
+        EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Callback_types: " + Levelhead.INSTANCE.getTypes());
         EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Hypixel: " + EssentialAPI.getMinecraftUtil().isHypixel());
     }
 
     @SubCommand(value = "dumpcache")
     public void handleDumpCache() {
-        Levelhead.getInstance().getDisplayManager().clearCache();
+        Levelhead.INSTANCE.getDisplayManager().clearCache();
         EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, ChatColor.RED + "Cleared Cache");
     }
 }

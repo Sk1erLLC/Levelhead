@@ -1,8 +1,5 @@
 package club.sk1er.mods.levelhead.renderer;
 
-/**
- * Created by mitchellkatz on 12/22/17. Designed for production use on Levelhead
- */
 public class LevelheadComponent {
     private String value;
     //chroma
@@ -84,10 +81,6 @@ public class LevelheadComponent {
 
     public void setChroma(boolean chroma) {
         this.chroma = chroma;
-    }
-
-    public boolean isCustom() {
-        return custom;
     }
 
     public void setCustom(boolean custom) {

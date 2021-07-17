@@ -15,13 +15,12 @@ import java.awt.Color;
 public final class Hooks {
 
     public static void drawPingHook(int i, int x, int y, NetworkPlayerInfo playerInfo) {
-        if (!Levelhead.getInstance().getDisplayManager().getMasterConfig().isEnabled()) {
+        if (!Levelhead.INSTANCE.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
-        Levelhead instance = Levelhead.getInstance();
+        Levelhead instance = Levelhead.INSTANCE;
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
-
             if (!tab.getConfig().isEnabled()) {
                 return;
             }
@@ -57,10 +56,10 @@ public final class Hooks {
 
 
     public static int getLevelheadWidth(NetworkPlayerInfo playerInfo) {
-        if (!Levelhead.getInstance().getDisplayManager().getMasterConfig().isEnabled()) {
+        if (!Levelhead.INSTANCE.getDisplayManager().getMasterConfig().isEnabled()) {
             return 0;
         }
-        Levelhead instance = Levelhead.getInstance();
+        Levelhead instance = Levelhead.INSTANCE;
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
             if (!tab.getConfig().isEnabled())

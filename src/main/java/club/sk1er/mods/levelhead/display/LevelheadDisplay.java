@@ -7,15 +7,17 @@ import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class LevelheadDisplay {
     protected final ConcurrentHashMap<UUID, LevelheadTag> cache = new ConcurrentHashMap<>();
     protected final ConcurrentHashMap<UUID, String> trueValueCache = new ConcurrentHashMap<>();
-    protected final List<UUID> existedMorethan5Seconds = new ArrayList<>();
+    protected final Set<UUID> existedMoreThan5Seconds = new HashSet<>();
     protected final Map<UUID, Integer> timeCheck = new HashMap<>();
 
     private final DisplayPosition position;
@@ -61,7 +63,6 @@ public abstract class LevelheadDisplay {
 
     public abstract void checkCacheSize();
 
-
     public abstract void onDelete();
 
     public boolean loadOrRender(EntityPlayer player) {
@@ -74,14 +75,6 @@ public abstract class LevelheadDisplay {
 
     public ConcurrentHashMap<UUID, String> getTrueValueCache() {
         return trueValueCache;
-    }
-
-    public List<UUID> getExistedMorethan5Seconds() {
-        return existedMorethan5Seconds;
-    }
-
-    public Map<UUID, Integer> getTimeCheck() {
-        return timeCheck;
     }
 
 }

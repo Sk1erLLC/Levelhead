@@ -49,7 +49,7 @@ public class MojangAuth {
         hash = jsonHolder.optString("hash");
 
         String session = Minecraft.getMinecraft().getSession().getToken();
-        final Logger logger = Levelhead.getInstance().getLogger();
+        final Logger logger = Levelhead.INSTANCE.getLogger();
         logger.debug("Logging in with details: Server-Hash: {}, Session: {}, UUID={}", hash, session, uuid);
 
         int statusCode = LoginUtil.joinServer(session, uuid.toString().replace("-", ""), hash);

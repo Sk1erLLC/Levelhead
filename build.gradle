@@ -221,6 +221,8 @@ minecraft {
             }
         }
     }
+    clientRunArgs += ["--tweakClass=gg.essential.loader.stage0.EssentialSetupTweaker"]
+    clientJvmArgs += ["-Dfml.coreMods.load=club.sk1er.mods.levelhead.forge.FMLLoadingPlugin"]
 }
 
 configurations {
@@ -278,7 +280,7 @@ dependencies {
     }
 
     embed "gg.essential:loader-launchwrapper:1.0.2"
-    implementation "gg.essential:Essential:1149-${mcVersion}-SNAPSHOT"
+    implementation "gg.essential:Essential:1207-${mcVersion}-SNAPSHOT"
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {

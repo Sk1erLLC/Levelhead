@@ -33,7 +33,7 @@ public class LoginUtil {
                 out.write(jsonBytes);
             }
             int responseCode = connection.getResponseCode();
-            Levelhead.getInstance().getLogger().debug("Mojang response code: {}", responseCode);
+            Levelhead.INSTANCE.getLogger().debug("Mojang response code: {}", responseCode);
             return responseCode;
         } catch (IOException e) {
             return -1;

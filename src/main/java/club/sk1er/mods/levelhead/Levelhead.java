@@ -11,19 +11,14 @@ import club.sk1er.mods.levelhead.renderer.LevelheadAboveHeadRender;
 import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer;
 import club.sk1er.mods.levelhead.renderer.LevelheadTag;
 import club.sk1er.mods.levelhead.renderer.NullLevelheadTag;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import gg.essential.api.EssentialAPI;
 import gg.essential.api.utils.JsonHolder;
 import gg.essential.api.utils.Multithreading;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -38,121 +33,41 @@ import java.awt.Color;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public class Levelhead extends DummyModContainer {
+@Mod(modid = Levelhead.MODID, name = "Levelhead", version = Levelhead.VERSION)
+public class Levelhead {
 
     public static final String MODID = "level_head";
     public static final String VERSION = "7.3.0";
     public static final String CHAT_PREFIX = EnumChatFormatting.RED + "[Levelhead] ";
-    private static Levelhead instance;
-    public UUID userUuid = null;
-    public final int count = 100;
-    public final int wait = 1;
+
+    @Mod.Instance(MODID)
+    public static Levelhead INSTANCE;
+
     private long waitUntil = System.currentTimeMillis();
     private int updates = 0;
+
     private MojangAuth auth;
     private JsonHolder types = new JsonHolder();
-    private final DecimalFormat format = new DecimalFormat("#,###");
     private JsonHolder paidData = new JsonHolder();
-    private DisplayManager displayManager;
-    private final LevelheadPurchaseStates levelheadPurchaseStates = new LevelheadPurchaseStates();
     private JsonHolder purchaseStatus = new JsonHolder();
-    private LevelheadChatRenderer levelheadChatRenderer;
     private JsonHolder rawPurchases = new JsonHolder();
+    private DisplayManager displayManager;
+    public UUID userUuid = null;
+
+    private final LevelheadPurchaseStates levelheadPurchaseStates = new LevelheadPurchaseStates();
+    private final DecimalFormat format = new DecimalFormat("#,###");
     private final Logger logger = LogManager.getLogger();
+    private final Minecraft mc = Minecraft.getMinecraft();
 
-    public Levelhead() {
-        super(new ModMetadata());
-
-        ModMetadata meta = this.getMetadata();
-        meta.modId = MODID;
-        meta.version = VERSION;
-
-        meta.name = "Sk1er Level Head";
-        meta.description = "Levelhead displays a player's network level above their head";
-
-        //noinspection deprecation
-        meta.url = meta.updateUrl = "http://sk1er.club/levelhead";
-
-        meta.authorList = Collections.singletonList("Sk1erLLC");
-        meta.credits = "HypixelAPI";
-    }
-
-    public static int getRGBColor() {
-        return Color.HSBtoRGB(System.currentTimeMillis() % 1000L / 1000.0f, 0.8f, 0.8f);
-    }
-
-    public static int getRGBDarkColor() {
-        return Color.HSBtoRGB(System.currentTimeMillis() % 1000L / 1000.0f, 0.8f, 0.2f);
-    }
-
-    public static Levelhead getInstance() {
-        return instance;
-    }
-
-    public DisplayManager getDisplayManager() {
-        return displayManager;
-    }
-
-    @Override
-    public boolean registerBus(EventBus bus, LoadController controller) {
-        bus.register(this);
-        return true;
-    }
-
-    public LevelheadPurchaseStates getLevelheadPurchaseStates() {
-        return levelheadPurchaseStates;
-    }
-
-    public JsonHolder getPurchaseStatus() {
-        return purchaseStatus;
-    }
-
-    public synchronized void refreshRawPurchases() {
-        rawPurchases = new JsonHolder(rawWithAgent("https://api.sk1er.club/purchases/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString()));
-    }
-
-    public MojangAuth getAuth() {
-        return auth;
-    }
-
-    public synchronized void refreshPaidData() {
-        paidData = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_data"));
-
-    }
-
-    public JsonHolder getPaidData() {
-        return paidData;
-    }
-
-    public JsonHolder getRawPurchases() {
-        return rawPurchases;
-    }
-
-    public synchronized void refreshPurchaseStates() {
-        purchaseStatus = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_purchase_status/" + Minecraft.getMinecraft().getSession().getProfile().getId().toString()));
-        levelheadPurchaseStates.setChat(purchaseStatus.optBoolean("chat"));
-        levelheadPurchaseStates.setTab(purchaseStatus.optBoolean("tab"));
-        levelheadPurchaseStates.setExtraHead(purchaseStatus.optInt("head"));
-        DisplayManager displayManager = this.displayManager;
-        while (displayManager.getAboveHead().size() <= levelheadPurchaseStates.getExtraHead()) {
-            displayManager.getAboveHead().add(new AboveHeadDisplay(new DisplayConfig()));
-        }
-        displayManager.adjustIndexes();
-
-    }
-
-
-    @Subscribe
     @EventHandler
-    public void init(FMLPreInitializationEvent event) {
+    public void preInit(FMLPreInitializationEvent event) {
         JsonHolder config = new JsonHolder();
 
         try {
@@ -175,30 +90,41 @@ public class Levelhead extends DummyModContainer {
         Multithreading.runAsync(this::refreshPurchaseStates);
         Multithreading.runAsync(this::refreshRawPurchases);
         Multithreading.runAsync(this::refreshPaidData);
-
     }
 
-    @Subscribe
     @EventHandler
-    public void init(FMLPostInitializationEvent event) {
-        instance = this;
-        Minecraft minecraft = FMLClientHandler.instance().getClient();
-        userUuid = minecraft.getSession().getProfile().getId();
-        register(new LevelheadAboveHeadRender(this), this);
+    public void postInit(FMLPostInitializationEvent event) {
+        userUuid = mc.getSession().getProfile().getId();
+        MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new LevelheadChatRenderer(this));
+        MinecraftForge.EVENT_BUS.register(new LevelheadAboveHeadRender(this));
         EssentialAPI.getCommandRegistry().registerCommand(new LevelheadCommand());
-        levelheadChatRenderer = new LevelheadChatRenderer(this);
-        register(levelheadChatRenderer);
     }
 
-
-    public JsonHolder getTypes() {
-        return types;
+    public synchronized void refreshRawPurchases() {
+        rawPurchases = new JsonHolder(rawWithAgent("https://api.sk1er.club/purchases/" + mc.getSession().getProfile().getId().toString()));
     }
 
+    public synchronized void refreshPaidData() {
+        paidData = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_data"));
+    }
+
+    public synchronized void refreshPurchaseStates() {
+        purchaseStatus = new JsonHolder(rawWithAgent("https://api.sk1er.club/levelhead_purchase_status/" + mc.getSession().getProfile().getId().toString()));
+        levelheadPurchaseStates.setChat(purchaseStatus.optBoolean("chat"));
+        levelheadPurchaseStates.setTab(purchaseStatus.optBoolean("tab"));
+        levelheadPurchaseStates.setExtraHead(purchaseStatus.optInt("head"));
+        DisplayManager displayManager = this.displayManager;
+
+        while (displayManager.getAboveHead().size() <= levelheadPurchaseStates.getExtraHead()) {
+            displayManager.getAboveHead().add(new AboveHeadDisplay(new DisplayConfig()));
+        }
+
+        displayManager.adjustIndexes();
+    }
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void tick(TickEvent.ClientTickEvent event) {
-
         if (event.phase == TickEvent.Phase.START
             || !EssentialAPI.getMinecraftUtil().isHypixel()
             || displayManager == null
@@ -207,17 +133,13 @@ public class Levelhead extends DummyModContainer {
             return;
         }
 
-
-        Minecraft mc = Minecraft.getMinecraft();
         if (!mc.isGamePaused() && mc.thePlayer != null && mc.theWorld != null) {
             if (System.currentTimeMillis() < waitUntil) {
-                if (updates > 0) {
-                    updates = 0;
-                }
+                if (updates > 0) updates = 0;
                 return;
             }
-            displayManager.tick();
 
+            displayManager.tick();
         }
     }
 
@@ -235,7 +157,7 @@ public class Levelhead extends DummyModContainer {
                 return IOUtils.toString(is, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
-            Levelhead.getInstance().getLogger().error("Failed to fetch url: {}", url, e);
+            this.logger.error("Failed to fetch url: {}", url, e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -245,17 +167,17 @@ public class Levelhead extends DummyModContainer {
         return new JsonHolder().put("success", false).put("cause", "API_DOWN").toString();
     }
 
-
     private String trimUuid(UUID uuid) {
         return uuid.toString().replace("-", "");
     }
 
     public void fetch(final UUID uuid, LevelheadDisplay display, boolean allowOverride) {
-        if (updates >= count) {
-            waitUntil = System.currentTimeMillis() + 1000L * wait;
+        if (updates >= 100) {
+            waitUntil = System.currentTimeMillis() + 1000L;
             updates = 0;
             return;
         }
+
         updates++;
         display.getCache().put(uuid, new NullLevelheadTag(null));
         String type = display.getConfig().getType();
@@ -268,24 +190,28 @@ public class Levelhead extends DummyModContainer {
             display.getCache().put(uuid, buildTag(fakeValue, uuid, display, allowOverride));
             return;
         }
+
         Multithreading.runAsync(() -> {
-            String raw = rawWithAgent(
-                "https://api.sk1er.club/levelheadv5/" + trimUuid(uuid) + "/" + type
-                    + "/" + trimUuid(Minecraft.getMinecraft().getSession().getProfile().getId()) +
-                    "/" + VERSION + "/" + auth.getHash() + "/" + display.getPosition().name());
-            JsonHolder object = new JsonHolder(raw);
+            final String url = "https://api.sk1er.club/levelheadv5/" + trimUuid(uuid) + "/" + type
+                + "/" + trimUuid(mc.getSession().getProfile().getId()) +
+                "/" + VERSION + "/" + auth.getHash() + "/" + display.getPosition().name();
+            JsonHolder object = new JsonHolder(rawWithAgent(url));
+
             if (!object.optBoolean("success")) {
                 object.put("strlevel", "Error");
             }
+
             if (!allowOverride) {
                 object.put("strlevel", object.optString("level"));
                 object.remove("header_obj");
                 object.remove("footer_obj");
             }
+
             LevelheadTag value = buildTag(object, uuid, display, allowOverride);
             display.getCache().put(uuid, value);
             display.getTrueValueCache().put(uuid, object.optString("strlevel"));
         });
+
         Multithreading.getPool().submit(this::clearCache);
     }
 
@@ -294,16 +220,19 @@ public class Levelhead extends DummyModContainer {
         JsonHolder headerObj = new JsonHolder();
         JsonHolder footerObj = new JsonHolder();
         JsonHolder construct = new JsonHolder();
+
         //Support for serverside override for Custom Levelhead
         //Apply values from server if present
         if (object.has("header_obj") && allowOverride) {
             headerObj = object.optJSONObject("header_obj");
             headerObj.put("custom", true);
         }
+
         if (object.has("footer_obj") && allowOverride) {
             footerObj = object.optJSONObject("footer_obj");
             footerObj.put("custom", true);
         }
+
         if (object.has("header") && allowOverride) {
             headerObj.put("header", object.optString("header"));
             headerObj.put("custom", true);
@@ -312,6 +241,7 @@ public class Levelhead extends DummyModContainer {
         //Get config based values and merge
         headerObj.merge(display.getHeaderConfig(), !allowOverride);
         footerObj.merge(display.getFooterConfig().put("footer", object.defaultOptString("strlevel", format.format(object.optInt("level")))), !allowOverride);
+
         //Ensure text values are present
         construct.put("exclude", object.optBoolean("exclude"));
         construct.put("header", headerObj).put("footer", footerObj);
@@ -321,23 +251,23 @@ public class Levelhead extends DummyModContainer {
         return value;
     }
 
-    public HashMap<String, String> allowedTypes() {
+    public Map<String, String> allowedTypes() {
         HashMap<String, String> data = new HashMap<>();
         List<String> keys = types.getKeys();
+
         for (String key : keys) {
             data.put(key, types.optJSONObject(key).optString("name"));
         }
+
         JsonHolder stats = paidData.optJSONObject("stats");
+
         for (String s : stats.getKeys()) {
             if (purchaseStatus.optBoolean(s)) {
                 data.put(s, stats.optJSONObject(s).optString("name"));
             }
         }
-        return data;
-    }
 
-    public LevelheadTag getLevelString(LevelheadDisplay display, UUID uuid) {
-        return display.getCache().getOrDefault(uuid, null);
+        return data;
     }
 
     //Remote runaway memory leak from storing levels in ram.
@@ -345,10 +275,40 @@ public class Levelhead extends DummyModContainer {
         displayManager.checkCacheSizes();
     }
 
-    private void register(Object... events) {
-        for (Object o : events) {
-            MinecraftForge.EVENT_BUS.register(o);
-        }
+    public static int getRGBColor() {
+        return Color.HSBtoRGB(System.currentTimeMillis() % 1000L / 1000.0f, 0.8f, 0.8f);
+    }
+
+    public static int getRGBDarkColor() {
+        return Color.HSBtoRGB(System.currentTimeMillis() % 1000L / 1000.0f, 0.8f, 0.2f);
+    }
+
+    public DisplayManager getDisplayManager() {
+        return displayManager;
+    }
+
+    public LevelheadPurchaseStates getLevelheadPurchaseStates() {
+        return levelheadPurchaseStates;
+    }
+
+    public JsonHolder getPurchaseStatus() {
+        return purchaseStatus;
+    }
+
+    public MojangAuth getAuth() {
+        return auth;
+    }
+
+    public JsonHolder getPaidData() {
+        return paidData;
+    }
+
+    public JsonHolder getRawPurchases() {
+        return rawPurchases;
+    }
+
+    public JsonHolder getTypes() {
+        return types;
     }
 
     public Logger getLogger() {

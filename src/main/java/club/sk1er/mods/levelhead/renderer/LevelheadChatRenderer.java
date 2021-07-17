@@ -19,16 +19,19 @@ import java.util.regex.Pattern;
 public class LevelheadChatRenderer {
 
     private final Levelhead levelhead;
-    private final Pattern UUID_PATTERN = Pattern.compile("/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i");
+    private final Pattern UUID_PATTERN = Pattern.compile(
+        "^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})$",
+        Pattern.CASE_INSENSITIVE
+    );
 
     public LevelheadChatRenderer(Levelhead levelhead) {
         this.levelhead = levelhead;
     }
 
     public static IChatComponent modifyChat(IChatComponent component, String tag, DisplayConfig config) {
-        ChatComponentText text = new ChatComponentText(config.getHeaderColor() + "[" + config.getFooterColor() +
-            tag +
-            config.getHeaderColor() + "]" + EnumChatFormatting.RESET);
+        ChatComponentText text = new ChatComponentText(config.getHeaderColor() +
+            "[" + config.getFooterColor() + tag +
+            config.getHeaderColor() + "] " + EnumChatFormatting.RESET);
         text.appendSibling(component);
         return text;
     }
@@ -38,15 +41,11 @@ public class LevelheadChatRenderer {
         if (!levelhead.getDisplayManager().getMasterConfig().isEnabled()) {
             return;
         }
-        LevelheadDisplay chat = Levelhead.getInstance().getDisplayManager().getChat();
-        if (chat == null) {
+        LevelheadDisplay chat = Levelhead.INSTANCE.getDisplayManager().getChat();
+        if (chat == null || !levelhead.getLevelheadPurchaseStates().isChat() || !chat.getConfig().isEnabled()) {
             return;
         }
-        if (!levelhead.getLevelheadPurchaseStates().isChat()) {
-            return;
-        }
-        if (!chat.getConfig().isEnabled())
-            return;
+
         //#if MC<=10809
         List<IChatComponent> siblings = event.message.getSiblings();
         //#else
@@ -83,7 +82,6 @@ public class LevelheadChatRenderer {
                                         levelhead.fetch(key, chat, false);
                                     }
                                 }
-
                             }
                         }
                     }

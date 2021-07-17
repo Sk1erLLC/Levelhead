@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.client.config.GuiSlider;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -22,9 +21,6 @@ import java.util.function.Consumer;
 import static net.minecraft.util.EnumChatFormatting.BOLD;
 import static net.minecraft.util.EnumChatFormatting.UNDERLINE;
 
-/**
- * Created by mitchellkatz on 5/2/18. Designed for production use on Sk1er.club
- */
 public class CustomLevelheadConfigurer extends GuiScreen {
     int cooldown = 0;
     int idIteration = 0;
@@ -64,12 +60,16 @@ public class CustomLevelheadConfigurer extends GuiScreen {
         });
         refresh();
         reg(new GuiButton(nextId(), width / 2 - 205, 55, 200, 20, "Reset to default"), button -> {
-            WebUtil.fetchJSON("https://api.sk1er.club/customlevelhead/reset?hash=" + Levelhead.getInstance().getAuth().getHash() + "&level=default&header=default");
+            WebUtil.fetchJSON("https://api.sk1er.club/customlevelhead/reset?hash=" + Levelhead.INSTANCE.getAuth().getHash() + "&level=default&header=default");
             refresh();
         });
         reg(new GuiButton(nextId(), width / 2 + 5, 55, 200, 20, "Send for review"), button -> {
-            WebUtil.fetchJSON("https://api.sk1er.club/customlevelhead/propose?hash=" + Levelhead.getInstance().getAuth().getHash() + "&footer=" + URLEncoder.encode(level.getText()) + "&header=" + URLEncoder.encode(header.getText()));
-            refresh();
+            try {
+                WebUtil.fetchJSON("https://api.sk1er.club/customlevelhead/propose?hash=" + Levelhead.INSTANCE.getAuth().getHash() + "&footer=" + URLEncoder.encode(level.getText(), "UTF-8") + "&header=" + URLEncoder.encode(header.getText(), "UTF-8"));
+                refresh();
+            } catch (Exception e) {
+                Levelhead.INSTANCE.getLogger().error("Failed to encode {}: {}", level.getText(), header.getText(), e);
+            }
         });
         reg(new GuiButton(nextId(), width / 2 - 50, 80, 100, 20, "Refresh"), button -> {
             refresh();
@@ -87,11 +87,10 @@ public class CustomLevelheadConfigurer extends GuiScreen {
         Multithreading.runAsync(() -> levelhead_propose = WebUtil.fetchJSON("https://api.hyperium.cc/levelhead_propose/" + trimmedUuid));
     }
 
-    private void drawScaledText(String text, int trueX, int trueY, double scaleFac, int color, boolean shadow, boolean centered) {
+    private void drawScaledText(String text, int trueX, int trueY, double scaleFac, int color) {
         GlStateManager.pushMatrix();
         GlStateManager.scale(scaleFac, scaleFac, scaleFac);
-        this.fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (centered ?
-            this.fontRendererObj.getStringWidth(text) / 2F : 0), (float) (((double) trueY) / scaleFac), color, shadow);
+        this.fontRendererObj.drawString(text, (float) (((double) trueX) / scaleFac) - (this.fontRendererObj.getStringWidth(text) / 2F), (float) (((double) trueY) / scaleFac), color, true);
         GlStateManager.scale(1 / scaleFac, 1 / scaleFac, 1 / scaleFac);
         GlStateManager.popMatrix();
     }
@@ -101,26 +100,26 @@ public class CustomLevelheadConfigurer extends GuiScreen {
         super.drawScreen(mouseX, mouseY, partialTicks);
         header.drawTextBox();
         level.drawTextBox();
-        drawScaledText(UNDERLINE.toString() + BOLD + "Custom Levelhead Message Configurer", width / 2, 5, 2, new Color(255, 61, 214).getRGB(), true, true);
+        drawScaledText(UNDERLINE.toString() + BOLD + "Custom Levelhead Message Configurer", width / 2, 5, 2, new Color(255, 61, 214).getRGB());
         if (levelhead_propose.getKeys().size() == 0) {
-            drawScaledText(ChatColor.RED + "Loading: Error", width / 2, 115, 1.25, Color.WHITE.getRGB(), true, true);
+            drawScaledText(ChatColor.RED + "Loading: Error", width / 2, 115, 1.25, Color.WHITE.getRGB());
             return;
         }
         if (levelhead_propose.optBoolean("denied")) {
-            drawScaledText(ChatColor.YELLOW + "Status: " + ChatColor.RED + "Denied", width / 2, 115, 1.25, Color.WHITE.getRGB(), true, true);
+            drawScaledText(ChatColor.YELLOW + "Status: " + ChatColor.RED + "Denied", width / 2, 115, 1.25, Color.WHITE.getRGB());
             return;
         }
         if (levelhead_propose.optBoolean("enabled")) {
             int i = 115;
-            drawScaledText(ChatColor.YELLOW + "Status: " + ChatColor.GREEN + "Accepted", width / 2, i - 5, 1.25, Color.WHITE.getRGB(), true, true);
-            drawScaledText(ChatColor.YELLOW + "Header: " + ChatColor.AQUA + levelhead_propose.optString("header"), width / 2, 125, 1.25, Color.WHITE.getRGB(), true, true);
-            drawScaledText(ChatColor.YELLOW + "Level: " + ChatColor.AQUA + levelhead_propose.optString("strlevel"), width / 2, 140, 1.25, Color.WHITE.getRGB(), true, true);
+            drawScaledText(ChatColor.YELLOW + "Status: " + ChatColor.GREEN + "Accepted", width / 2, i - 5, 1.25, Color.WHITE.getRGB());
+            drawScaledText(ChatColor.YELLOW + "Header: " + ChatColor.AQUA + levelhead_propose.optString("header"), width / 2, 125, 1.25, Color.WHITE.getRGB());
+            drawScaledText(ChatColor.YELLOW + "Level: " + ChatColor.AQUA + levelhead_propose.optString("strlevel"), width / 2, 140, 1.25, Color.WHITE.getRGB());
         } else {
             int i = 115;
-            drawScaledText(ChatColor.YELLOW + "Status: " + ChatColor.YELLOW + "Pending", width / 2, i - 5, 1.25, Color.WHITE.getRGB(), true, true);
-            drawScaledText(ChatColor.YELLOW + "Header: " + ChatColor.AQUA + levelhead_propose.optString("header"), width / 2, 125, 1.25, Color.WHITE.getRGB(), true, true);
-            drawScaledText(ChatColor.YELLOW + "Level: " + ChatColor.AQUA + levelhead_propose.optString("strlevel"), width / 2, 140, 1.25, Color.WHITE.getRGB(), true, true);
-            drawScaledText(ChatColor.YELLOW + "It will be reviewed soon!", width / 2, 155, 1.25, Color.WHITE.getRGB(), true, true);
+            drawScaledText(ChatColor.YELLOW + "Status: " + ChatColor.YELLOW + "Pending", width / 2, i - 5, 1.25, Color.WHITE.getRGB());
+            drawScaledText(ChatColor.YELLOW + "Header: " + ChatColor.AQUA + levelhead_propose.optString("header"), width / 2, 125, 1.25, Color.WHITE.getRGB());
+            drawScaledText(ChatColor.YELLOW + "Level: " + ChatColor.AQUA + levelhead_propose.optString("strlevel"), width / 2, 140, 1.25, Color.WHITE.getRGB());
+            drawScaledText(ChatColor.YELLOW + "It will be reviewed soon!", width / 2, 155, 1.25, Color.WHITE.getRGB());
 
         }
 
@@ -146,10 +145,6 @@ public class CustomLevelheadConfigurer extends GuiScreen {
         if (guiButtonConsumer != null) {
             guiButtonConsumer.accept(button);
         }
-    }
-
-    private void regSlider(GuiSlider slider) {
-        reg(slider, null);
     }
 
     private void reg(GuiButton button, Consumer<GuiButton> consumer) {

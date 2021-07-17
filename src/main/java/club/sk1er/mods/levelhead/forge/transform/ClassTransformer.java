@@ -4,9 +4,14 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +37,7 @@ public final class ClassTransformer implements IClassTransformer {
         for (MethodNode method : classNode.methods) {
             String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(classNode.name, method.name, method.desc);
             if (methodName.equals("func_175245_a") || methodName.equals("drawPing")) {
-                method.instructions.insertBefore(method.instructions.getFirst(), getHookCall(method, "drawPing"));
+                method.instructions.insertBefore(method.instructions.getFirst(), getHookCall(method));
             } else if (methodName.equals("func_175249_a") || methodName.equals("renderPlayerlist")) {
                 insertWidthCall(method, vanillaEnhancements);
             }
@@ -59,25 +64,25 @@ public final class ClassTransformer implements IClassTransformer {
                 if (storeCall.getOpcode() == Opcodes.ISTORE
                         && (widthCall.name.equals("func_78256_a") || widthCall.name.equals("getStringWidth") || widthCall.name.equals("a"))
                         && (prevCall.name.equals("func_175243_a") || prevCall.name.equals("getPlayerName") || prevCall.name.equals("a"))) {
-                    method.instructions.insert(node, getLevelheadWidthCall(vanillaEnhancements ? 8 : 9, true));
+                    method.instructions.insert(node, getLevelheadWidthCall(vanillaEnhancements ? 8 : 9));
                 }
             }
         }
     }
 
-    private InsnList getLevelheadWidthCall(int index, boolean srg) {
+    private InsnList getLevelheadWidthCall(int index) {
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(Opcodes.ALOAD, index));
 
         insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
                 "club/sk1er/mods/levelhead/forge/transform/Hooks",
-                "getLevelheadWidth", srg ? "(Lnet/minecraft/client/network/NetworkPlayerInfo;)I" : "(Lbdc;)I", false));
+                "getLevelheadWidth", "(Lnet/minecraft/client/network/NetworkPlayerInfo;)I", false));
 
         insnList.add(new InsnNode(Opcodes.IADD));
         return insnList;
     }
 
-    private static InsnList getHookCall(MethodNode node, String name) {
+    private static InsnList getHookCall(MethodNode node) {
         InsnList insnList = new InsnList();
 
         List<Integer> opcodes = new ArrayList<>();
@@ -129,7 +134,7 @@ public final class ClassTransformer implements IClassTransformer {
         String signature = mappedSignature.toString();
 
         insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "club/sk1er/mods/levelhead/forge/transform/Hooks",
-                name + "Hook", signature, false));
+                "drawPing" + "Hook", signature, false));
 
         return insnList;
     }

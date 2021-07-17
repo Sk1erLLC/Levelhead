@@ -25,41 +25,25 @@ public class DisplayManager {
     private final File file;
 
     public DisplayManager(JsonHolder source, File file) {
-        if (source == null)
-            source = new JsonHolder();
+        if (source == null) source = new JsonHolder();
         this.file = file;
-        if (source.has("master")) {
-            try {
-                this.config = GSON.fromJson(source.optJSONObject("master").getObject(), MasterConfig.class);
-            } catch (Exception ignored) {
-
+        try {
+            if (source.has("master")) this.config = GSON.fromJson(source.optJSONObject("master").getObject(), MasterConfig.class);
+            if (config == null) {
+                this.config = new MasterConfig();
+                EssentialAPI.getMinecraftUtil().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
             }
-        }
-        if (config == null) {
-            this.config = new MasterConfig();
-            EssentialAPI.getMinecraftUtil().sendMessage("Could not load previous settings! If this is your first time running the mod, nothing is wrong.˚");
-        }
-        for (JsonElement head : source.optJSONArray("head")) {
-            try {
+
+            for (JsonElement head : source.optJSONArray("head")) {
                 aboveHead.add(new AboveHeadDisplay(GSON.fromJson(head.getAsJsonObject(), DisplayConfig.class)));
-            } catch (Exception ignored) {
-
             }
-        }
-        if (source.has("chat")) {
-            try {
-                this.chat = new ChatDisplay(GSON.fromJson(source.optJSONObject("chat").getObject(), DisplayConfig.class));
-            } catch (Exception ignored) {
 
-            }
+            if (source.has("chat")) this.chat = new ChatDisplay(GSON.fromJson(source.optJSONObject("chat").getObject(), DisplayConfig.class));
+            if (source.has("tab")) this.tab = new TabDisplay(GSON.fromJson(source.optJSONObject("tab").getObject(), DisplayConfig.class));
+        } catch (Exception e) {
+            Levelhead.INSTANCE.getLogger().error("Failed to initialize display manager.", e);
         }
-        if (source.has("tab")) {
-            try {
-                this.tab = new TabDisplay(GSON.fromJson(source.optJSONObject("tab").getObject(), DisplayConfig.class));
-            } catch (Exception ignored) {
 
-            }
-        }
         Runtime.getRuntime().addShutdownHook(new Thread(this::save));
 
         if (aboveHead.isEmpty()) {
@@ -79,8 +63,6 @@ public class DisplayManager {
             config.setType("GUILD_NAME");
             chat = new ChatDisplay(config);
         }
-
-
     }
 
     public void adjustIndexes() {
@@ -88,22 +70,6 @@ public class DisplayManager {
             aboveHead.get(i).setBottomValue(i == 0);
             aboveHead.get(i).setIndex(i);
         }
-    }
-
-    public List<AboveHeadDisplay> getAboveHead() {
-        return aboveHead;
-    }
-
-    public LevelheadDisplay getChat() {
-        return chat;
-    }
-
-    public LevelheadDisplay getTab() {
-        return tab;
-    }
-
-    public MasterConfig getMasterConfig() {
-        return config;
     }
 
     public void tick() {
@@ -115,10 +81,8 @@ public class DisplayManager {
             aboveHeadDisplay.tick();
         }
 
-        if (tab != null)
-            tab.tick();
-        if (chat != null)
-            chat.tick();
+        if (tab != null) tab.tick();
+        if (chat != null) chat.tick();
     }
 
     public void checkCacheSizes() {
@@ -155,7 +119,7 @@ public class DisplayManager {
         try {
             FileUtils.writeStringToFile(this.file, jsonHolder.toString(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            Levelhead.getInstance().getLogger().error("Failed to write Display config.", e);
+            Levelhead.INSTANCE.getLogger().error("Failed to write Display config.", e);
         }
 
     }
@@ -175,5 +139,21 @@ public class DisplayManager {
             chat.cache.clear();
             chat.trueValueCache.clear();
         }
+    }
+
+    public List<AboveHeadDisplay> getAboveHead() {
+        return aboveHead;
+    }
+
+    public LevelheadDisplay getChat() {
+        return chat;
+    }
+
+    public LevelheadDisplay getTab() {
+        return tab;
+    }
+
+    public MasterConfig getMasterConfig() {
+        return config;
     }
 }

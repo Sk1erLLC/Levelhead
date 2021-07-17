@@ -1,6 +1,5 @@
 package club.sk1er.mods.levelhead.forge;
 
-import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.forge.transform.ClassTransformer;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
@@ -14,7 +13,6 @@ public final class FMLLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
-
         return new String[]{
                 ClassTransformer.class.getName()
         };
@@ -22,7 +20,7 @@ public final class FMLLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return Levelhead.class.getName();
+        return null;
     }
 
     @Override

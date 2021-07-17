@@ -21,11 +21,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.Color;
 
-/**
- * Created by mitchellkatz
- * <p>
- * Modified by boomboompower on 16/6/2017
- */
 public class LevelheadAboveHeadRender {
 
     private final Levelhead levelhead;
@@ -60,7 +55,7 @@ public class LevelheadAboveHeadRender {
             LevelheadTag levelheadTag = display.getCache().get(player.getUniqueID());
 
             if (display.loadOrRender(player) && levelheadTag != null && !(levelheadTag instanceof NullLevelheadTag)) {
-                if ((player.getUniqueID().equals(Levelhead.getInstance().userUuid) && !display.getConfig().isShowSelf()))
+                if ((player.getUniqueID().equals(Levelhead.INSTANCE.userUuid) && !display.getConfig().isShowSelf()))
                     continue;
 
                 if (player.getDistanceSqToEntity(UMinecraft.getPlayer()) < 4096) {
@@ -71,7 +66,7 @@ public class LevelheadAboveHeadRender {
                     if ((scoreObjective != null) && (player.getDistanceSqToEntity(UMinecraft.getPlayer()) < 100)) {
                         offset *= 2;
                     }
-                    if (player.getUniqueID().equals(Levelhead.getInstance().userUuid)) offset = 0;
+                    if (player.getUniqueID().equals(Levelhead.INSTANCE.userUuid)) offset = 0;
                     offset += levelhead.getDisplayManager().getMasterConfig().getOffset();
                     //#if MC<=10809
                     renderName(levelheadTag, player, event.x, event.y + offset + o * .3D, event.z);
@@ -87,8 +82,7 @@ public class LevelheadAboveHeadRender {
 
     public void renderName(LevelheadTag tag, EntityPlayer entityIn, double x, double y, double z) {
         FontRenderer fontrenderer = UMinecraft.getFontRenderer();
-        float f = (float) (1.6F * Levelhead.getInstance().getDisplayManager().getMasterConfig().getFontSize());
-        float f1 = 0.016666668F * f;
+        float textScale = 0.016666668F * (float) (1.6F * Levelhead.INSTANCE.getDisplayManager().getMasterConfig().getFontSize());
         GlStateManager.pushMatrix();
 
         int xMultiplier = 1;
@@ -102,7 +96,7 @@ public class LevelheadAboveHeadRender {
         final RenderManager renderManager = mc.getRenderManager();
         GlStateManager.rotate(-renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(renderManager.playerViewX * xMultiplier, 1.0F, 0.0F, 0.0F);
-        GlStateManager.scale(-f1, -f1, f1);
+        GlStateManager.scale(-textScale, -textScale, textScale);
         GlStateManager.disableLighting();
         GlStateManager.depthMask(false);
         GlStateManager.disableDepth();
@@ -112,7 +106,7 @@ public class LevelheadAboveHeadRender {
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         int stringWidth = fontrenderer.getStringWidth(tag.getString()) >> 1;
         GlStateManager.disableTexture2D();
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         worldrenderer.pos(-stringWidth - 1, -1, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         worldrenderer.pos(-stringWidth - 1, 8, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         worldrenderer.pos(stringWidth + 1, 8, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
@@ -145,28 +139,30 @@ public class LevelheadAboveHeadRender {
         GlStateManager.disableDepth();
         GlStateManager.depthMask(false);
 
-        int y = 0;
         if (header.isRgb()) {
-            renderer.drawString(header.getValue(), x, y, new Color((float) header.getRed() / 255F, (float) header.getGreen() / 255F, (float) header.getBlue() / 255F, .2F).getRGB());
+            renderer.drawString(header.getValue(), x, 0, new Color((float) header.getRed() / 255F,
+                (float) header.getGreen() / 255F,
+                (float) header.getBlue() / 255F,
+                .2F).getRGB());
         } else if (header.isChroma()) {
-            renderer.drawString(header.getValue(), x, y, Levelhead.getRGBDarkColor());
+            renderer.drawString(header.getValue(), x, 0, Levelhead.getRGBDarkColor());
         } else {
             GlStateManager.color(255, 255, 255, .5F);
-            renderer.drawString(header.getColor() + header.getValue(), x, y, Color.WHITE.darker().darker().darker().darker().darker().getRGB() * 255);
+            renderer.drawString(header.getColor() + header.getValue(), x, 0, 0x2affffd6);
         }
+
         GlStateManager.enableDepth();
         GlStateManager.depthMask(true);
 
         GlStateManager.color(1.0F, 1.0F, 1.0F);
         if (header.isRgb()) {
             GlStateManager.color(header.getRed(), header.getBlue(), header.getGreen(), header.getAlpha());
-            renderer.drawString(header.getValue(), x, y, new Color(header.getRed(), header.getGreen(), header.getBlue()).getRGB());
+            renderer.drawString(header.getValue(), x, 0, new Color(header.getRed(), header.getGreen(), header.getBlue()).getRGB());
         } else if (header.isChroma()) {
-            renderer.drawString(header.getValue(), x, y, header.isChroma() ? Levelhead.getRGBColor() : 553648127);
+            renderer.drawString(header.getValue(), x, 0, Levelhead.getRGBColor());
         } else {
             GlStateManager.color(255, 255, 255, .5F);
-
-            renderer.drawString(header.getColor() + header.getValue(), x, y, Color.WHITE.darker().getRGB());
+            renderer.drawString(header.getColor() + header.getValue(), x, 0, 0xffb2b2b2);
         }
     }
 }

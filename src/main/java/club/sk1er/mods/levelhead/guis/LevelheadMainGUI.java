@@ -33,8 +33,6 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.client.config.GuiSlider;
 import org.lwjgl.input.Mouse;
@@ -48,7 +46,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -115,16 +113,16 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     public void onGuiClosed() {
         mc.gameSettings.hideGUI = false;
         if (bigChange) {
-            Levelhead.getInstance().getDisplayManager().clearCache();
+            Levelhead.INSTANCE.getDisplayManager().clearCache();
         }
-        Levelhead.getInstance().getDisplayManager().save();
+        Levelhead.INSTANCE.getDisplayManager().save();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawRect(0, 0, width, height, Integer.MIN_VALUE);
 
-        Levelhead instance = Levelhead.getInstance();
+        Levelhead instance = Levelhead.INSTANCE;
         currentID = 0;
         buttonList.clear();
         drawScaledText(UNDERLINE.toString() + BOLD + "Levelhead " + Levelhead.VERSION, width / 2, 5, 2, new Color(255, 61, 214).getRGB(), true);
@@ -231,14 +229,14 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                         UDesktop.browse(new URI("https://sk1er.club/customlevelhead"));
                     }
                 } catch (URISyntaxException e) {
-                    Levelhead.getInstance().getLogger().error("Failed to open Custom Levelhead URL.", e);
+                    Levelhead.INSTANCE.getLogger().error("Failed to open Custom Levelhead URL.", e);
                 }
             });
             reg(new GuiButton(++currentID, 1, 23, 150, 20, YELLOW + "Purchase Levelhead Credits"), button -> {
                 try {
                     UDesktop.browse(new URI("https://purchase.sk1er.club/category/1050972"));
                 } catch (URISyntaxException e) {
-                    Levelhead.getInstance().getLogger().error("Failed to open Levelhead Credit Purchase URL.", e);
+                    Levelhead.INSTANCE.getLogger().error("Failed to open Levelhead Credit Purchase URL.", e);
                 }
             });
 
@@ -253,7 +251,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
         reg(new GuiButton(++currentID, width - editWidth - 1, 50, editWidth, 20, YELLOW + "Type: " + AQUA + instance.getTypes().optJSONObject(config.getType()).optString("name")), button -> {
             String currentType = config.getType();
-            HashMap<String, String> typeMap = instance.allowedTypes();
+            Map<String, String> typeMap = instance.allowedTypes();
             Set<String> keys = typeMap.keySet();
             List<String> strings = new ArrayList<>(keys);
             strings.sort(String::compareTo);
@@ -276,6 +274,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         });
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     private void doHead(DisplayConfig config, Levelhead instance, int editWidth, int mouseX, int mouseY) {
         List<AboveHeadDisplay> aboveHead = instance.getDisplayManager().getAboveHead();
 
@@ -284,9 +283,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             config.setCustomHeader(textField.getText());
             updatePeopleToValues();
         }
-        reg(new GuiButton(++currentID, width / 3 - 100, height - 137, 200, 20, YELLOW + "Purchase Additional Above Head Layer"), button -> {
-            attemptPurchase("head");
-        });
+        reg(new GuiButton(++currentID, width / 3 - 100, height - 137, 200, 20, YELLOW + "Purchase Additional Above Head Layer"), button ->
+            attemptPurchase("head"));
         reg(new GuiButton(++currentID, width - editWidth * 2 - 3, 29, editWidth, 20, YELLOW + "Editing Layer: " + AQUA + (aboveHead.indexOf(currentlyBeingEdited) + 1)), button -> {
             int i = aboveHead.indexOf(currentlyBeingEdited);
             i++;
@@ -297,9 +295,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
             textField.setText(currentlyBeingEdited.getConfig().getCustomHeader());
         });
 
-        reg(new GuiButton(++currentID, width - editWidth * 2 - 3, 50, editWidth, 20, YELLOW + "Show On Self: " + AQUA + (currentlyBeingEdited.getConfig().isShowSelf() ? "YES" : "NO")), button -> {
-            currentlyBeingEdited.getConfig().setShowSelf(!currentlyBeingEdited.getConfig().isShowSelf());
-        });
+        reg(new GuiButton(++currentID, width - editWidth * 2 - 3, 50, editWidth, 20, YELLOW + "Show On Self: " + AQUA + (currentlyBeingEdited.getConfig().isShowSelf() ? "YES" : "NO")), button ->
+            currentlyBeingEdited.getConfig().setShowSelf(!currentlyBeingEdited.getConfig().isShowSelf()));
 
 
         int colorConfigStart = 93 + 2;
@@ -379,37 +376,32 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         if (isCustom) {
 
             reg(new GuiButton(++currentID, width - editWidth * 2 - 2, colorConfigStart + 88 + 22, editWidth * 2 + 1, 20, YELLOW + "Export Colors to Custom Levelhead"), guiButton -> {
-
-                final JsonHolder object;
-                String encode;
-                String url;
-                ChatComponentText text;
-                ChatStyle style;
-                ChatComponentText valueIn;
-                ChatStyle style2;
-                object = new JsonHolder();
+                final JsonHolder object = new JsonHolder();
                 object.put("header_obj", currentlyBeingEdited.getHeaderConfig());
                 object.put("footer_obj", currentlyBeingEdited.getFooterConfig());
+                String encode = null;
                 try {
                     encode = URLEncoder.encode(object.toString(), "UTF-8");
-                    url = "https://sk1er.club/user?levelhead_color=" + encode;
-                    text = new ChatComponentText("Click here to update your custom Levelhead colors");
-                    style = new ChatStyle();
-                    style.setBold(true);
-                    style.setColor(EnumChatFormatting.YELLOW);
-                    style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-                    valueIn = new ChatComponentText("Please be logged in to your Sk1er.club for this to work. Do /levelhead dumpcache after clicking to see new colors!");
-                    valueIn.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-                    style2 = new ChatStyle();
-                    style2.setColor(EnumChatFormatting.RED);
-                    valueIn.setChatStyle(style2);
-                    style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, valueIn));
-                    text.setChatStyle(style);
-                    EssentialAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(valueIn)));
-                    EssentialAPI.getMinecraftUtil().sendMessage(Objects.requireNonNull(UTextComponent.Companion.from(text)));
-                } catch (UnsupportedEncodingException e2) {
-                    e2.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    Levelhead.INSTANCE.getLogger().error("Failed to encode json.", e);
                 }
+
+                if (encode == null) {
+                    EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Failed to encode Json. Please try again. If this persists, contact us at https://sk1er.club/support.");
+                    return;
+                }
+
+                String url = "https://sk1er.club/user?levelhead_color=" + encode;
+                UTextComponent updateCustomLevelhead = new UTextComponent(ChatColor.YELLOW + "Click here to update your custom Levelhead colors");
+                UTextComponent website = new UTextComponent(
+                    ChatColor.RED + "Please be logged in to your Sk1er.club for this to work.\n" +
+                    ChatColor.RED + "Do /levelhead dumpcache after clicking to see new colors!"
+                );
+                updateCustomLevelhead.getChatStyle().setBold(true)
+                    .setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
+                    .setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, website));
+
+                EssentialAPI.getMinecraftUtil().sendMessage(updateCustomLevelhead);
                 mc.displayGuiScreen(null);
             });
         }
@@ -459,6 +451,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         if (chatDisplay != null && levelheadPurchaseStates.isChat()) {
             chatTag = chatDisplay.getTrueValueCache().get(thePlayer.getUniqueID());
         }
+
         IChatComponent chatComponent = LevelheadChatRenderer.modifyChat(component, chatTag, chatDisplay != null ? chatDisplay.getConfig() : new DisplayConfig());
         String fakeChatText = chatComponent.getFormattedText();
 
@@ -467,7 +460,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         drawScaledText(fakeChatText, width / 3, fakeChatTop + 1, 1.0, Color.WHITE.getRGB(), true);
 
         if (!levelheadPurchaseStates.isChat()) {
-            String text = "Levelhead chat display not purchased!\nPlease purchase to activate and configure";
+            String text = "Levelhead Chat Display not purchased!\nPlease purchase to activate and configure.";
             int i = 2;
             for (String s : text.split("\n")) {
                 int offset = i * 10;
@@ -482,9 +475,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         } else {
             reg(new GuiButton(++currentID, width - editWidth - 1, 71, editWidth, 20, "Rotate Bracket Color"), button -> incrementColor(config, true));
             reg(new GuiButton(++currentID, this.width - editWidth - 1, 92, editWidth, 20, "Rotate Value Color"), button -> incrementColor(config, false));
-
         }
-
     }
 
     private void doTab(Levelhead instance) {
@@ -492,8 +483,6 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         NetworkPlayerInfo playerInfo = mc.getNetHandler().getPlayerInfo(thePlayer.getUniqueID());
         LevelheadDisplay tab = instance.getDisplayManager().getTab();
         if (tab != null) {
-
-
             String formattedText = thePlayer.getDisplayName().getFormattedText();
             int totalTabWith = 9 + this.fontRendererObj.getStringWidth(formattedText) + Hooks.getLevelheadWidth(playerInfo) + 15;
             int fakeTabTop = height - 200;
@@ -513,11 +502,12 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                 int k3 = 8;
                 Gui.drawScaledCustomSizeModalRect(leftStart, fakeTabTop, 40.0F, (float) j3, 8, k3, 8, 8, 64.0F, 64.0F);
             }
+
             drawPing(leftStart + totalTabWith, fakeTabTop, playerInfo);
             Hooks.drawPingHook(0, leftStart + totalTabWith, fakeTabTop, playerInfo);
             LevelheadPurchaseStates levelheadPurchaseStates = instance.getLevelheadPurchaseStates();
             if (!levelheadPurchaseStates.isTab()) {
-                String text = "Levelhead tab display not purchased!\nPlease purchase to activate and configure";
+                String text = "Levelhead Tab Display not purchased!\nPlease purchase to activate and configure.";
                 int i = 1;
                 for (String s : text.split("\n")) {
                     int offset = i * 10;
@@ -528,9 +518,8 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                     this.fontRendererObj.drawString(s, tmpLeft, fakeTabTop + offset, Color.YELLOW.getRGB(), true);
                     i++;
                 }
-                reg(new GuiButton(++currentID, centerOn - 60, height - 140, 120, 20, YELLOW.toString() + "Purchase Tab Display"), button -> {
-                    this.attemptPurchase("tab");
-                });
+                reg(new GuiButton(++currentID, centerOn - 60, height - 140, 120, 20, YELLOW + "Purchase Tab Display"), button ->
+                    this.attemptPurchase("tab"));
             }
         }
     }
@@ -576,12 +565,11 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
     }
 
     private void attemptPurchase(String chat) {
-        Levelhead instance = Levelhead.getInstance();
+        Levelhead instance = Levelhead.INSTANCE;
         JsonHolder paidData = instance.getPaidData();
         JsonHolder extra_displays = paidData.optJSONObject("extra_displays");
         JsonHolder stats = paidData.optJSONObject("stats");
         boolean found;
-        boolean display = false;
         String name = null;
         String description = null;
         int cost = 0;
@@ -627,7 +615,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                 });
 
             });
-            GuiYesNo gui = new GuiYesNo(this, "Purchase " + finalName, "Description: " + description + ". This item may be purchased " + (single ? "one time" : "many times") + ". Type: " + (display ? "Display" : "Extra Stat"), "Purchase for " + cost + " credits", "Cancel", chat.hashCode());
+            GuiYesNo gui = new GuiYesNo(this, "Purchase " + finalName, "Description: " + description + ". This item may be purchased " + (single ? "one time" : "many times") + ". Type: Extra Stat", "Purchase for " + cost + " credits", "Cancel", chat.hashCode());
             mc.displayGuiScreen(gui);
         } else {
             EssentialAPI.getMinecraftUtil().sendMessage(Levelhead.CHAT_PREFIX, "Could not find package: " + chat + ". Please contact Sk1er immediately");
@@ -648,7 +636,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
 
     private void drawPing(int x, int y, NetworkPlayerInfo networkPlayerInfoIn) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        this.mc.getTextureManager().bindTexture(this.icons);
+        this.mc.getTextureManager().bindTexture(icons);
         int j;
 
         if (networkPlayerInfoIn.getResponseTime() < 0) {

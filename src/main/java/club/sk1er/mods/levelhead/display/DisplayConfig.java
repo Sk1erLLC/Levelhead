@@ -2,11 +2,7 @@ package club.sk1er.mods.levelhead.display;
 
 import gg.essential.universal.ChatColor;
 
-/**
- * Created by mitchellkatz on 12/23/17. Designed for production use on Sk1er.club
- */
 public class DisplayConfig {
-
 
     private boolean headerChroma = false;
     private boolean headerRgb = false;
@@ -14,7 +10,6 @@ public class DisplayConfig {
     private int headerRed = 255;
     private int headerGreen = 255;
     private int headerBlue = 250;
-    private double headerAlpha = 1.0;
     private String customHeader = "Level";
     private boolean enable = true;
     private boolean footerChroma = false;
@@ -23,10 +18,8 @@ public class DisplayConfig {
     private int footerRed = 255;
     private int footerGreen = 255;
     private int footerBlue = 250;
-    private double footerAlpha = 1.0;
     private String type = "LEVEL";
     private boolean showSelf = true;
-
 
     public boolean isShowSelf() {
         return showSelf;
@@ -93,11 +86,7 @@ public class DisplayConfig {
     }
 
     public double getFooterAlpha() {
-        return footerAlpha;
-    }
-
-    public void setFooterAlpha(double footerAlpha) {
-        this.footerAlpha = footerAlpha;
+        return 1.0;
     }
 
     public boolean isHeaderChroma() {
@@ -149,11 +138,7 @@ public class DisplayConfig {
     }
 
     public double getHeaderAlpha() {
-        return headerAlpha;
-    }
-
-    public void setHeaderAlpha(double headerAlpha) {
-        this.headerAlpha = headerAlpha;
+        return 1.0;
     }
 
     public String getCustomHeader() {

@@ -3,9 +3,6 @@ package club.sk1er.mods.levelhead.config;
 public class MasterConfig {
 
     private boolean enabled = true;
-    private int renderDistance = 64;
-
-    private int purgeSize = 500;
 
     public boolean isEnabled() {
         return enabled;
@@ -35,18 +32,10 @@ public class MasterConfig {
     }
 
     public int getRenderDistance() {
-        return renderDistance;
-    }
-
-    public void setRenderDistance(int renderDistance) {
-        this.renderDistance = renderDistance;
+        return 64;
     }
 
     public int getPurgeSize() {
-        return purgeSize;
-    }
-
-    public void setPurgeSize(int purgeSize) {
-        this.purgeSize = purgeSize;
+        return 500;
     }
 }

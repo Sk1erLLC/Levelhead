@@ -7,7 +7,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.Team;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class AboveHeadDisplay extends LevelheadDisplay {
@@ -47,14 +48,14 @@ public class AboveHeadDisplay extends LevelheadDisplay {
         //$$ }
         //#endif
 
-        int renderDistance = Levelhead.getInstance().getDisplayManager().getMasterConfig().getRenderDistance();
-        int min = Math.min(64 * 64, renderDistance * renderDistance);
+        int renderDistance = Levelhead.INSTANCE.getDisplayManager().getMasterConfig().getRenderDistance();
+        int min = Math.min(4096, renderDistance * renderDistance);
 
 
         return !(player.getDistanceSqToEntity(Minecraft.getMinecraft().thePlayer) > min)
             && (!player.hasCustomName() || !player.getCustomNameTag().isEmpty())
             && !player.getDisplayNameString().isEmpty()
-            && existedMorethan5Seconds.contains(player.getUniqueID())
+            && existedMoreThan5Seconds.contains(player.getUniqueID())
             && !player.getDisplayName().getFormattedText().contains(LevelheadMainGUI.COLOR_CHAR + "k")
             && !player.isInvisible()
             && !player.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer)
@@ -86,13 +87,12 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     @Override
     public void tick() {
         for (EntityPlayer entityPlayer : Minecraft.getMinecraft().theWorld.playerEntities) {
-            if (!existedMorethan5Seconds.contains(entityPlayer.getUniqueID())) {
+            if (!existedMoreThan5Seconds.contains(entityPlayer.getUniqueID())) {
                 if (!timeCheck.containsKey(entityPlayer.getUniqueID()))
                     timeCheck.put(entityPlayer.getUniqueID(), 0);
                 int old = timeCheck.get(entityPlayer.getUniqueID());
                 if (old > 100) {
-                    if (!existedMorethan5Seconds.contains(entityPlayer.getUniqueID()))
-                        existedMorethan5Seconds.add(entityPlayer.getUniqueID());
+                    existedMoreThan5Seconds.add(entityPlayer.getUniqueID());
                 } else if (!entityPlayer.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer))
                     timeCheck.put(entityPlayer.getUniqueID(), old + 1);
             }
@@ -100,14 +100,10 @@ public class AboveHeadDisplay extends LevelheadDisplay {
             if (loadOrRender(entityPlayer)) {
                 final UUID uuid = entityPlayer.getUniqueID();
                 if (!cache.containsKey(uuid)) {
-                    Levelhead.getInstance().fetch(uuid, this, bottomValue);
+                    Levelhead.INSTANCE.fetch(uuid, this, bottomValue);
                 }
             }
         }
-    }
-
-    public boolean isBottomValue() {
-        return bottomValue;
     }
 
     public void setBottomValue(boolean bottomValue) {
@@ -118,17 +114,17 @@ public class AboveHeadDisplay extends LevelheadDisplay {
 
     @Override
     public void checkCacheSize() {
-        int max = Math.max(150, Levelhead.getInstance().getDisplayManager().getMasterConfig().getPurgeSize());
+        int max = Math.max(150, Levelhead.INSTANCE.getDisplayManager().getMasterConfig().getPurgeSize());
         if (cache.size() > max) {
-            ArrayList<UUID> safePlayers = new ArrayList<>();
+            Set<UUID> safePlayers = new HashSet<>();
             for (EntityPlayer player : Minecraft.getMinecraft().theWorld.playerEntities) {
-                if (existedMorethan5Seconds.contains(player.getUniqueID())) {
+                if (existedMoreThan5Seconds.contains(player.getUniqueID())) {
                     safePlayers.add(player.getUniqueID());
                 }
             }
 
-            existedMorethan5Seconds.clear();
-            existedMorethan5Seconds.addAll(safePlayers);
+            existedMoreThan5Seconds.clear();
+            existedMoreThan5Seconds.addAll(safePlayers);
 
             for (UUID uuid : cache.keySet()) {
                 if (!safePlayers.contains(uuid)) {
@@ -143,7 +139,7 @@ public class AboveHeadDisplay extends LevelheadDisplay {
     public void onDelete() {
         cache.clear();
         trueValueCache.clear();
-        existedMorethan5Seconds.clear();
+        existedMoreThan5Seconds.clear();
     }
 
     public int getIndex() {
