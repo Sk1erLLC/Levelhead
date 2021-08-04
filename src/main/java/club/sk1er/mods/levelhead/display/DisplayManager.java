@@ -44,7 +44,6 @@ public class DisplayManager {
             Levelhead.INSTANCE.getLogger().error("Failed to initialize display manager.", e);
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(this::save));
 
         if (aboveHead.isEmpty()) {
             aboveHead.add(new AboveHeadDisplay(new DisplayConfig()));
