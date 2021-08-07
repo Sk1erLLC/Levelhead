@@ -148,7 +148,7 @@ public class LevelheadAboveHeadRender {
             renderer.drawString(header.getValue(), x, 0, Levelhead.getRGBDarkColor());
         } else {
             GlStateManager.color(255, 255, 255, .5F);
-            renderer.drawString(header.getColor() + header.getValue(), x, 0, 0x2affffd6);
+            renderer.drawString("§" + header.getColor() + header.getValue(), x, 0, 0x2affffd6);
         }
 
         GlStateManager.enableDepth();
@@ -162,7 +162,7 @@ public class LevelheadAboveHeadRender {
             renderer.drawString(header.getValue(), x, 0, Levelhead.getRGBColor());
         } else {
             GlStateManager.color(255, 255, 255, .5F);
-            renderer.drawString(header.getColor() + header.getValue(), x, 0, 0xffb2b2b2);
+            renderer.drawString("§" + header.getColor() + header.getValue(), x, 0, 0xffb2b2b2);
         }
     }
 }
