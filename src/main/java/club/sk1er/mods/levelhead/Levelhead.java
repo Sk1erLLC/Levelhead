@@ -82,9 +82,6 @@ public class Levelhead {
         auth = new MojangAuth();
         Multithreading.runAsync(() -> {
             auth.auth();
-            if (auth.isFailed()) {
-                EssentialAPI.getMinecraftUtil().sendMessage("An error occurred while logging logging into Levelhead: " + auth.getFailMessage());
-            }
         });
 
         Multithreading.runAsync(this::refreshPurchaseStates);
@@ -94,6 +91,9 @@ public class Levelhead {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        if (auth.isFailed()) {
+            EssentialAPI.getMinecraftUtil().sendMessage("An error occurred while logging into Levelhead: " + auth.getFailMessage());
+        }
         userUuid = mc.getSession().getProfile().getId();
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new LevelheadChatRenderer(this));

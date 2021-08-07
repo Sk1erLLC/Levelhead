@@ -334,7 +334,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
                 if (++primaryId == colors.length()) {
                     primaryId = 0;
                 }
-                config.setHeaderColor(COLOR_CHAR + colors.charAt(primaryId));
+                config.setHeaderColor("" + colors.charAt(primaryId));
                 updatePeopleToValues();
             });
         }
@@ -433,7 +433,7 @@ public class LevelheadMainGUI extends GuiScreen implements GuiYesNoCallback {
         if (++primaryId == colors.length()) {
             primaryId = 0;
         }
-        String val = COLOR_CHAR + colors.charAt(primaryId);
+        String val = "" + colors.charAt(primaryId);
         if (header) {
             config.setHeaderColor(val);
         } else config.setFooterColor(val);

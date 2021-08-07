@@ -1,11 +1,13 @@
 buildscript {
-    def mcVersion
-    def (major, minor, patch) = project.name.tokenize('-')[0].tokenize('.')
-    mcVersion = "${major}${minor.padLeft(2, '0')}${(patch ?: '').padLeft(2, '0')}" as int
+    def mcVersionStr = project.name.tokenize('-')[0]
+    def (major, minor, patch) = mcVersionStr.tokenize('.')
+    def mcVersion = "${major}${minor.padLeft(2, '0')}${(patch ?: '').padLeft(2, '0')}" as int
     def fabric = project.name.endsWith("-fabric")
     def vanilla = project.name.endsWith("-vanilla")
     def forge = !fabric && !vanilla
     project.ext.mcVersion = mcVersion
+    project.ext.mcVersionStr = mcVersionStr
+    project.ext.mcPlatform = fabric ? 'fabric' : forge ? 'forge' : 'vanilla'
     project.ext.fabric = fabric
     project.ext.vanilla = vanilla
     project.ext.forge = forge
@@ -280,7 +282,7 @@ dependencies {
     }
 
     embed "gg.essential:loader-launchwrapper:1.0.2"
-    implementation "gg.essential:Essential:1207-${mcVersion}-SNAPSHOT"
+    implementation "gg.essential:essential-${mcVersionStr}-forge:1289"
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {
