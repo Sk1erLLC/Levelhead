@@ -26,6 +26,7 @@ public final class Hooks {
             }
 
             if (instance.getLevelheadPurchaseStates().isTab()) {
+                if (!tab.getConfig().isShowSelf() && playerInfo.getGameProfile().getId().equals(Minecraft.getMinecraft().thePlayer.getUniqueID())) return;
                 String s = tab.getTrueValueCache().get(playerInfo.getGameProfile().getId());
                 if (s != null) {
                     FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
@@ -42,10 +43,10 @@ public final class Hooks {
                     }
 
                     DisplayConfig config = tab.getConfig();
-                    if (config.isFooterChroma()) {
+                    if (config.isHeaderChroma()) {
                         fontRendererObj.drawString(s, x1, y, Levelhead.getRGBColor());
-                    } else if (config.isFooterRgb()) {
-                        fontRendererObj.drawString(s, x1, y, new Color(config.getFooterRed(), config.getFooterGreen(), config.getFooterBlue()).getRGB());
+                    } else if (config.isHeaderRgb()) {
+                        fontRendererObj.drawString(s, x1, y, new Color(config.getHeaderRed(), config.getHeaderGreen(), config.getHeaderBlue()).getRGB());
                     } else {
                         fontRendererObj.drawString(config.getFooterColor() + s, x1, y, Color.WHITE.getRGB());
                     }

@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.renderer;
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.DisplayConfig;
 import club.sk1er.mods.levelhead.display.LevelheadDisplay;
+import gg.essential.universal.wrappers.UPlayer;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
@@ -29,6 +30,7 @@ public class LevelheadChatRenderer {
     }
 
     public static IChatComponent modifyChat(IChatComponent component, String tag, DisplayConfig config) {
+        if (!config.isShowSelf() && component.getFormattedText().contains(UPlayer.getPlayer().getName())) return component;
         ChatComponentText text = new ChatComponentText(config.getHeaderColor() +
             "[" + config.getFooterColor() + tag +
             config.getHeaderColor() + "] " + EnumChatFormatting.RESET);
