@@ -7,17 +7,17 @@ public class DisplayConfig {
     private boolean headerChroma = false;
     private boolean headerRgb = false;
     private String headerColor = ChatColor.AQUA.toString().replace("§","");
-    private int headerRed = 255;
-    private int headerGreen = 255;
-    private int headerBlue = 250;
+    private int headerRed = ChatColor.AQUA.getColor().getRed();
+    private int headerGreen = ChatColor.AQUA.getColor().getGreen();
+    private int headerBlue = ChatColor.AQUA.getColor().getBlue();
     private String customHeader = "Level";
     private boolean enable = true;
     private boolean footerChroma = false;
     private boolean footerRgb = false;
     private String footerColor = ChatColor.YELLOW.toString().replace("§","");
-    private int footerRed = 255;
-    private int footerGreen = 255;
-    private int footerBlue = 250;
+    private int footerRed = ChatColor.YELLOW.getColor().getRed();
+    private int footerGreen = ChatColor.YELLOW.getColor().getGreen();
+    private int footerBlue = ChatColor.YELLOW.getColor().getBlue();
     private String type = "LEVEL";
     private boolean showSelf = true;
 
