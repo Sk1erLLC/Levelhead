@@ -2,6 +2,7 @@ package club.sk1er.mods.levelhead.renderer;
 
 import club.sk1er.mods.levelhead.Levelhead;
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay;
+import club.sk1er.mods.levelhead.gui.LevelheadMainGUI;
 import gg.essential.api.EssentialAPI;
 import gg.essential.universal.UMinecraft;
 import net.minecraft.client.Minecraft;
@@ -30,12 +31,12 @@ public class LevelheadAboveHeadRender {
     }
 
     @SubscribeEvent
-    public void render(RenderLivingEvent.Specials.Pre<EntityLivingBase> event) {
+    public void render(RenderLivingEvent.Specials.Post<EntityLivingBase> event) {
         if (levelhead == null
             || levelhead.getDisplayManager() == null
             || levelhead.getDisplayManager().getMasterConfig() == null
             || !levelhead.getDisplayManager().getMasterConfig().isEnabled()
-            || !EssentialAPI.getMinecraftUtil().isHypixel()
+            || !(EssentialAPI.getMinecraftUtil().isHypixel() || Minecraft.getMinecraft().currentScreen instanceof LevelheadMainGUI)
             || Minecraft.getMinecraft().gameSettings.hideGUI) {
             return;
         }
@@ -92,6 +93,9 @@ public class LevelheadAboveHeadRender {
         }
 
         GlStateManager.translate((float) x + 0.0F, (float) y + entityIn.height + 0.5F, (float) z);
+        if (mc.currentScreen instanceof LevelheadMainGUI) {
+            GlStateManager.translate(0.0, -y * 0.5 - 0.2f, 0.0);
+        }
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
         final RenderManager renderManager = mc.getRenderManager();
         GlStateManager.rotate(-renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
@@ -105,6 +109,10 @@ public class LevelheadAboveHeadRender {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         int stringWidth = fontrenderer.getStringWidth(tag.getString()) >> 1;
+
+        if (mc.currentScreen instanceof LevelheadMainGUI) {
+            GlStateManager.scale(0.5, 0.5, 0.0);
+        }
         GlStateManager.disableTexture2D();
         worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
         worldrenderer.pos(-stringWidth - 1, -1, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
@@ -148,7 +156,7 @@ public class LevelheadAboveHeadRender {
             renderer.drawString(header.getValue(), x, 0, Levelhead.getRGBDarkColor());
         } else {
             GlStateManager.color(255, 255, 255, .5F);
-            renderer.drawString("§" + header.getColor() + header.getValue(), x, 0, 0x2affffd6);
+            renderer.drawString(header.getColor() + header.getValue(), x, 0, 0x2affffd6);
         }
 
         GlStateManager.enableDepth();
@@ -162,7 +170,7 @@ public class LevelheadAboveHeadRender {
             renderer.drawString(header.getValue(), x, 0, Levelhead.getRGBColor());
         } else {
             GlStateManager.color(255, 255, 255, .5F);
-            renderer.drawString("§" + header.getColor() + header.getValue(), x, 0, 0xffb2b2b2);
+            renderer.drawString(header.getColor() + header.getValue(), x, 0, 0xffb2b2b2);
         }
     }
 }

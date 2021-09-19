@@ -2,6 +2,7 @@ package club.sk1er.mods.levelhead.commands;
 
 
 import club.sk1er.mods.levelhead.Levelhead;
+import club.sk1er.mods.levelhead.guis.CustomLevelheadConfigurer;
 import club.sk1er.mods.levelhead.guis.LevelheadMainGUI;
 import gg.essential.api.EssentialAPI;
 import gg.essential.api.commands.Command;
@@ -18,8 +19,14 @@ public class LevelheadCommand extends Command {
 
     @DefaultHandler
     public void handle() {
-        GuiUtil.open(new LevelheadMainGUI());
+        GuiUtil.open(new club.sk1er.mods.levelhead.gui.LevelheadMainGUI());
     }
+
+    @SubCommand(value = "legacy")
+    public void a() {GuiUtil.open(new LevelheadMainGUI());}
+
+    @SubCommand(value = "test")
+    public void b() {GuiUtil.open(new CustomLevelheadConfigurer());}
 
     @SubCommand(value = "limit")
     public void handleLimit() {
