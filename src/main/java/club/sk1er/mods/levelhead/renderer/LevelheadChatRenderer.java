@@ -31,6 +31,7 @@ public class LevelheadChatRenderer {
 
     public static IChatComponent modifyChat(IChatComponent component, String tag, DisplayConfig config) {
         if (!config.isShowSelf() && component.getFormattedText().contains(UPlayer.getPlayer().getName())) return component;
+        if (!Levelhead.INSTANCE.getLevelheadPurchaseStates().isChat()) return component;
         ChatComponentText text = new ChatComponentText(config.getHeaderColor() +
             "[" + config.getFooterColor() + tag +
             config.getHeaderColor() + "] " + EnumChatFormatting.RESET);
