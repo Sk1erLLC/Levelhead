@@ -48,7 +48,7 @@ public final class Hooks {
                     } else if (config.isHeaderRgb()) {
                         fontRendererObj.drawString(s, x1, y, new Color(config.getHeaderRed(), config.getHeaderGreen(), config.getHeaderBlue()).getRGB());
                     } else {
-                        fontRendererObj.drawString(config.getFooterColor() + s, x1, y, Color.WHITE.getRGB());
+                        fontRendererObj.drawString(config.getHeaderColor() + s, x1, y, Color.WHITE.getRGB());
                     }
                 }
             }
