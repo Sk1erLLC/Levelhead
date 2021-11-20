@@ -35,7 +35,7 @@ buildscript {
             classpath('com.github.ReplayMod:ForgeGradle:' + (
                     mcVersion >= 11200 ? '541e148' : // FG 2.3
                             mcVersion >= 10904 ? '5c1f53d' : // FG 2.2
-                                    '48c4f0c'   // FG 2.1
+                                    'ceb83c0'   // FG 2.1
             ) + ':all')
         } else {
             classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
@@ -104,7 +104,6 @@ if (!FABRIC && useMixin) {
         }
     }
 }
-apply plugin: 'maven'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'maven-publish'
 
@@ -281,8 +280,8 @@ dependencies {
         ][mcVersion]
     }
 
-    embed "gg.essential:loader-launchwrapper:1.1.1"
-    implementation "gg.essential:essential-${mcVersionStr}-forge:1501+release-launch"
+    implementation "gg.essential:loader-launchwrapper:1.1.2"
+    implementation "gg.essential:essential-${mcVersionStr}-forge:1543+release-launch"
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {
@@ -350,25 +349,13 @@ if (FG2 && useMixin) {
     }
 }
 
-task moveResources {
-    doLast {
-        ant.move file: "${buildDir}/resources/main",
-                todir: "${buildDir}/classes/java"
-    }
-}
-
-moveResources.dependsOn processResources
-classes.dependsOn moveResources
-
-
 processResources {
     // this will ensure that this task is redone when the versions change.
     if (mcVersion <= 11202) {
         inputs.property "version", project.version
         inputs.property "mcversion", project.minecraft.version
         // replace stuff in mcmod.info, nothing else
-        from(sourceSets.main.resources.srcDirs) {
-            include 'mcmod.info'
+        filesMatching(['mcmod.info']) {
 
             // replace version and mcversion
             expand 'version': project.version, 'mcversion': project.minecraft.version
@@ -379,10 +366,6 @@ processResources {
         rename("en_us.lang", "en_US.lang")
 
     exclude "META-INF/**"
-    copy {
-        from("src/main/resources")
-        into("build/classes/main")
-    }
 }
 
 jar {
