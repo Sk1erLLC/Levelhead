@@ -32,11 +32,16 @@ class DisplayManager(val file: File) {
 
     fun readConfig() {
         try {
-            val source = jsonParser.parse(FileUtils.readFileToString(file)).asJsonObject
+            if (!file.exists()) {
+                file.createNewFile()
+            }
+            val source = jsonParser.parse(FileUtils.readFileToString(file)).runCatching { asJsonObject }.getOrElse { JsonObject() }
             if (source.has("master")) this.config = gson.fromJson(source["master"].asJsonObject, MasterConfig::class.java)
 
-            for (head in source["head"].asJsonArray) {
-                aboveHead.add(AboveHeadDisplay(gson.fromJson(head.asJsonObject, DisplayConfig::class.java)))
+            if (source.has("head")) {
+                for (head in source["head"].asJsonArray) {
+                    aboveHead.add(AboveHeadDisplay(gson.fromJson(head.asJsonObject, DisplayConfig::class.java)))
+                }
             }
 
             if (aboveHead.isEmpty()) {
@@ -63,14 +68,14 @@ class DisplayManager(val file: File) {
     fun saveConfig() {
         val jsonObject = JsonObject()
 
-        jsonObject.addProperty("master", gson.toJson(config))
-        jsonObject.addProperty("tab", gson.toJson(tab?.config))
-        jsonObject.addProperty("chat", gson.toJson(chat?.config))
+        jsonObject.add("master", gson.toJsonTree(config))
+        jsonObject.add("tab", gson.toJsonTree(tab?.config))
+        jsonObject.add("chat", gson.toJsonTree(chat?.config))
 
         val head = JsonArray()
 
         this.aboveHead.forEach { display ->
-            head.add(gson.toJson(display.config))
+            head.add(gson.toJsonTree(display.config))
         }
 
         jsonObject.add("head", head)

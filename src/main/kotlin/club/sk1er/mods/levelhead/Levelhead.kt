@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead
 
 import club.sk1er.mods.levelhead.auth.MojangAuth
+import club.sk1er.mods.levelhead.commands.LevelheadCommand
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.DisplayManager
 import club.sk1er.mods.levelhead.core.RateLimiter
@@ -40,6 +41,7 @@ import java.util.*
 /**
  * TODO
  * Implement Chat and Tab rendering
+ * Fix above head preview not working
  * Adapt Sk1er.club API to new config style
  * General cleanup
  */
@@ -60,9 +62,9 @@ object Levelhead {
         private set
     lateinit var purchaseStatus: JsonObject
         private set
-    val displayManager: DisplayManager = DisplayManager(File(UMinecraft.getMinecraft().mcDataDir, "levelhead.json"))
+    val displayManager: DisplayManager = DisplayManager(File(File(UMinecraft.getMinecraft().mcDataDir, "config"), "levelhead.json"))
+    val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private val rateLimiter: RateLimiter = RateLimiter(100, Duration.ofSeconds(1))
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private val format: DecimalFormat = DecimalFormat("#,###")
     val DarkChromaColor: Int
         get() = Color.HSBtoRGB(System.currentTimeMillis() % 1000 / 1000f, 0.8f, 0.2f)
@@ -93,6 +95,7 @@ object Levelhead {
         }
         MinecraftForge.EVENT_BUS.register(AboveHeadRender())
         MinecraftForge.EVENT_BUS.register(this)
+        EssentialAPI.getCommandRegistry().registerCommand(LevelheadCommand())
     }
 
 
@@ -101,6 +104,9 @@ object Levelhead {
         rawPurchases = jsonParser.parse(rawWithAgent(
             "https://api.sk1er.club/purchases/" + UMinecraft.getMinecraft().session.profile.id.toString()
         )).asJsonObject
+        if (!rawPurchases.has("remaining_levelhead_credits")) {
+            rawPurchases.addProperty("remaining_levelhead_credits", 0)
+        }
     }
 
     @Synchronized
@@ -148,8 +154,7 @@ object Levelhead {
             val url = "https://api.sk1er.club/levelheadv5/${uuid.trimmed}/" +
                 "$type/${UMinecraft.getMinecraft().session.profile.id.trimmed}/" +
                 "$VERSION/${auth.hash}/${display.displayPosition.name}"
-            println(url)
-            val res = jsonParser.parse(rawWithAgent(url).also { println(it) }).asJsonObject
+            val res = jsonParser.parse(rawWithAgent(url)).asJsonObject
 
             if (!res["success"].asBoolean) {
                 res.addProperty("strlevel", "Error")
@@ -218,7 +223,10 @@ object Levelhead {
         }
 
     val String.chatColor: ChatColor?
-            get() = ChatColor.values().find { it.char == this.replace("\u00a7", "").toCharArray()[0] }
+        get() = ChatColor.values().find { it.char == this.replace("\u00a7", "").toCharArray()[0] }
+
+    fun Color.tryToGetChatColor() =
+        ChatColor.values().filter { it.isColor() }.find { it.color!! == this }
 
     val UUID.trimmed: String
         get() = this.toString().replace("-", "")

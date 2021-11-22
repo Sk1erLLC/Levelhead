@@ -1,9 +1,14 @@
 package club.sk1er.mods.levelhead.gui
 
 import club.sk1er.mods.levelhead.Levelhead
+import club.sk1er.mods.levelhead.Levelhead.displayManager
+import club.sk1er.mods.levelhead.Levelhead.tryToGetChatColor
+import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.display.*
 import club.sk1er.mods.levelhead.gui.components.ChatPreviewComponent
 import club.sk1er.mods.levelhead.gui.components.TabPreviewComponent
+//import club.sk1er.mods.levelhead.gui.components.ChatPreviewComponent
+//import club.sk1er.mods.levelhead.gui.components.TabPreviewComponent
 import com.mojang.authlib.GameProfile
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
@@ -27,9 +32,12 @@ import java.net.URI
 
 class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
-    private val instance: Levelhead = Levelhead.INSTANCE
+    override fun onScreenClose() {
+        displayManager.saveConfig()
+        super.onScreenClose()
+    }
 
-    private val masterToggle = SwitchComponent(instance.displayManager.masterConfig.isEnabled).constrain {
+    private val masterToggle = SwitchComponent(Levelhead.displayManager.config.enabled).constrain {
         x = 10.pixels(true)
         y = 10.pixels()
     } childOf titleBar
@@ -44,7 +52,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         y = 5.pixels()
     } childOf titleBar
 
-    private val credits = UIText("Remaining credits: ${instance.rawPurchases.optInt("remaining_levelhead_credits")}").constrain {
+    private val credits = UIText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}").constrain {
         x = 30.percent() + 5.pixels()
         y = 11.pixels()
     } childOf titleBar
@@ -57,7 +65,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
     init {
         masterToggle.onValueChange {
-            instance.displayManager.masterConfig.isEnabled = it as Boolean
+            Levelhead.displayManager.config.enabled = it as Boolean
         }
 
         editing.onValueChange {
@@ -82,8 +90,8 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             width = RelativeConstraint()
             height = FillConstraint(false)
         } childOf content
-        instance.refreshRawPurchases()
-        credits.setText("Remaining credits: ${instance.rawPurchases.optInt("remaining_levelhead_credits")}")
+        Levelhead.refreshRawPurchases()
+        credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
 
     }
 
@@ -158,7 +166,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
     private fun aboveHeadDisplay() = buildLevelheadContainer {
         title = "Above Head"
 
-        val aboveHead = instance.displayManager.aboveHead
+        val aboveHead = Levelhead.displayManager.aboveHead
 
         val player by EssentialAPI.getEssentialComponentFactory().buildEmulatedPlayer {
             profile = GameProfile(UPlayer.getUUID(), UPlayer.getPlayer()!!.displayName.formattedText)
@@ -175,7 +183,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             y = 5.pixels()
         } childOf settingsContainer
 
-        val aboveHeadPurchases = instance.levelheadPurchaseStates.extraHead
+        val aboveHeadPurchases = Levelhead.LevelheadPurchaseStates.aboveHead
         aboveHead.forEachIndexed { index, aboveHeadDisplay ->
             if (index > aboveHeadPurchases) return@forEachIndexed
 
@@ -188,46 +196,46 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
     private fun chatDisplay() = buildLevelheadContainer {
         title = "Chat"
 
-        val chat: ChatDisplay = instance.displayManager.chat as ChatDisplay
-
-        val preview = ChatPreviewComponent(
-            "${UPlayer.getPlayer()!!.name}§r: Hi!",
-            chat.config.type.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() },
-            chat.config
-        ).constrain {
-            x = CenterConstraint()
-            y = CenterConstraint()
-        } childOf displayContainer
-
-        if (instance.levelheadPurchaseStates.isChat) {
-            chat.config.createComponents(settings, preview)
-        } else {
-            val text = UIText("Levelhead Chat Display not purchased!").constrain {
+        Levelhead.displayManager.chat?.let { chat ->
+            val preview = ChatPreviewComponent(
+                "${UPlayer.getPlayer()!!.name}§r: Hi!",
+                chat.config.type.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() },
+                chat.config
+            ).constrain {
                 x = CenterConstraint()
-            } childOf settings
-            ButtonComponent("Purchase Chat Display") {
-                attemptPurchase("chat")
-                this.hide()
-            }.constrain {
-                x = CenterConstraint()
-                y = SiblingConstraint(5f)
-            } childOf settings
+                y = CenterConstraint()
+            } childOf displayContainer
 
+            if (Levelhead.LevelheadPurchaseStates.chat) {
+                chat.config.createComponents(settings, preview)
+            } else {
+                val text = UIText("Levelhead Chat Display not purchased!").constrain {
+                    x = CenterConstraint()
+                } childOf settings
+                ButtonComponent("Purchase Chat Display") {
+                    attemptPurchase("chat")
+                    this.hide()
+                }.constrain {
+                    x = CenterConstraint()
+                    y = SiblingConstraint(5f)
+                } childOf settings
+
+            }
         }
     }
 
     private fun tabDisplay() = buildLevelheadContainer {
         title = "Tab"
 
-        val tab = instance.displayManager.tab
+        val tab = Levelhead.displayManager.tab
 
         val tabDisplay = TabPreviewComponent(UPlayer).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
         } childOf displayContainer
 
-        if (instance.levelheadPurchaseStates.isTab) {
-            tab.config.createComponents(settings, tab)
+        if (Levelhead.LevelheadPurchaseStates.tab) {
+            tab?.config?.createComponents(settings, tab)
         } else {
             val text = UIText("Levelhead Tab Display not purchased!").constrain {
                 x = CenterConstraint()
@@ -273,28 +281,29 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             x = 0.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
         } childOf parent
-        val showToggle = SwitchComponent(this.isShowSelf).constrain {
+        val showToggle = SwitchComponent(this.showSelf).constrain {
+            x = 5.75.pixels(true).to(divider) as XConstraint
             x = 5.75.pixels(true).to(divider) as XConstraint
             y = CramSiblingConstraint() - 0.5.pixels()
         } childOf parent
         showToggle.onValueChange {
-            this.isShowSelf = it as Boolean
+            this.showSelf = it as Boolean
             preview.update()
         }
         val typeLabel = UIText("Type: ").constrain {
             x = 5.pixels().to(divider) as XConstraint
             y = CramSiblingConstraint() + 0.5.pixels()
         } childOf parent
-        val typeOptions = instance.allowedTypes()
+        val typeOptions = Levelhead.types.asJsonObject
         val type = DropDown(
-            typeOptions.keys.sortedBy { it }.indexOf(this.type),
-            typeOptions.values.toList().sortedBy { it }
+            typeOptions.keySet().sortedBy { it }.indexOf(this.type),
+            typeOptions.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
         ).constrain {
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf parent
         type.onValueChange { value ->
-            this.type = typeOptions.keys.sortedBy { string -> string }.toList()[value]
+            this.type = typeOptions.keySet().sortedBy { it }.toList()[value]
             println(typeOptions)
             println(this.type)
             preview.stat = this.type.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() }
@@ -306,9 +315,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf parent
         val bracketColor = DropDown(
             colorOptions.indexOf(
-                colorOptions.find {
-                    it.toString() == this.headerColor
-                }
+                this.headerColor.tryToGetChatColor()
             ),
             colorOptions.map { "${it}${it.name.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() }}" }
         ).constrain {
@@ -316,7 +323,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf parent
         bracketColor.onValueChange {
-            this.headerColor = colorOptions[it].toString().drop(1)
+            this.headerColor = colorOptions[it].color!!
             preview.update()
         }
         val textLabel = UIText("Text Color").constrain {
@@ -325,9 +332,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf parent
         val textColor = DropDown(
             colorOptions.indexOf(
-                colorOptions.find {
-                    it.toString() == this.footerColor
-                }
+                this.footerColor.tryToGetChatColor()
             ),
             colorOptions.map { "${it}${it.name.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() }}" }
         ).constrain {
@@ -335,7 +340,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf parent
         textColor.onValueChange {
-            this.footerColor = colorOptions[it].toString().drop(1)
+            this.footerColor = colorOptions[it].color!!
             preview.update()
         }
     }
@@ -359,27 +364,27 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             x = 0.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
         } childOf leftContainer
-        val showToggle = SwitchComponent(this.isShowSelf).constrain {
+        val showToggle = SwitchComponent(this.showSelf).constrain {
             x = 5.75.pixels(true)
             y = CramSiblingConstraint() - 0.5.pixels()
         } childOf leftContainer
         showToggle.onValueChange {
-            this.isShowSelf = it as Boolean
+            this.showSelf = it as Boolean
         }
         val typeLabel = UIText("Type: ").constrain {
             x = 5.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
         } childOf rightContainer
-        val options = instance.allowedTypes()
+        val options = Levelhead.types.asJsonObject
         val type = DropDown(
-            options.keys.sortedBy { it }.indexOf(this.type),
-            options.values.toList().sortedBy { it }
+            options.keySet().sortedBy { it }.indexOf(this.type),
+            options.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
         ).constrain {
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf rightContainer
         type.onValueChange {
-            this.type = options.keys.sortedBy { string -> string }.toList()[it]
+            this.type = options.entrySet().map { it.value.asString }.sortedBy { string -> string }.toList()[it]
             display.update()
         }
         if (display is AboveHeadDisplay) {
@@ -387,13 +392,13 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 x = 0.pixels()
                 y = SiblingConstraint(5f).to(showToggle) as YConstraint
             } childOf leftContainer
-            val textInput = TextComponent(this.customHeader, "", false, false).constrain {
+            val textInput = TextComponent(this.headerString, "", false, false).constrain {
                 x = 6.pixels(true)
                 y = CramSiblingConstraint()
             } childOf leftContainer
             textInput.onValueChange {
                 if (it !is String) return@onValueChange
-                this.customHeader = it
+                this.headerString = it
             }
         }
         val header = ColorSetting(this, true, display).constrain {
@@ -435,40 +440,27 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 when(it) {
                     0 -> {
                         if (header) {
-                            config.isHeaderRgb = false
-                            config.isHeaderChroma = true
+                            config.headerChroma = true
                         } else {
-                            config.isFooterRgb = false
-                            config.isFooterChroma = true
+                            config.footerChroma = true
                         }
                         updateSelector()
                     }
                     1 -> {
-                        if (header) {
-                            config.isHeaderRgb = true
-                            config.isHeaderChroma = false
-                        } else {
-                            config.isFooterRgb = true
-                            config.isFooterChroma = false
-                        }
                         updateSelector()
+                        if (header) {
+                            config.headerChroma = false
+                            config.headerColor = (selector as ColorComponent).getColor()
+                        } else {
+                            config.footerChroma = false
+                            config.footerColor = (selector as ColorComponent).getColor()
+                        }
                     }
                     else -> {
                         if (header) {
-                            config.isHeaderRgb = false
-                            config.isHeaderChroma = false
-                            config.headerColor = options[it].toString().drop(1)
-                            println(options[it].toString().drop(1))
-                            config.headerRed = (options[it] as ChatColor).color!!.red
-                            config.headerGreen = (options[it] as ChatColor).color!!.green
-                            config.headerBlue = (options[it] as ChatColor).color!!.blue
+                            config.headerColor = (options[it] as ChatColor).color!!
                         } else {
-                            config.isFooterRgb = false
-                            config.isFooterChroma = false
-                            config.footerColor = options[it].toString().drop(1)
-                            config.footerRed = (options[it] as ChatColor).color!!.red
-                            config.footerGreen = (options[it] as ChatColor).color!!.green
-                            config.footerBlue = (options[it] as ChatColor).color!!.blue
+                            config.footerColor = (options[it] as ChatColor).color!!
                         }
                         updateSelector()
                     }
@@ -493,7 +485,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             "Chat Color" -> {
                 ChatColor.values().filter { it.isColor() }
                     .find {
-                        it.toString() == if (header) config.headerColor else config.footerColor
+                        it.color!!.rgb == if (header) config.headerColor.rgb else config.footerColor.rgb
                     }
             }
             else -> config.getMode(header)
@@ -512,19 +504,11 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             else -> {
                 val picker = if (header) {
                     ColorPicker(
-                        Color(
-                            config.headerRed,
-                            config.headerGreen,
-                            config.headerBlue
-                        ), false
+                        config.headerColor, false
                     )
                 } else {
                     ColorPicker(
-                        Color(
-                            config.footerRed,
-                            config.footerGreen,
-                            config.footerBlue
-                        ), false
+                        config.footerColor, false
                     )
                 }.constrain {
                     width = RelativeConstraint(0.55f)
@@ -532,17 +516,11 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 }
                 picker.onValueChange {
                     if (header) {
-                        config.isHeaderChroma = false
-                        config.isHeaderRgb = true
-                        config.headerRed = it.red
-                        config.headerGreen = it.green
-                        config.headerBlue = it.blue
+                        config.headerChroma = false
+                        config.headerColor = it
                     } else {
-                        config.isFooterChroma = false
-                        config.isFooterRgb = true
-                        config.footerRed = it.red
-                        config.footerGreen = it.green
-                        config.footerBlue = it.blue
+                        config.footerChroma = false
+                        config.footerColor = it
                     }
                     this.color.select(1)
                     display.update()
@@ -553,14 +531,14 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
         private fun DisplayConfig.getMode(header: Boolean) = if (header) {
             when {
-                this.isHeaderChroma -> "Chroma"
-                this.isHeaderRgb -> "RGB"
+                this.headerChroma -> "Chroma"
+                this.headerColor.tryToGetChatColor() != null -> "RGB"
                 else -> "Chat Color"
             }
         } else {
             when {
-                this.isFooterChroma -> "Chroma"
-                this.isFooterRgb -> "RGB"
+                this.footerChroma -> "Chroma"
+                this.footerColor.tryToGetChatColor() != null -> "RGB"
                 else -> "Chat Color"
             }
         }
@@ -573,16 +551,16 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
 
     private fun attemptPurchase(type: String){
-        val paidData = instance.paidData
-        val extraDisplays = paidData.optJSONObject("extra_displays")
-        val stats = paidData.optJSONObject("stats")
+        val paidData = Levelhead.paidData
+        val extraDisplays = paidData["extra_displays"].asJsonObject //paidData.optJSONObject("extra_displays")
+        val stats = paidData["stats"].asJsonObject //paidData.optJSONObject("stats")
 
-        val seed: JsonHolder = when {
+        val seed = when {
             extraDisplays.has(type) -> {
-                extraDisplays.optJSONObject(type)
+                extraDisplays[type].asJsonObject  //.optJSONObject(type)
             }
             stats.has(type) -> {
-                stats.optJSONObject(type)
+                stats[type].asJsonObject //.optJSONObject(type)
             }
             else -> {
                 EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
@@ -596,12 +574,12 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             }
         }
 
-        val remainingCredits = instance.rawPurchases.optInt("remaining_levelhead_credits")
+        val remainingCredits = Levelhead.rawPurchases["remaining_levelhead_credits"].asInt //.optInt("remaining_levelhead_credits")
         when {
-            remainingCredits < seed.optInt("cost") -> {
+            remainingCredits < seed["cost"].asInt -> {
                 EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
                     text = """
-                        # Insufficient credits! ${seed.optString("name")} costs ${seed.optInt("cost")} credits
+                        # Insufficient credits! ${seed["name"].asString} costs ${seed["cost"].asInt} credits
                         # but you only have ${remainingCredits}.
                         # You can purchase more credits here: https://purchase.sk1er.club/category/1050972
                     """.trimMargin("#")
@@ -613,7 +591,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 } childOf window
                 return
             }
-            instance.auth.isFailed -> {
+            Levelhead.auth.isFailed -> {
                 EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
                     text = "Could not verify your identity. Please restart the client."
                     secondaryText = "If issues persist, contact Sk1er"
@@ -622,15 +600,15 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 } childOf window
             }
             else -> {
-                val name = seed.optString("name")
+                val name = seed["name"].asString
                 EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
                     text = "You are about to purchase package ${name}."
                     onConfirm = {
                         Multithreading.submit {
                             val jsonHolder =
-                                fetchJSON("https://api.sk1er.club/levelhead_purchase?access_token=" + instance.auth.accessKey + "&request=" + type + "&hash=" + instance.auth.hash)
+                                fetchJSON("https://api.sk1er.club/levelhead_purchase?access_token=" + Levelhead.auth.accessKey + "&request=" + type + "&hash=" + Levelhead.auth.hash)
                             if (jsonHolder.optBoolean("success")) {
-                                instance.refreshPurchaseStates()
+                                Levelhead.refreshPurchaseStates()
                                 EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
                                     text = "Successfully purchased package ${name}."
                                     confirmButtonText = "Close"
