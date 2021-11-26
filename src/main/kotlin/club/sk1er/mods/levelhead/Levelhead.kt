@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.network.FMLNetworkEvent
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.logging.log4j.LogManager
@@ -40,10 +41,7 @@ import java.util.*
 
 /**
  * TODO
- * Implement Chat rendering (tab rendering 11/26/2021)
- * Fix above head preview not working
  * Adapt Sk1er.club API to new config style
- * General cleanup
  */
 @Mod(modid = Levelhead.MODID, name = "Levelhead", version = Levelhead.VERSION, modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter")
 object Levelhead {
@@ -76,23 +74,13 @@ object Levelhead {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        auth = MojangAuth()
-        Multithreading.runAsync {
-            auth.auth()
-        }
         Multithreading.runAsync {
             types = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead_config")).asJsonObject
         }
-        Multithreading.runAsync(this::refreshPurchaseStates)
-        Multithreading.runAsync(this::refreshRawPurchases)
-        Multithreading.runAsync(this::refreshPaidData)
     }
 
     @Mod.EventHandler
     fun postInit(ignored: FMLPostInitializationEvent) {
-        if (auth.isFailed) {
-            EssentialAPI.getNotifications().push("An error occurred while logging logging into Levelhead", auth.failMessage)
-        }
         MinecraftForge.EVENT_BUS.register(AboveHeadRender)
         MinecraftForge.EVENT_BUS.register(ChatRender)
         MinecraftForge.EVENT_BUS.register(this)
@@ -130,14 +118,22 @@ object Levelhead {
     }
 
     @SubscribeEvent
+    fun joinServer(event: FMLNetworkEvent.ClientConnectedToServerEvent) {
+        auth = MojangAuth()
+        auth.auth()
+        if (auth.isFailed) {
+            EssentialAPI.getNotifications().push("An error occurred while logging logging into Levelhead", auth.failMessage)
+        }
+        refreshPurchaseStates()
+        refreshRawPurchases()
+        refreshPaidData()
+
+    }
+
+    @SubscribeEvent
     fun playerJoin(event: EntityJoinWorldEvent) {
         // when you join world
         if (event.entity is EntityPlayerSP) {
-            // try auth again
-            if (auth.isFailed) {
-                auth = MojangAuth()
-                auth.auth()
-            }
             displayManager.joinWorld()
         // when others join world
         } else if (event.entity is EntityPlayer) {

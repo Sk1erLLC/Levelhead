@@ -98,7 +98,6 @@ class DisplayManager(val file: File) {
     }
 
     fun joinWorld() {
-        Levelhead.refreshPurchaseStates()
         aboveHead.forEach { head ->
             head.joinWorld()
         }
@@ -120,5 +119,14 @@ class DisplayManager(val file: File) {
         }
         chat?.checkCacheSize()
         tab?.checkCacheSize()
+    }
+
+    fun clearCache() {
+        aboveHead.forEach { head ->
+            head.cache.clear()
+        }
+        chat?.cache?.clear()
+        tab?.cache?.clear()
+        joinWorld()
     }
 }

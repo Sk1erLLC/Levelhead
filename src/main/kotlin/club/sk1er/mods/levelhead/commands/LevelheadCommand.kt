@@ -43,9 +43,9 @@ class LevelheadCommand : Command("levelhead") {
         }
     }
 
-//    @SubCommand(value = "dumpcache")
-//    fun handleDumpCache() {
-//        displayManager.clearCache()
-//        EssentialAPI.getMinecraftUtil().sendMessage("[levelhead]", ChatColor.RED.toString() + "Cleared Cache")
-//    }
+    @SubCommand(value = "dumpcache")
+    fun handleDumpCache() {
+        displayManager.clearCache()
+        EssentialAPI.getMinecraftUtil().sendMessage("[Levelhead]", ChatColor.RED.toString() + "Cleared Cache")
+    }
 }

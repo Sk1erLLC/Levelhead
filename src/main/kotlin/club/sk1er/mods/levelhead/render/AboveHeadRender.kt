@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.render
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.Levelhead.displayManager
 import club.sk1er.mods.levelhead.display.LevelheadTag
+import club.sk1er.mods.levelhead.gui.LevelheadMainGUI
 import gg.essential.api.EssentialAPI
 import gg.essential.elementa.utils.withAlpha
 import gg.essential.universal.UMinecraft
@@ -22,10 +23,10 @@ import org.lwjgl.opengl.GL11
 object AboveHeadRender {
 
     @SubscribeEvent
-    fun render(event: RenderLivingEvent.Specials.Pre<EntityLivingBase>) {
+    fun render(event: RenderLivingEvent.Specials.Post<EntityLivingBase>) {
         if (listOf(
                 !displayManager.config.enabled,
-                !EssentialAPI.getMinecraftUtil().isHypixel(),
+                !(EssentialAPI.getMinecraftUtil().isHypixel() || getMinecraft().currentScreen is LevelheadMainGUI),
                 getMinecraft().gameSettings.hideGUI
         ).any { it }) return
 

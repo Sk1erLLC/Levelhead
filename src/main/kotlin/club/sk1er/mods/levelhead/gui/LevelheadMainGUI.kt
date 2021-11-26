@@ -70,10 +70,12 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }
 
 
-        Inspector(window).constrain {
-            x = 10.pixels(true)
-            y = 10.pixels(true)
-        } childOf window
+        if (EssentialAPI.getMinecraftUtil().isDevelopment()) {
+            Inspector(window).constrain {
+                x = 10.pixels(true)
+                y = 10.pixels(true)
+            } childOf window
+        }
     }
 
     private fun updateDisplay(index: Int) {
@@ -170,7 +172,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }.constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            width = 60.percent()
+            width = 30.percent()
         } childOf displayContainer
 
         val purchase by ButtonComponent("Purchase more layers") {
@@ -252,7 +254,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             width = RelativeConstraint()
             height = AspectConstraint(0.4f)
         }
-        val text = UIText("§nLayer ${aboveHead.indexOf(this)}").constrain {
+        val text = UIText("§nLayer ${aboveHead.indexOf(this) + 1}").constrain {
             x = 0.pixels()
             y = 0.pixels()
         } childOf container

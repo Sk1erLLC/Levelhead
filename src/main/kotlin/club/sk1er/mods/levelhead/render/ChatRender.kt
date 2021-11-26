@@ -6,6 +6,8 @@ import club.sk1er.mods.levelhead.config.DisplayConfig
 import gg.essential.universal.ChatColor
 import gg.essential.universal.utils.MCITextComponent
 import gg.essential.universal.wrappers.message.UTextComponent
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
@@ -32,7 +34,8 @@ object ChatRender {
         if (listOf(
                 !Levelhead.displayManager.config.enabled,
                 Levelhead.displayManager.chat?.config?.enabled != true,
-                !Levelhead.LevelheadPurchaseStates.chat
+                !Levelhead.LevelheadPurchaseStates.chat,
+                !event.message.formattedText.contains(':')
         ).any { it }) return
 
         val siblings = event.message.siblings
@@ -50,6 +53,8 @@ object ChatRender {
                 if (uuidRegex.matches(split[1])) {
                     Levelhead.displayManager.chat!!.cache[UUID.fromString(split[1])]?.run {
                         event.message = modifyChat(event.message, this.footer.value, Levelhead.displayManager.chat!!.config)
+                    } ?: Levelhead.scope.launch {
+                        Levelhead.fetch(UUID.fromString(split[1]), Levelhead.displayManager.chat!!, false)
                     }
                 }
             }
