@@ -222,8 +222,8 @@ minecraft {
             }
         }
     }
-    clientRunArgs += ["--tweakClass=gg.essential.loader.stage0.EssentialSetupTweaker"]
-    clientJvmArgs += ["-Dfml.coreMods.load=club.sk1er.mods.levelhead.forge.FMLLoadingPlugin"]
+    clientRunArgs += ["--tweakClass=gg.essential.loader.stage0.EssentialSetupTweaker",
+                        "--mixins=mixins.levelhead.json"]
 }
 
 configurations {

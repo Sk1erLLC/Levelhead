@@ -22,7 +22,7 @@ import org.lwjgl.opengl.GL11
 class AboveHeadRender {
 
     @SubscribeEvent
-    fun render (event: RenderLivingEvent.Specials.Pre<EntityLivingBase>) {
+    fun render(event: RenderLivingEvent.Specials.Pre<EntityLivingBase>) {
         if (listOf(
                 !displayManager.config.enabled,
                 !EssentialAPI.getMinecraftUtil().isHypixel(),

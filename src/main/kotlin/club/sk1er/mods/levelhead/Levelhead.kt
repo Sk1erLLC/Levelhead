@@ -21,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.fml.common.Mod
@@ -40,7 +39,7 @@ import java.util.*
 
 /**
  * TODO
- * Implement Chat and Tab rendering
+ * Implement Chat rendering (tab rendering 11/26/2021)
  * Fix above head preview not working
  * Adapt Sk1er.club API to new config style
  * General cleanup

@@ -1,0 +1,10 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "package": "club.sk1er.mods.levelhead.mixin",
+  "refmap": "mixins.levelhead.refmap.json",
+  "mixins": [],
+  "verbose": true,
+  "client": [
+    "MixinGuiPlayerTabOverlay"
+  ]
+}

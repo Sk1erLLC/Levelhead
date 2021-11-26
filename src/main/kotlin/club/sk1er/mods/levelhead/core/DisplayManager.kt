@@ -10,7 +10,6 @@ import club.sk1er.mods.levelhead.display.ChatDisplay
 import club.sk1er.mods.levelhead.display.TabDisplay
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import gg.essential.api.utils.Multithreading
 import net.minecraft.entity.player.EntityPlayer
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -32,8 +31,10 @@ class DisplayManager(val file: File) {
 
     fun readConfig() {
         try {
+            var shouldSaveCopyNow = false
             if (!file.exists()) {
                 file.createNewFile()
+                shouldSaveCopyNow = true
             }
             val source = jsonParser.parse(FileUtils.readFileToString(file)).runCatching { asJsonObject }.getOrElse { JsonObject() }
             if (source.has("master")) this.config = gson.fromJson(source["master"].asJsonObject, MasterConfig::class.java)
@@ -59,6 +60,8 @@ class DisplayManager(val file: File) {
                 this.tab = TabDisplay(DisplayConfig().also { it.type = "QUESTS" })
 
             adjustIndices()
+
+            if (shouldSaveCopyNow) saveConfig()
 
         } catch (e: IOException) {
             Levelhead.logger.error("Failed to initialize display manager.", e)
@@ -95,7 +98,7 @@ class DisplayManager(val file: File) {
     }
 
     fun joinWorld() {
-        Multithreading.runAsync(Levelhead::refreshPurchaseStates)
+        Levelhead.refreshPurchaseStates()
         aboveHead.forEach { head ->
             head.joinWorld()
         }

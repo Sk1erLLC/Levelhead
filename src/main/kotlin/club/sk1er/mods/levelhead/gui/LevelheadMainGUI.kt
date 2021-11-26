@@ -7,14 +7,11 @@ import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.display.*
 import club.sk1er.mods.levelhead.gui.components.ChatPreviewComponent
 import club.sk1er.mods.levelhead.gui.components.TabPreviewComponent
-//import club.sk1er.mods.levelhead.gui.components.ChatPreviewComponent
-//import club.sk1er.mods.levelhead.gui.components.TabPreviewComponent
 import com.mojang.authlib.GameProfile
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
 import gg.essential.api.gui.buildEmulatedPlayer
-import gg.essential.api.utils.JsonHolder
 import gg.essential.api.utils.Multithreading
 import gg.essential.api.utils.WebUtil.fetchJSON
 import gg.essential.elementa.UIComponent
@@ -375,7 +372,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             x = 5.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
         } childOf rightContainer
-        val options = Levelhead.types.asJsonObject
+        val options = Levelhead.types
         val type = DropDown(
             options.keySet().sortedBy { it }.indexOf(this.type),
             options.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
@@ -384,7 +381,7 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf rightContainer
         type.onValueChange {
-            this.type = options.entrySet().map { it.value.asString }.sortedBy { string -> string }.toList()[it]
+            this.type = options.keySet().sortedBy { string -> string }[it]
             display.update()
         }
         if (display is AboveHeadDisplay) {
