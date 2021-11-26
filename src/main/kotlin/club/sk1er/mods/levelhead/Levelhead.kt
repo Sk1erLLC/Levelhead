@@ -9,6 +9,7 @@ import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadTag
 import club.sk1er.mods.levelhead.render.AboveHeadRender
+import club.sk1er.mods.levelhead.render.ChatRender
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -92,7 +93,8 @@ object Levelhead {
         if (auth.isFailed) {
             EssentialAPI.getNotifications().push("An error occurred while logging logging into Levelhead", auth.failMessage)
         }
-        MinecraftForge.EVENT_BUS.register(AboveHeadRender())
+        MinecraftForge.EVENT_BUS.register(AboveHeadRender)
+        MinecraftForge.EVENT_BUS.register(ChatRender)
         MinecraftForge.EVENT_BUS.register(this)
         EssentialAPI.getCommandRegistry().registerCommand(LevelheadCommand())
     }

@@ -1,6 +1,6 @@
 package club.sk1er.mods.levelhead.mixin;
 
-import club.sk1er.mods.levelhead.render.TabRenderer;
+import club.sk1er.mods.levelhead.render.TabRender;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ public abstract class MixinGuiPlayerTabOverlay {
 
     @Inject(method = "drawPing", at = @At("HEAD"))
     private void levelhead$drawPingHook(int offset, int x, int y, NetworkPlayerInfo networkPlayerInfoIn, CallbackInfo ci) {
-        TabRenderer.INSTANCE.drawPingHook(offset, x, y, networkPlayerInfoIn);
+        TabRender.INSTANCE.drawPingHook(offset, x, y, networkPlayerInfoIn);
     }
 
     @ModifyVariable(method = "renderPlayerlist", at = @At("STORE"))
@@ -29,6 +29,6 @@ public abstract class MixinGuiPlayerTabOverlay {
 
     @ModifyVariable(method = "renderPlayerlist", ordinal = 3, at = @At("STORE"))
     private int levelhead$tabWidthHook(int in) {
-        return in + TabRenderer.INSTANCE.getLevelheadWidth(levelhead$playerInfo);
+        return in + TabRender.INSTANCE.getLevelheadWidth(levelhead$playerInfo);
     }
 }

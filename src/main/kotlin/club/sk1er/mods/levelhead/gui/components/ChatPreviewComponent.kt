@@ -1,7 +1,7 @@
 package club.sk1er.mods.levelhead.gui.components
 
 import club.sk1er.mods.levelhead.config.DisplayConfig
-//import club.sk1er.mods.levelhead.renderer.LevelheadChatRenderer
+import club.sk1er.mods.levelhead.render.ChatRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.constraints.ChildBasedSizeConstraint
@@ -14,13 +14,13 @@ class ChatPreviewComponent(private val previewMessage: String, stat: String, val
     var stat: String = stat
         set(value) {
             field = value
-            text = "levelhead"/*LevelheadChatRenderer.modifyChat(
+            text = ChatRender.modifyChat(
                 UTextComponent(previewMessage).component,
                 value,
                 config
-            ).formattedText*/
+            ).formattedText
         }
-    private var text: String = "levelhead"/*LevelheadChatRenderer.modifyChat(
+    private var text: String = ChatRender.modifyChat(
         UTextComponent(previewMessage).component,
         stat,
         config
@@ -28,7 +28,7 @@ class ChatPreviewComponent(private val previewMessage: String, stat: String, val
         set(value) {
             field = value
             textComponent.setText(value)
-        }*/
+        }
 
     private val textComponent = UIText(text) childOf this
 
@@ -40,10 +40,10 @@ class ChatPreviewComponent(private val previewMessage: String, stat: String, val
     }
 
     fun update() {
-        text = "levelhead"/*LevelheadChatRenderer.modifyChat(
+        text = ChatRender.modifyChat(
             UTextComponent(previewMessage).component,
             stat,
             config
-        ).formattedText*/
+        ).formattedText
     }
 }

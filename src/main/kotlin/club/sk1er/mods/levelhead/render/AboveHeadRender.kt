@@ -19,7 +19,7 @@ import net.minecraftforge.client.event.RenderLivingEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.lwjgl.opengl.GL11
 
-class AboveHeadRender {
+object AboveHeadRender {
 
     @SubscribeEvent
     fun render(event: RenderLivingEvent.Specials.Pre<EntityLivingBase>) {

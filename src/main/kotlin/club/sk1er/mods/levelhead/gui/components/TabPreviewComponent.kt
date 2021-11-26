@@ -1,6 +1,6 @@
 package club.sk1er.mods.levelhead.gui.components
 
-import club.sk1er.mods.levelhead.render.TabRenderer
+import club.sk1er.mods.levelhead.render.TabRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.dsl.*
@@ -19,7 +19,7 @@ class TabPreviewComponent(playerIn: UPlayer) : UIBlock(Color(Int.MIN_VALUE)) {
     private val formattedName = player.displayName.formattedText
     private val totalTabWidth =
         9 + UMinecraft.getFontRenderer().getStringWidth(formattedName) +
-                TabRenderer.getLevelheadWidth(playerInfo) + 15
+                TabRender.getLevelheadWidth(playerInfo) + 15
     private val playername = UIText(formattedName).constrain {
         x = 9.pixels()
     } childOf this
@@ -55,7 +55,7 @@ class TabPreviewComponent(playerIn: UPlayer) : UIBlock(Color(Int.MIN_VALUE)) {
         }
 
         drawPing(x + totalTabWidth, y, playerInfo)
-        TabRenderer.drawPingHook(0, x + totalTabWidth, y, playerInfo)
+        TabRender.drawPingHook(0, x + totalTabWidth, y, playerInfo)
     }
 
     private fun drawPing(x: Int, y: Int, networkPlayerInfoIn: NetworkPlayerInfo) {

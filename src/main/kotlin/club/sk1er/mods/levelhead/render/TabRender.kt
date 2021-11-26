@@ -4,7 +4,7 @@ import club.sk1er.mods.levelhead.Levelhead
 import gg.essential.universal.UMinecraft
 import net.minecraft.client.network.NetworkPlayerInfo
 
-object TabRenderer {
+object TabRender {
 
     fun drawPingHook(offset: Int, x: Int, y: Int, playerInfo: NetworkPlayerInfo) {
         if (!Levelhead.displayManager.config.enabled) return
