@@ -295,14 +295,14 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf parent
         val typeOptions = Levelhead.types.asJsonObject
         val type = DropDown(
-            typeOptions.keySet().sortedBy { it }.indexOf(this.type),
+            typeOptions.entrySet().map { it.key }.sortedBy { it }.indexOf(this.type),
             typeOptions.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
         ).constrain {
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf parent
         type.onValueChange { value ->
-            this.type = typeOptions.keySet().sortedBy { it }.toList()[value]
+            this.type = typeOptions.entrySet().map { it.key }.sortedBy { it }.toList()[value]
             println(typeOptions)
             println(this.type)
             preview.stat = this.type.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() }
@@ -376,14 +376,14 @@ class LevelheadMainGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf rightContainer
         val options = Levelhead.types
         val type = DropDown(
-            options.keySet().sortedBy { it }.indexOf(this.type),
+            options.entrySet().map { it.key }.sortedBy { it }.indexOf(this.type),
             options.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
         ).constrain {
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf rightContainer
         type.onValueChange {
-            this.type = options.keySet().sortedBy { string -> string }[it]
+            this.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
             display.update()
         }
         if (display is AboveHeadDisplay) {

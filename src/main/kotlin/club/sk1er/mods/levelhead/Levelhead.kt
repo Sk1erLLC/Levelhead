@@ -213,7 +213,7 @@ object Levelhead {
     }
 
     fun JsonObject.merge(other: JsonObject, override: Boolean) =
-        other.keySet().filter { key ->
+        other.entrySet().map { it.key }.filter { key ->
             override || !this.has(key)
         }.map { key ->
             this.add(key, other[key])
