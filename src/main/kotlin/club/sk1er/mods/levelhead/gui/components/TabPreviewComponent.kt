@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.gui.components
 import club.sk1er.mods.levelhead.render.TabRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
+import gg.essential.elementa.constraints.ChildBasedSizeConstraint
 import gg.essential.elementa.dsl.*
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
@@ -13,9 +14,15 @@ import net.minecraft.entity.player.EnumPlayerModelParts
 import net.minecraftforge.fml.client.config.GuiUtils
 import java.awt.Color
 
-class TabPreviewComponent(playerIn: UPlayer) : UIBlock(Color(Int.MIN_VALUE)) {
-    private val playerInfo = UMinecraft.getNetHandler()!!.getPlayerInfo(playerIn.getUUID())
-    private val player = playerIn.getPlayer()!!
+class TabPreviewComponent : LevelheadPreviewComponent() {
+
+    private val background = UIBlock(Color(Int.MIN_VALUE)).constrain {
+        width = ChildBasedSizeConstraint()
+        height = ChildBasedSizeConstraint()
+    } childOf this
+
+    private val playerInfo = UMinecraft.getNetHandler()!!.getPlayerInfo(UPlayer.getUUID())
+    private val player = UPlayer.getPlayer()!!
     private val formattedName = player.displayName.formattedText
     private val totalTabWidth =
         9 + UMinecraft.getFontRenderer().getStringWidth(formattedName) +
@@ -74,4 +81,6 @@ class TabPreviewComponent(playerIn: UPlayer) : UIBlock(Color(Int.MIN_VALUE)) {
         }
         GuiUtils.drawTexturedModalRect(x - 11, y, 0, 176 + j * 8, 10, 8, 100f)
     }
+
+    override fun update() = Unit
 }

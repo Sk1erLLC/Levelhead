@@ -20,9 +20,9 @@ class DisplayManager(val file: File) {
 
     var config = MasterConfig()
     val aboveHead: MutableList<AboveHeadDisplay> = ArrayList()
-    var chat: ChatDisplay? = null
+    lateinit var chat: ChatDisplay
         private set
-    var tab: TabDisplay? = null
+    lateinit var tab: TabDisplay
         private set
 
     init {
@@ -72,8 +72,8 @@ class DisplayManager(val file: File) {
         val jsonObject = JsonObject()
 
         jsonObject.add("master", gson.toJsonTree(config))
-        jsonObject.add("tab", gson.toJsonTree(tab?.config))
-        jsonObject.add("chat", gson.toJsonTree(chat?.config))
+        jsonObject.add("tab", gson.toJsonTree(tab.config))
+        jsonObject.add("chat", gson.toJsonTree(chat.config))
 
         val head = JsonArray()
 
@@ -101,32 +101,32 @@ class DisplayManager(val file: File) {
         aboveHead.forEach { head ->
             head.joinWorld()
         }
-        chat?.joinWorld()
-        tab?.joinWorld()
+        chat.joinWorld()
+        tab.joinWorld()
     }
 
     fun playerJoin(player: EntityPlayer) {
         aboveHead.forEach { head ->
             head.playerJoin(player)
         }
-        chat?.playerJoin(player)
-        tab?.playerJoin(player)
+        chat.playerJoin(player)
+        tab.playerJoin(player)
     }
 
     fun checkCacheSizes() {
         aboveHead.forEach { head ->
             head.checkCacheSize()
         }
-        chat?.checkCacheSize()
-        tab?.checkCacheSize()
+        chat.checkCacheSize()
+        tab.checkCacheSize()
     }
 
     fun clearCache() {
         aboveHead.forEach { head ->
             head.cache.clear()
         }
-        chat?.cache?.clear()
-        tab?.cache?.clear()
+        chat.cache.clear()
+        tab.cache.clear()
         joinWorld()
     }
 }

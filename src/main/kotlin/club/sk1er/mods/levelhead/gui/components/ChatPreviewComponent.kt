@@ -1,17 +1,25 @@
 package club.sk1er.mods.levelhead.gui.components
 
-import club.sk1er.mods.levelhead.config.DisplayConfig
+import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.render.ChatRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
+import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.ChildBasedSizeConstraint
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
+import gg.essential.elementa.dsl.*
 import gg.essential.universal.wrappers.message.UTextComponent
 import java.awt.Color
 
-class ChatPreviewComponent(private val previewMessage: String, stat: String, val config: DisplayConfig) : UIBlock(Color(Int.MIN_VALUE)) {
-    var stat: String = stat
+class ChatPreviewComponent(private val previewMessage: String) : LevelheadPreviewComponent() {
+
+    private val background = UIBlock(Color(Int.MIN_VALUE)).constrain {
+        width = ChildBasedSizeConstraint()
+        height = ChildBasedSizeConstraint()
+    } childOf this
+
+    var config = Levelhead.displayManager.chat.config
+
+    var stat: String = Levelhead.displayManager.chat.config.type
         set(value) {
             field = value
             text = ChatRender.modifyChat(
@@ -30,7 +38,10 @@ class ChatPreviewComponent(private val previewMessage: String, stat: String, val
             textComponent.setText(value)
         }
 
-    private val textComponent = UIText(text) childOf this
+    private val textComponent = UIText(text).constrain {
+        x = CenterConstraint()
+        y = CenterConstraint()
+    } childOf this
 
     init {
         this.constrain {
@@ -39,7 +50,7 @@ class ChatPreviewComponent(private val previewMessage: String, stat: String, val
         }
     }
 
-    fun update() {
+    override fun update() {
         text = ChatRender.modifyChat(
             UTextComponent(previewMessage).component,
             stat,

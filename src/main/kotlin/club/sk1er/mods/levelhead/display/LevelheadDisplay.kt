@@ -8,13 +8,10 @@ import gg.essential.universal.UMinecraft
 import net.minecraft.entity.player.EntityPlayer
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.math.max
 
 abstract class LevelheadDisplay(val displayPosition: DisplayPosition, val config: DisplayConfig) {
     val cache: ConcurrentHashMap<UUID, LevelheadTag> = ConcurrentHashMap()
-    val trueValueCache: ConcurrentHashMap<UUID, String> = ConcurrentHashMap()
 
     val headerConfig: JsonObject
         get() = JsonObject().also { obj ->

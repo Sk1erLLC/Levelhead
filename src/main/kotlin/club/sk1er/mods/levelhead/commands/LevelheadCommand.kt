@@ -3,7 +3,7 @@ package club.sk1er.mods.levelhead.commands
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.Levelhead.displayManager
 import club.sk1er.mods.levelhead.Levelhead.types
-import club.sk1er.mods.levelhead.gui.LevelheadMainGUI
+import club.sk1er.mods.levelhead.gui.LevelheadGUI
 import gg.essential.api.EssentialAPI
 import gg.essential.api.commands.Command
 import gg.essential.api.commands.DefaultHandler
@@ -15,7 +15,7 @@ class LevelheadCommand : Command("levelhead") {
 
     @DefaultHandler
     fun handle() {
-        EssentialAPI.getGuiUtil().openScreen(LevelheadMainGUI())
+        EssentialAPI.getGuiUtil().openScreen(LevelheadGUI())
     }
 
     @SubCommand(value = "limit")
