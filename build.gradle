@@ -41,6 +41,7 @@ buildscript {
             classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
             classpath 'com.github.ReplayMod:ForgeGradle:a8a9e0ca' // FG 1.2
         }
+        classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.0'
     }
 }
 
@@ -228,7 +229,7 @@ minecraft {
 
 configurations {
     embed
-    compile.extendsFrom(embed)
+    implementation.extendsFrom(embed)
 }
 
 dependencies {
@@ -282,6 +283,8 @@ dependencies {
 
     implementation "gg.essential:loader-launchwrapper:1.1.2"
     implementation "gg.essential:essential-${mcVersionStr}-forge:1543+release-launch"
+
+    embed("com.squareup.okhttp3:okhttp:3.14.9")
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {
@@ -369,9 +372,10 @@ processResources {
 }
 
 jar {
-    dependsOn configurations.compile
+    classifier = "raw"
+    dependsOn configurations.embed
     from({
-        configurations.compile.collect {
+        configurations.embed.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }) {
@@ -397,6 +401,17 @@ jar {
         }
     }
 }
+
+tasks.register('bundleJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configure {
+    from { (FABRIC ? tasks.remapJar : tasks.jar).archiveFile.get() }
+    dependsOn { FABRIC ? tasks.remapJar : (mcVersion >= 10800 ? tasks.reobfJar : tasks.reobf) }
+    manifest.inheritFrom tasks.jar.manifest
+
+    relocate 'okhttp', 'club.sk1er.mods.levelhead.libs.okhttp'
+    relocate 'okio', 'club.sk1er.mods.levelhead.libs.okio'
+}
+
+tasks.assemble.dependsOn tasks.bundleJar
 
 publishing {
     publications {
