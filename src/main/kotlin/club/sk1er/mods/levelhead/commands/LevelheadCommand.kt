@@ -40,6 +40,9 @@ class LevelheadCommand : Command("levelhead") {
             launch {
                 Levelhead.refreshPurchaseStates()
             }
+        }.invokeOnCompletion {
+            EssentialAPI.getMinecraftUtil().sendMessage("[levelhead]", ChatColor.RED.toString() + " Reauthed!")
+
         }
     }
 
