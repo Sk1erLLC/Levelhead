@@ -282,7 +282,7 @@ dependencies {
     }
 
     implementation "gg.essential:loader-launchwrapper:1.1.2"
-    implementation "gg.essential:essential-${mcVersionStr}-forge:1543+release-launch"
+    implementation "gg.essential:essential-${mcVersionStr}-forge:1626+release-launch"
 
     embed("com.squareup.okhttp3:okhttp:3.14.9")
 
@@ -393,8 +393,7 @@ jar {
         if (useMixin)
             from files(project.mixinRefMap.canonicalPath)
         manifest {
-            attributes "FMLCorePlugin": "club.sk1er.mods.levelhead.forge.FMLLoadingPlugin",
-                    "ModSide": "CLIENT",
+            attributes "ModSide": "CLIENT",
                     "FMLCorePluginContainsFMLMod": "Yes, yes it does",
                     "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
                     "TweakOrder": "0"
