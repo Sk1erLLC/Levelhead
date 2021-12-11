@@ -77,7 +77,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     height = ChildBasedRangeConstraint()
                     width = RelativeConstraint()
                 } childOf container
-                content.createComponents(display.config, display)
+                content.createComponents(display, preview!!)
                 if (i < Levelhead.displayManager.aboveHead.size) {
                     val funnyLongDivider = UIBlock(VigilancePalette.getDivider()).constrain {
                         x = 50.percent - 0.5.pixels
@@ -104,7 +104,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             )
 
             Levelhead.displayManager.chat.run {
-                settings.createComponents(this.config, this)
+                settings.createComponents(this, preview!!)
             }
         }
     }
@@ -116,7 +116,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             preview = TabPreviewComponent()
 
             Levelhead.displayManager.tab.run {
-                settings.createComponents(this.config, this)
+                settings.createComponents(this, preview!!)
             }
         }
     }
@@ -222,7 +222,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }
     }
 
-    private fun UIComponent.createComponents(config: DisplayConfig, display: LevelheadDisplay) {
+    private fun UIComponent.createComponents(display: LevelheadDisplay, preview: LevelheadPreviewComponent) {
         val leftContainer = UIContainer().constrain {
             width = RelativeConstraint(0.5f) - 0.5.pixels()
             height = ChildBasedRangeConstraint()
@@ -241,12 +241,13 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             x = 2.5.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
         } childOf leftContainer
-        val showToggle = SwitchComponent(config.showSelf).constrain {
+        val showToggle = SwitchComponent(display.config.showSelf).constrain {
             x = 5.75.pixels(true)
             y = CramSiblingConstraint() - 0.5.pixels()
         } childOf leftContainer
         showToggle.onValueChange {
-            config.showSelf = it as Boolean
+            display.config.showSelf = it as Boolean
+            preview.update()
         }
         val typeLabel = UIText("Type: ").constrain {
             x = 5.pixels()
@@ -254,39 +255,40 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf rightContainer
         val options = Levelhead.types
         val type = DropDown(
-            options.entrySet().map { it.key }.sortedBy { it }.indexOf(config.type),
+            options.entrySet().map { it.key }.sortedBy { it }.indexOf(display.config.type),
             options.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
         ).constrain {
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf rightContainer
         type.onValueChange {
-            config.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
+            display.config.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
             display.update()
+            preview.update()
         }
         if (display is AboveHeadDisplay) {
             val textLabel = UIText("Prefix: ").constrain {
                 x = 2.5.pixels()
                 y = SiblingConstraint(5f).to(showToggle) as YConstraint
             } childOf leftContainer
-            val textInput = TextComponent(config.headerString, "", false, false).constrain {
+            val textInput = TextComponent(display.config.headerString, "", false, false).constrain {
                 x = 6.pixels(true)
                 y = CramSiblingConstraint()
             } childOf leftContainer
             textInput.onValueChange {
                 if (it !is String) return@onValueChange
-                config.headerString = it
+                display.config.headerString = it
                 display.update()
             }
         }
-        val header = ColorSetting(config, true, display).constrain {
+        val header = ColorSetting(true, display, preview).constrain {
             x = 2.5.pixels
             y = SiblingConstraint(10f)
             width = RelativeConstraint() - 10.pixels()
             height = AspectConstraint(0.4f)
         } childOf leftContainer
         if (display !is TabDisplay)
-            ColorSetting(config, false, display).constrain {
+            ColorSetting(false, display, preview).constrain {
                 x = CenterConstraint()
                 y = CopyConstraintFloat().to(header) as YConstraint
                 width = RelativeConstraint() - 10.pixels()
@@ -294,7 +296,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             } childOf rightContainer
     }
 
-    private class ColorSetting(val config: DisplayConfig, val header: Boolean, val display: LevelheadDisplay): UIComponent() {
+    private class ColorSetting(val header: Boolean, val display: LevelheadDisplay, val preview: LevelheadPreviewComponent): UIComponent() {
         val colorLabel = UIText(if (header) "Header Color:" else "Footer Color:").constrain {
             x = 0.pixels()
             y = 4.5.pixels()
@@ -316,31 +318,31 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 when {
                     it == 0 && display !is ChatDisplay -> {
                         if (header) {
-                            config.headerChroma = true
+                            display.config.headerChroma = true
                         } else {
-                            config.footerChroma = true
+                            display.config.footerChroma = true
                         }
                     }
                     it == 1 && display !is ChatDisplay -> {
                         if (header) {
-                            config.headerChroma = false
+                            display.config.headerChroma = false
                         } else {
-                            config.footerChroma = false
+                            display.config.footerChroma = false
                         }
                     }
                     else -> {
                         if (header) {
-                            config.headerChroma = false
-                            config.headerColor = (options[it] as ChatColor).color!!
-                            if (selector.getCurrentColor() == config.headerColor) return@onValueChange
-                            val (red, green, blue) = config.headerColor
+                            display.config.headerChroma = false
+                            display.config.headerColor = (options[it] as ChatColor).color!!
+                            if (selector.getCurrentColor() == display.config.headerColor) return@onValueChange
+                            val (red, green, blue) = display.config.headerColor
                             val (h,s,b) = Color.RGBtoHSB(red, green, blue, null)
                             selector.setHSB(h, s, b)
                         } else {
-                            config.footerChroma = false
-                            config.footerColor = (options[it] as ChatColor).color!!
-                            if (selector.getCurrentColor() == config.footerColor) return@onValueChange
-                            val (red, green, blue) = config.footerColor
+                            display.config.footerChroma = false
+                            display.config.footerColor = (options[it] as ChatColor).color!!
+                            if (selector.getCurrentColor() == display.config.footerColor) return@onValueChange
+                            val (red, green, blue) = display.config.footerColor
                             val (h,s,b) = Color.RGBtoHSB(red, green, blue, null)
                             selector.setHSB(h, s, b)
                         }
@@ -351,11 +353,11 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }
         var selector = if (header) {
             ColorPicker(
-                config.headerColor, false
+                display.config.headerColor, false
             )
         } else {
             ColorPicker(
-                config.footerColor, false
+                display.config.footerColor, false
             )
         }.constrain {
             x = CenterConstraint()
@@ -365,26 +367,33 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }.childOf(this).also {
             it.onValueChange {
                 if (header) {
-                    config.headerChroma = false
-                    config.headerColor = it
+                    display.config.headerChroma = false
+                    display.config.headerColor = it
                 } else {
-                    config.footerChroma = false
-                    config.footerColor = it
+                    display.config.footerChroma = false
+                    display.config.footerColor = it
                 }
                 this.color.select(it.tryToGetChatColor()?.let { options.indexOf(it) } ?: 1)
                 display.update()
             }
+        }
+            set(value) {
+                if (display is ChatDisplay) return
+                field = value
+            }
 
+        init {
+            if (display is ChatDisplay) selector.hide()
         }
 
-        private fun getCurrentSetting() = when(config.getMode(header)) {
+        private fun getCurrentSetting() = when(display.config.getMode(header)) {
             "Chat Color" -> {
                 ChatColor.values().filter { it.isColor() }
                     .find {
-                        it.color!!.rgb == if (header) config.headerColor.rgb else config.footerColor.rgb
+                        it.color!!.rgb == if (header) display.config.headerColor.rgb else display.config.footerColor.rgb
                     }
             }
-            else -> config.getMode(header)
+            else -> display.config.getMode(header)
         }
 
         private fun DisplayConfig.getMode(header: Boolean) = if (header) {
@@ -404,6 +413,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         private fun LevelheadDisplay.update() {
             this.cache.remove(UPlayer.getUUID())
             Levelhead.fetch(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)
+            preview.update()
         }
     }
 

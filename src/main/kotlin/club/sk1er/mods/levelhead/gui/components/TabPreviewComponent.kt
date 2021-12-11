@@ -3,7 +3,6 @@ package club.sk1er.mods.levelhead.gui.components
 import club.sk1er.mods.levelhead.render.TabRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
-import gg.essential.elementa.constraints.ChildBasedSizeConstraint
 import gg.essential.elementa.dsl.*
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
@@ -17,15 +16,15 @@ import java.awt.Color
 class TabPreviewComponent : LevelheadPreviewComponent() {
 
     private val background = UIBlock(Color(Int.MIN_VALUE)).constrain {
-        width = ChildBasedSizeConstraint()
-        height = ChildBasedSizeConstraint()
+        width = basicWidthConstraint { totalTabWidth.toFloat() }
+        height = 8.pixels
     } childOf this
 
     private val playerInfo = UMinecraft.getNetHandler()!!.getPlayerInfo(UPlayer.getUUID())
     private val player = UPlayer.getPlayer()!!
     private val formattedName = player.displayName.formattedText
-    private val totalTabWidth =
-        9 + UMinecraft.getFontRenderer().getStringWidth(formattedName) +
+    private val totalTabWidth: Int
+        get() = 9 + UMinecraft.getFontRenderer().getStringWidth(formattedName) +
                 TabRender.getLevelheadWidth(playerInfo) + 15
     private val playername = UIText(formattedName).constrain {
         x = 9.pixels()
@@ -33,8 +32,8 @@ class TabPreviewComponent : LevelheadPreviewComponent() {
 
     init {
         constrain {
-            width = totalTabWidth.pixels()
-            height = 8.pixels()
+            width = basicWidthConstraint { totalTabWidth.toFloat() }
+            height = 8.pixels
         }
     }
 
