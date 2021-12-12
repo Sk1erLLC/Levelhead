@@ -387,7 +387,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             x = 5.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
         } childOf rightContainer
-        val options = Levelhead.types
+        val options = Levelhead.allowedTypes
         val type = DropDown(
             options.entrySet().map { it.key }.sortedBy { it }.indexOf(display.config.type),
             options.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }

@@ -60,6 +60,12 @@ object Levelhead {
         private set
     lateinit var purchaseStatus: JsonObject
         private set
+    val allowedTypes: JsonObject
+        get() = JsonObject().merge(types, true).also { obj ->
+            paidData["stats"].asJsonObject.entrySet().filter {
+                purchaseStatus[it.key].asBoolean
+            }.map { obj.add(it.key, it.value) }
+        }
     val displayManager: DisplayManager = DisplayManager(File(File(UMinecraft.getMinecraft().mcDataDir, "config"), "levelhead.json"))
     val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     private val rateLimiter: RateLimiter = RateLimiter(100, Duration.ofSeconds(1))
@@ -212,12 +218,15 @@ object Levelhead {
         return okHttpClient.newCall(request).execute().body()?.use { it.string() } ?: "{\"success\":false,\"cause\":\"API_DOWN\"}"
     }
 
-    fun JsonObject.merge(other: JsonObject, override: Boolean) =
+    fun JsonObject.merge(other: JsonObject, override: Boolean): JsonObject {
         other.entrySet().map { it.key }.filter { key ->
             override || !this.has(key)
         }.map { key ->
             this.add(key, other[key])
         }
+        return this
+    }
+
 
     val String.chatColor: ChatColor?
         get() = ChatColor.values().find { it.char == this.replace("\u00a7", "").toCharArray()[0] }
