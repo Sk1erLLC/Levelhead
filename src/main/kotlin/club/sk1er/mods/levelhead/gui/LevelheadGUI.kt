@@ -1,6 +1,8 @@
 package club.sk1er.mods.levelhead.gui
 
 import club.sk1er.mods.levelhead.Levelhead
+import club.sk1er.mods.levelhead.Levelhead.jsonParser
+import club.sk1er.mods.levelhead.Levelhead.rawWithAgent
 import club.sk1er.mods.levelhead.Levelhead.tryToGetChatColor
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.update
@@ -14,20 +16,22 @@ import club.sk1er.mods.levelhead.gui.components.LevelheadPreviewComponent
 import club.sk1er.mods.levelhead.gui.components.TabPreviewComponent
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
+import gg.essential.api.gui.buildConfirmationModal
+import gg.essential.api.utils.Multithreading
+import gg.essential.api.utils.WebUtil.fetchJSON
 import gg.essential.elementa.UIComponent
-import gg.essential.elementa.components.ScrollComponent
-import gg.essential.elementa.components.UIBlock
-import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.*
 import gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.*
 import gg.essential.elementa.dsl.*
 import gg.essential.elementa.effects.ScissorEffect
 import gg.essential.universal.ChatColor
+import gg.essential.universal.UDesktop
 import gg.essential.universal.wrappers.UPlayer
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.gui.settings.*
 import java.awt.Color
+import java.net.URI
 
 @Suppress("unused")
 class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
@@ -64,6 +68,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             preview = AboveHeadPreviewComponent()
 
             Levelhead.displayManager.aboveHead.forEachIndexed { i, display ->
+                if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
                 val container = UIContainer().constrain {
                     width = RelativeConstraint()
                     height = ChildBasedRangeConstraint()
@@ -92,6 +97,14 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     y = SiblingConstraint()
                 } childOf settings
             }
+
+            ButtonComponent("Purchase more layers") {
+                attemptPurchase("head")
+            }.constrain {
+                x = 10.pixels(true)
+                y = 7.5.pixels(true).to(divider) as YConstraint
+                textScale = 2.5.pixels()
+            } childOf this
         }
     }
 
@@ -103,8 +116,21 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 "${UPlayer.getPlayer()?.name ?: "Sk1er"}§r: Hi!"
             )
 
-            Levelhead.displayManager.chat.run {
-                settings.createComponents(this, preview!!)
+            if (Levelhead.LevelheadPurchaseStates.chat) {
+                Levelhead.displayManager.chat.run {
+                    settings.createComponents(this, preview!!)
+                }
+            } else {
+                val text = UIText("Levelhead Chat Display not purchased!").constrain {
+                    x = CenterConstraint()
+                } childOf settings
+                ButtonComponent("Purchase Chat Display") {
+                    attemptPurchase("chat")
+                    this.hide()
+                }.constrain {
+                    x = CenterConstraint()
+                    y = SiblingConstraint(5f)
+                } childOf settings
             }
         }
     }
@@ -115,8 +141,21 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
             preview = TabPreviewComponent()
 
-            Levelhead.displayManager.tab.run {
-                settings.createComponents(this, preview!!)
+            if (Levelhead.LevelheadPurchaseStates.tab) {
+                Levelhead.displayManager.tab.run {
+                    settings.createComponents(this, preview!!)
+                }
+            } else {
+                val text = UIText("Levelhead Tab Display not purchased!").constrain {
+                    x = CenterConstraint()
+                } childOf settings
+                ButtonComponent("Purchase Tab Display") {
+                    attemptPurchase("tab")
+                    this.hide()
+                }.constrain {
+                    x = CenterConstraint()
+                    y = SiblingConstraint(5f)
+                } childOf settings
             }
         }
     }
@@ -175,7 +214,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 }
             }
 
-        private val divider by UIBlock(VigilancePalette.getDivider()).constrain {
+        val divider by UIBlock(VigilancePalette.getDivider()).constrain {
             x = 0.pixels
             y = SiblingConstraint()
             width = RelativeConstraint()
@@ -219,6 +258,101 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 width = RelativeConstraint()
                 height = FillConstraint(false)
             }
+        }
+
+        fun attemptPurchase(type: String){
+            val paidData = Levelhead.paidData
+            val extraDisplays = paidData["extra_displays"].asJsonObject //paidData.optJSONObject("extra_displays")
+            val stats = paidData["stats"].asJsonObject //paidData.optJSONObject("stats")
+
+            val seed = when {
+                extraDisplays.has(type) -> {
+                    extraDisplays[type].asJsonObject  //.optJSONObject(type)
+                }
+                stats.has(type) -> {
+                    stats[type].asJsonObject //.optJSONObject(type)
+                }
+                else -> {
+                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                        text = "Could not find package: ${type}."
+                        secondaryText = "Please contact Sk1er immediately."
+                        confirmButtonText = "Close"
+                        denyButtonText = ""
+                    } childOf window
+
+                    return
+                }
+            }
+
+            val remainingCredits = Levelhead.rawPurchases["remaining_levelhead_credits"].asInt
+            when {
+                remainingCredits < seed["cost"].asInt -> {
+                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                        text = """
+                        # Insufficient credits! ${seed["name"].asString} costs ${seed["cost"].asInt} credits
+                        # but you only have ${remainingCredits}.
+                        # You can purchase more credits here: https://purchase.sk1er.club/category/1050972
+                    """.trimMargin("#")
+                        confirmButtonText = "Purchase more credits"
+                        onConfirm = {
+                            UDesktop.browse(URI.create("https://purchase.sk1er.club/category/1050972"))
+                        }
+                        denyButtonText = "Close"
+                    } childOf window
+                    return
+                }
+                Levelhead.auth.isFailed -> {
+                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                        text = "Could not verify your identity. Please restart the client."
+                        secondaryText = "If issues persist, contact Sk1er"
+                        confirmButtonText = "Close"
+                        denyButtonText = ""
+                    } childOf window
+                }
+                else -> {
+                    val name = seed["name"].asString
+                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                        text = "You are about to purchase package ${name}."
+                        onConfirm = {
+                            Multithreading.submit {
+                                val jsonHolder =
+                                    jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead_purchase?access_token=" + Levelhead.auth.accessKey + "&request=" + type + "&hash=" + Levelhead.auth.hash)).asJsonObject
+                                if (jsonHolder["success"].asBoolean) {
+                                    Levelhead.refreshPurchaseStates()
+                                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                                        text = "Successfully purchased package ${name}."
+                                        confirmButtonText = "Close"
+                                        onConfirm = {
+                                            container = when (editing.getValue()) {
+                                                2 -> chat
+                                                1 -> tab
+                                                else -> aboveHead
+                                            }
+                                        }
+                                        denyButtonText = ""
+                                    } childOf window
+                                } else {
+                                    EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
+                                        text = "Failed to purchase package ${name}."
+                                        secondaryText = "Cause: ${jsonHolder["cause"].asString}"
+                                        confirmButtonText = "Close"
+                                        denyButtonText = ""
+                                        onConfirm = {
+                                            container = when (editing.getValue()) {
+                                                2 -> chat
+                                                1 -> tab
+                                                else -> aboveHead
+                                            }
+                                        }
+                                    } childOf window
+                                }
+                            }
+
+                        }
+                    } childOf window
+                }
+            }
+            credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
         }
     }
 

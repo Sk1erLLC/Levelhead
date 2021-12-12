@@ -42,7 +42,6 @@ class LevelheadCommand : Command("levelhead") {
             }
         }.invokeOnCompletion {
             EssentialAPI.getMinecraftUtil().sendMessage("[levelhead]", ChatColor.RED.toString() + " Reauthed!")
-
         }
     }
 

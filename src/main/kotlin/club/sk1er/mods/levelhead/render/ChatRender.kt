@@ -22,11 +22,13 @@ object ChatRender {
     )
 
     fun modifyChat(component: MCITextComponent, tag: String, config: DisplayConfig) =
-        UTextComponent(
-            "${config.headerColor.tryToGetChatColor()}[" +
-                    "${config.footerColor.tryToGetChatColor()}$tag" +
-                    "${config.headerColor.tryToGetChatColor()}] ${ChatColor.RESET}"
-        ).appendSibling(component)
+        if (Levelhead.LevelheadPurchaseStates.chat) {
+            UTextComponent(
+                "${config.headerColor.tryToGetChatColor()}[" +
+                        "${config.footerColor.tryToGetChatColor()}$tag" +
+                        "${config.headerColor.tryToGetChatColor()}] ${ChatColor.RESET}"
+            ).appendSibling(component)
+        } else component
 
     @SubscribeEvent
     fun onChat(event: ClientChatReceivedEvent) {
