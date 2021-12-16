@@ -61,7 +61,7 @@ object Levelhead {
     lateinit var purchaseStatus: JsonObject
         private set
     val allowedTypes: JsonObject
-        get() = JsonObject().merge(types, true).also { obj ->
+        get() = types.deepCopy().also { obj ->
             paidData["stats"].asJsonObject.entrySet().filter {
                 purchaseStatus[it.key].asBoolean
             }.map { obj.add(it.key, it.value) }

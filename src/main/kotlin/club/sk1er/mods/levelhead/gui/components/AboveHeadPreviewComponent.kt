@@ -17,6 +17,7 @@ class AboveHeadPreviewComponent: LevelheadPreviewComponent() {
 
         renderNameTag = false
         showCape = false
+        draggable = false
     }.constrain {
         x = CenterConstraint()
         y = (-45).pixels(true,  true)

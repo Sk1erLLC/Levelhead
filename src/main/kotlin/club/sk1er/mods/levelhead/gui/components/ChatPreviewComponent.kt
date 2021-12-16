@@ -19,15 +19,13 @@ class ChatPreviewComponent(private val previewMessage: String) : LevelheadPrevie
 
     var config = Levelhead.displayManager.chat.config
 
-    var stat: String = Levelhead.displayManager.chat.config.type
-        set(value) {
-            field = value
-            text = ChatRender.modifyChat(
-                UTextComponent(previewMessage).component,
-                value,
-                config
-            ).formattedText
+    val stat: String
+        get() = Levelhead.displayManager.chat.config.type.split('_').joinToString (separator = " ") {
+            it.lowercase().replaceFirstChar { firstChar ->
+                firstChar.uppercase()
+            }
         }
+
     private var text: String = ChatRender.modifyChat(
         UTextComponent(previewMessage).component,
         stat,

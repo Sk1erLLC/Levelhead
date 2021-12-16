@@ -5,6 +5,7 @@ import club.sk1er.mods.levelhead.Levelhead.jsonParser
 import club.sk1er.mods.levelhead.Levelhead.rawWithAgent
 import club.sk1er.mods.levelhead.Levelhead.tryToGetChatColor
 import club.sk1er.mods.levelhead.config.DisplayConfig
+import club.sk1er.mods.levelhead.core.invalidateableLazy
 import club.sk1er.mods.levelhead.core.update
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.ChatDisplay
@@ -18,7 +19,6 @@ import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
 import gg.essential.api.utils.Multithreading
-import gg.essential.api.utils.WebUtil.fetchJSON
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.*
 import gg.essential.elementa.components.inspector.Inspector
@@ -57,7 +57,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
     } childOf titleBar
 
     private val credits = UIText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}").constrain {
-        x = 30.percent() + 5.pixels()
+        x = CenterConstraint()
         y = 11.pixels()
     } childOf titleBar
 
@@ -73,12 +73,20 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     width = RelativeConstraint()
                     height = ChildBasedRangeConstraint()
                 }
+                val toggle = SwitchComponent(display.config.enabled).constrain {
+                    x = 2.5.pixels(alignOpposite = true)
+                    y = 2.5.pixels()
+
+                } childOf container
+                toggle.onValueChange {
+                    display.config.enabled = it as Boolean
+                }
                 val text = UIText("§nLayer ${i + 1}").constrain {
                     x = 0.pixels()
-                    y = 0.pixels()
+                    y = CenterConstraint() boundTo toggle
                 } childOf container
                 val content = UIContainer().constrain {
-                    y = SiblingConstraint()
+                    y = SiblingConstraint(2.5f)
                     height = ChildBasedRangeConstraint()
                     width = RelativeConstraint()
                 } childOf container
@@ -108,7 +116,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }
     }
 
-    private val chat by lazy {
+    private val chatDelegate = invalidateableLazy {
         levelheadContainer {
             title = "Chat"
 
@@ -119,6 +127,15 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             if (Levelhead.LevelheadPurchaseStates.chat) {
                 Levelhead.displayManager.chat.run {
                     settings.createComponents(this, preview!!)
+                    val toggle = SwitchComponent(this.config.enabled).constrain {
+                        x = 2.5.pixels(alignOpposite = true)
+                        y = CenterConstraint() boundTo titleText
+                    } childOf this@levelheadContainer
+                    toggle.onValueChange {
+                        this.config.enabled = it as Boolean
+                        this.update()
+                        preview?.update()
+                    }
                 }
             } else {
                 val text = UIText("Levelhead Chat Display not purchased!").constrain {
@@ -135,7 +152,9 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }
     }
 
-    private val tab by lazy {
+    private var chat by chatDelegate
+
+    private val tabDelegate = invalidateableLazy {
         levelheadContainer {
             title = "Tab"
 
@@ -144,6 +163,15 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             if (Levelhead.LevelheadPurchaseStates.tab) {
                 Levelhead.displayManager.tab.run {
                     settings.createComponents(this, preview!!)
+                    val toggle = SwitchComponent(this.config.enabled).constrain {
+                        x = 2.5.pixels(alignOpposite = true)
+                        y = CenterConstraint() boundTo titleText
+                    } childOf this@levelheadContainer
+                    toggle.onValueChange {
+                        this.config.enabled = it as Boolean
+                        this.update()
+                        preview?.update()
+                    }
                 }
             } else {
                 val text = UIText("Levelhead Tab Display not purchased!").constrain {
@@ -159,6 +187,8 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             }
         }
     }
+
+    private var tab by tabDelegate
 
     private var container: LevelheadContainer = aboveHead childOf content
         set(value) {
@@ -228,7 +258,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             height = 60.percent()
         } childOf this
 
-        private val titleText by UIText(shadow = false).constrain {
+        val titleText by UIText(shadow = false).constrain {
             x = 10.pixels()
             y = 7.5.pixels(true).to(divider) as YConstraint
             textScale = 2.5.pixels()
@@ -262,15 +292,15 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
         fun attemptPurchase(type: String){
             val paidData = Levelhead.paidData
-            val extraDisplays = paidData["extra_displays"].asJsonObject //paidData.optJSONObject("extra_displays")
-            val stats = paidData["stats"].asJsonObject //paidData.optJSONObject("stats")
+            val extraDisplays = paidData["extra_displays"].asJsonObject
+            val stats = paidData["stats"].asJsonObject
 
             val seed = when {
                 extraDisplays.has(type) -> {
-                    extraDisplays[type].asJsonObject  //.optJSONObject(type)
+                    extraDisplays[type].asJsonObject
                 }
                 stats.has(type) -> {
-                    stats[type].asJsonObject //.optJSONObject(type)
+                    stats[type].asJsonObject
                 }
                 else -> {
                     EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
@@ -324,8 +354,8 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                                         confirmButtonText = "Close"
                                         onConfirm = {
                                             container = when (editing.getValue()) {
-                                                2 -> chat
-                                                1 -> tab
+                                                2 -> { chatDelegate.invalidate(); chat}
+                                                1 -> { tabDelegate.invalidate(); tab }
                                                 else -> aboveHead
                                             }
                                         }
@@ -339,8 +369,8 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                                         denyButtonText = ""
                                         onConfirm = {
                                             container = when (editing.getValue()) {
-                                                2 -> chat
-                                                1 -> tab
+                                                2 -> { chatDelegate.invalidate(); chat}
+                                                1 -> { tabDelegate.invalidate(); tab }
                                                 else -> aboveHead
                                             }
                                         }
@@ -352,6 +382,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     } childOf window
                 }
             }
+            Levelhead.refreshRawPurchases()
             credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
         }
     }
@@ -381,7 +412,8 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf leftContainer
         showToggle.onValueChange {
             display.config.showSelf = it as Boolean
-            preview.update()
+            if (display !is AboveHeadDisplay)
+                preview.update()
         }
         val typeLabel = UIText("Type: ").constrain {
             x = 5.pixels()
@@ -389,8 +421,8 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf rightContainer
         val options = Levelhead.allowedTypes
         val type = DropDown(
-            options.entrySet().map { it.key }.sortedBy { it }.indexOf(display.config.type),
-            options.entrySet().map { it.value.asJsonObject["name"].asString }.sortedBy { it }
+            options.entrySet().map { it.key }.sortedBy { string -> string }.indexOf(display.config.type).coerceAtLeast(0),
+            options.entrySet().sortedBy { it.key }.map { it.value.asJsonObject["name"].asString }
         ).constrain {
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
