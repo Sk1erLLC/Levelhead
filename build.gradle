@@ -281,7 +281,7 @@ dependencies {
         ][mcVersion]
     }
 
-    implementation "gg.essential:loader-launchwrapper:1.1.2"
+    embed "gg.essential:loader-launchwrapper:1.1.2"
     implementation "gg.essential:essential-${mcVersionStr}-forge:1626+release-launch"
 
     embed("com.squareup.okhttp3:okhttp:3.14.9")
