@@ -17,13 +17,8 @@ abstract class LevelheadDisplay(val displayPosition: DisplayPosition, val config
         get() = JsonObject().also { obj ->
             mapOf<String, Any>(
                 "chroma" to config.headerChroma,
-                "rgb" to true,
-                "red" to config.headerColor.red,
-                "green" to config.headerColor.green,
-                "blue" to config.headerColor.blue,
-                "alpha" to config.headerColor.alpha,
-                "color" to ChatColor.AQUA.toString(),
-                "header" to "${config.headerString}: "
+                "color" to config.headerColor.rgb,
+                "string" to "${config.headerString}: "
             ).forEach { (key, value) ->
                 when (value) {
                     is Boolean -> obj.addProperty(key, value)
@@ -36,13 +31,7 @@ abstract class LevelheadDisplay(val displayPosition: DisplayPosition, val config
         get() = JsonObject().also { obj ->
             mapOf<String, Any>(
                 "chroma" to config.footerChroma,
-                "rgb" to true,
-                "red" to config.footerColor.red,
-                "green" to config.footerColor.green,
-                "blue" to config.footerColor.blue,
-                "alpha" to config.footerColor.alpha,
-                "color" to ChatColor.YELLOW.toString(),
-                "header" to "${config.footerString}: "
+                "color" to config.footerColor.rgb
             ).forEach { (key, value) ->
                 when (value) {
                     is Boolean -> obj.addProperty(key, value)

@@ -1,6 +1,5 @@
 package club.sk1er.mods.levelhead.display
 
-import club.sk1er.mods.levelhead.Levelhead.chatColor
 import com.google.gson.JsonObject
 import java.awt.Color
 import java.util.*
@@ -18,7 +17,7 @@ class LevelheadTag(val owner: UUID) {
         val seek = if (isHeader) "header" else "footer"
         val json = jsonObject[seek].asJsonObject
 
-        val component = json[seek]?.asString?.let { LevelheadComponent(it) } ?:
+        val component = json["string"]?.asString?.let { LevelheadComponent(it) } ?:
             LevelheadComponent("UMM BIG ERROR REPORT TO SK1ER")
         val custom = json["custom"]?.asBoolean == true
 
@@ -27,11 +26,8 @@ class LevelheadTag(val owner: UUID) {
         }
 
         component.chroma = json["chroma"].asBoolean
-        if (json["rgb"].asBoolean) {
-            component.color = Color(json["red"].asInt, json["green"].asInt, json["blue"].asInt, json["alpha"].asInt)
-        } else {
-            component.color = json["color"].asString.chatColor?.color ?: Color.WHITE
-        }
+
+        component.color = Color(json["color"].asInt)
 
         return component
     }

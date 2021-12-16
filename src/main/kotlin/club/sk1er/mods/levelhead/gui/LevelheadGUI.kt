@@ -3,9 +3,9 @@ package club.sk1er.mods.levelhead.gui
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.Levelhead.jsonParser
 import club.sk1er.mods.levelhead.Levelhead.rawWithAgent
-import club.sk1er.mods.levelhead.Levelhead.tryToGetChatColor
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.invalidateableLazy
+import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.core.update
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.ChatDisplay

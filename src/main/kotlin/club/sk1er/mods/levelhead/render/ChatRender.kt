@@ -1,7 +1,7 @@
 package club.sk1er.mods.levelhead.render
 
 import club.sk1er.mods.levelhead.Levelhead
-import club.sk1er.mods.levelhead.Levelhead.tryToGetChatColor
+import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import gg.essential.universal.ChatColor
 import gg.essential.universal.utils.MCITextComponent

@@ -5,6 +5,7 @@ import club.sk1er.mods.levelhead.commands.LevelheadCommand
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.DisplayManager
 import club.sk1er.mods.levelhead.core.RateLimiter
+import club.sk1er.mods.levelhead.core.trimmed
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadTag
@@ -154,17 +155,16 @@ object Levelhead {
             rateLimiter.consume()
 
 
-            val url = "https://api.sk1er.club/levelheadv5/${uuid.trimmed}/" +
+            val url = "https://api.sk1er.club/levelheadv8/${uuid.trimmed}/" +
                 "$type/${UMinecraft.getMinecraft().session.profile.id.trimmed}/" +
                 "$VERSION/${auth.hash}/${display.displayPosition.name}"
             val res = jsonParser.parse(rawWithAgent(url)).asJsonObject
 
             if (!res["success"].asBoolean) {
-                res.addProperty("strlevel", "Error")
+                res.addProperty("footerString", "Error")
             }
 
             if (!allowOverride) {
-                res.addProperty("strlevel", res["level"].asString)
                 res.remove("header_obj")
                 res.remove("footer_obj")
             }
@@ -177,29 +177,39 @@ object Levelhead {
     private suspend fun buildTag(jsonObject: JsonObject, uuid: UUID, display: LevelheadDisplay, allowOverride: Boolean): LevelheadTag {
         val value = LevelheadTag(uuid)
 
-        var headerObj = JsonObject()
-        var footerObj = JsonObject()
+        val headerObj = JsonObject()
+        val footerObj = JsonObject()
         val construct = JsonObject()
 
-        if (jsonObject.has("header_obj") && allowOverride) {
-            headerObj = jsonObject["header_obj"].asJsonObject
+        jsonObject["headerColor"]?.run {
+            if (!allowOverride) return@run
+            headerObj.add("chroma", jsonObject["headerChroma"])
+            headerObj.add("color", this)
             headerObj.addProperty("custom", true)
         }
 
-        if (jsonObject.has("footer_obj") && allowOverride) {
-            footerObj = jsonObject["footer_obj"].asJsonObject
+        jsonObject["footerColor"]?.run {
+            if (!allowOverride) return@run
+            footerObj.add("chroma", jsonObject["footerChroma"])
+            footerObj.add("color", this)
             footerObj.addProperty("custom", true)
         }
 
-        if (jsonObject.has("header") && allowOverride) {
-            headerObj.addProperty("header", jsonObject["header"].asString)
+        if (jsonObject.has("headerString") && allowOverride) {
+            headerObj.addProperty("string", jsonObject["headerString"].asString)
             headerObj.addProperty("custom", true)
         }
 
+        if (jsonObject.has("footerString") && allowOverride) {
+            footerObj.addProperty("string", jsonObject["footerString"].asString)
+            footerObj.addProperty("custom", true)
+        } else {
+            footerObj.addProperty("string", jsonObject["value"].asString)
+            footerObj.addProperty("custom", false)
+        }
+
         headerObj.merge(display.headerConfig, !allowOverride)
-        footerObj.merge(display.footerConfig.also { obj ->
-            obj.addProperty("footer", jsonObject["strlevel"]?.asString ?: format.format(jsonObject["level"].asInt))
-        }, !allowOverride)
+        footerObj.merge(display.footerConfig, !allowOverride)
 
         construct.addProperty("exclude", jsonObject["exclude"]?.asBoolean ?: false)
         construct.add("header", headerObj)
@@ -226,16 +236,6 @@ object Levelhead {
         }
         return this
     }
-
-
-    val String.chatColor: ChatColor?
-        get() = ChatColor.values().find { it.char == this.replace("\u00a7", "").toCharArray()[0] }
-
-    fun Color.tryToGetChatColor() =
-        ChatColor.values().filter { it.isColor() }.find { it.color!! == this }
-
-    val UUID.trimmed: String
-        get() = this.toString().replace("-", "")
 
     object LevelheadPurchaseStates {
         var chat: Boolean = false
