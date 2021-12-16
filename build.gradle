@@ -45,7 +45,7 @@ buildscript {
     }
 }
 
-def useMixin = false
+def useMixin = true
 apply plugin: 'kotlin'
 
 repositories {
@@ -296,7 +296,7 @@ dependencies {
     }
     if (!FABRIC && useMixin) {
         annotationProcessor 'org.spongepowered:mixin:0.8'
-        embed('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
+        compileOnly('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
             exclude module: 'launchwrapper'
             exclude module: 'guava'
             exclude module: 'gson'
@@ -396,7 +396,8 @@ jar {
             attributes "ModSide": "CLIENT",
                     "FMLCorePluginContainsFMLMod": "Yes, yes it does",
                     "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
-                    "TweakOrder": "0"
+                    "TweakOrder": "0",
+                    'MixinConfigs': 'mixins.levelhead.json'
         }
     }
 }
