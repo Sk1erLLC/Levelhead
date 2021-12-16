@@ -20,6 +20,7 @@ import gg.essential.universal.ChatColor
 import gg.essential.universal.UMinecraft
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.player.EntityPlayer
@@ -68,7 +69,7 @@ object Levelhead {
             }.map { obj.add(it.key, it.value) }
         }
     val displayManager: DisplayManager = DisplayManager(File(File(UMinecraft.getMinecraft().mcDataDir, "config"), "levelhead.json"))
-    val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val rateLimiter: RateLimiter = RateLimiter(100, Duration.ofSeconds(1))
     private val format: DecimalFormat = DecimalFormat("#,###")
     val DarkChromaColor: Int
