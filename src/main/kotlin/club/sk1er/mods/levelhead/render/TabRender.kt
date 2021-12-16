@@ -33,8 +33,7 @@ object TabRender {
 
     fun getLevelheadWidth(playerInfo: NetworkPlayerInfo)  = when {
         !Levelhead.displayManager.config.enabled -> 0
-        (Levelhead.displayManager.tab.config.enabled == true &&
-         Levelhead.LevelheadPurchaseStates.tab) -> {
+        (Levelhead.displayManager.tab.config.enabled && Levelhead.LevelheadPurchaseStates.tab) -> {
                 UMinecraft.getFontRenderer().getStringWidth(Levelhead.displayManager.tab.cache[playerInfo.gameProfile.id]?.footer?.value) + 2
             }
         else -> 0
