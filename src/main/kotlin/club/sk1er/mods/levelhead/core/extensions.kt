@@ -22,4 +22,4 @@ val UUID.trimmed: String
     get() = this.toString().replace("-", "")
 
 val EntityPlayer.isNPC: Boolean
-    get() = this.uniqueID.trimmed[12] != '4'
+    get() = this.uniqueID.version() == 2

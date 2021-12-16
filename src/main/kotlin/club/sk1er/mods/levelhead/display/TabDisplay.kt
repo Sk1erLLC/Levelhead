@@ -11,7 +11,7 @@ class TabDisplay(config: DisplayConfig): LevelheadDisplay(DisplayPosition.TAB, c
     override fun joinWorld() {
         for (networkPlayerInfo in UMinecraft.getMinecraft().netHandler.playerInfoMap) {
             val id = networkPlayerInfo.gameProfile.id
-            if (id.trimmed[12] == '2') continue
+            if (id.version() == 2) continue
             if (!cache.containsKey(id))
                 Levelhead.fetch(id, this, false)
         }
