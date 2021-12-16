@@ -30,6 +30,7 @@ import gg.essential.elementa.utils.withAlpha
 import gg.essential.universal.ChatColor
 import gg.essential.universal.UDesktop
 import gg.essential.universal.wrappers.UPlayer
+import gg.essential.vigilance.gui.ExpandingClickEffect
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.gui.settings.*
 import gg.essential.vigilance.utils.onLeftClick
@@ -150,13 +151,14 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 val text = UIText("Levelhead Chat Display not purchased!").constrain {
                     x = CenterConstraint()
                 } childOf container
-                ButtonComponent("Purchase Chat Display") {
+                val purchase = ButtonComponent("Purchase Chat Display") {
                     attemptPurchase("chat")
-                    this.hide()
                 }.constrain {
                     x = CenterConstraint()
                     y = SiblingConstraint(5f)
                 } childOf container
+
+                purchase.removeEffect<ExpandingClickEffect>()
             }
         }
     }
@@ -192,13 +194,14 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 val text = UIText("Levelhead Tab Display not purchased!").constrain {
                     x = CenterConstraint()
                 } childOf container
-                ButtonComponent("Purchase Tab Display") {
+                val purchase = ButtonComponent("Purchase Tab Display") {
                     attemptPurchase("tab")
-                    this.hide()
                 }.constrain {
                     x = CenterConstraint()
                     y = SiblingConstraint(5f)
                 } childOf container
+
+                purchase.removeEffect<ExpandingClickEffect>()
             }
         }
     }
