@@ -226,7 +226,9 @@ object Levelhead {
             .header("User-Agent", "Mozilla/4.76 (SK1ER LEVEL HEAD V${VERSION})")
             .get()
             .build()
-        return okHttpClient.newCall(request).execute().body()?.use { it.string() } ?: "{\"success\":false,\"cause\":\"API_DOWN\"}"
+        return kotlin.runCatching {
+            okHttpClient.newCall(request).execute().body()?.use { it.string() }!!
+        }.getOrDefault("{\"success\":false,\"cause\":\"API_DOWN\"}")
     }
 
     fun JsonObject.merge(other: JsonObject, override: Boolean): JsonObject {
