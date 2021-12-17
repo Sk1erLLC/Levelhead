@@ -98,7 +98,8 @@ class DisplayManager(val file: File) {
     }
 
     fun joinWorld() {
-        aboveHead.forEach { head ->
+        aboveHead.forEachIndexed { i, head ->
+            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             head.joinWorld()
         }
         chat.joinWorld()
@@ -106,7 +107,8 @@ class DisplayManager(val file: File) {
     }
 
     fun playerJoin(player: EntityPlayer) {
-        aboveHead.forEach { head ->
+        aboveHead.forEachIndexed { i, head ->
+            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             head.playerJoin(player)
         }
         chat.playerJoin(player)
@@ -114,7 +116,8 @@ class DisplayManager(val file: File) {
     }
 
     fun checkCacheSizes() {
-        aboveHead.forEach { head ->
+        aboveHead.forEachIndexed { i, head ->
+            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             head.checkCacheSize()
         }
         chat.checkCacheSize()
@@ -122,7 +125,8 @@ class DisplayManager(val file: File) {
     }
 
     fun clearCache() {
-        aboveHead.forEach { head ->
+        aboveHead.forEachIndexed { i, head ->
+            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             head.cache.clear()
         }
         chat.cache.clear()
