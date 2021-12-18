@@ -78,7 +78,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     height = ChildBasedRangeConstraint()
                 }
                 val toggle = SwitchComponent(display.config.enabled).constrain {
-                    x = 2.5.pixels(alignOpposite = true)
+                    x = 5.pixels(alignOpposite = true)
                     y = 2.5.pixels()
 
                 } childOf container
@@ -132,7 +132,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 Levelhead.displayManager.chat.run {
                     settings.createComponents(this, preview!!)
                     val toggle = SwitchComponent(this.config.enabled).constrain {
-                        x = 2.5.pixels(alignOpposite = true)
+                        x = 5.pixels(alignOpposite = true)
                         y = CenterConstraint() boundTo titleText
                     } childOf this@levelheadContainer
                     toggle.onValueChange {
@@ -175,7 +175,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 Levelhead.displayManager.tab.run {
                     settings.createComponents(this, preview!!)
                     val toggle = SwitchComponent(this.config.enabled).constrain {
-                        x = 2.5.pixels(alignOpposite = true)
+                        x = 5.pixels(alignOpposite = true)
                         y = CenterConstraint() boundTo titleText
                     } childOf this@levelheadContainer
                     toggle.onValueChange {
