@@ -5,6 +5,7 @@ import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import gg.essential.universal.ChatColor
 import gg.essential.universal.utils.MCITextComponent
+import gg.essential.universal.wrappers.UPlayer
 import gg.essential.universal.wrappers.message.UTextComponent
 import kotlinx.coroutines.launch
 import net.minecraft.event.ClickEvent
@@ -22,7 +23,10 @@ object ChatRender {
     )
 
     fun modifyChat(component: MCITextComponent, tag: String, config: DisplayConfig) =
-        if (Levelhead.LevelheadPurchaseStates.chat) {
+        if (Levelhead.LevelheadPurchaseStates.chat && config.enabled &&
+            (UPlayer.getPlayer()?.name?.let { component.formattedText.substringBefore(':').contains(it) } == false
+                    || config.showSelf)
+        ) {
             UTextComponent(
                 "${config.headerColor.tryToGetChatColor()}[" +
                         "${config.footerColor.tryToGetChatColor()}$tag" +
