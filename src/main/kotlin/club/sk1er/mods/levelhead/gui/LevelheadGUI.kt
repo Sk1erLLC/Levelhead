@@ -82,7 +82,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 val container = UIContainer().constrain {
                     y = SiblingConstraint(2.5f)
                     width = RelativeConstraint()
-                    height = ChildBasedRangeConstraint() + 20.pixels
+                    height = ChildBasedRangeConstraint()
                 }
                 val toggle = SwitchComponent(display.config.enabled).constrain {
                     x = 5.pixels(alignOpposite = true)
@@ -102,16 +102,6 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     width = RelativeConstraint()
                 } childOf container
                 content.createComponents(display, preview!!)
-                if (i < Levelhead.displayManager.aboveHead.size) {
-                    val funnyLongDivider = UIBlock(VigilancePalette.getDivider()).constrain {
-                        x = 50.percent - 0.5.pixels
-                        y = content.constraints.y - 20.pixels
-                        width = 1.pixel
-                        height = content.constraints.height + 40.pixels
-                    } childOf container
-
-                    container.constraints.height -= 20.pixels
-                }
                 container.constrain {
                     y = SiblingConstraint()
                 } childOf settings
@@ -289,6 +279,13 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             height = 60.percent()
         } childOf this
 
+        val middleDivider by UIBlock(VigilancePalette.getDivider()).constrain {
+            x = 50.percent - 0.5.pixels
+            y = 5.pixels
+            width = 1.pixel
+            height = FillConstraint(useSiblings = false)
+        } childOf settingsContainer
+
         val titleText by UIText(shadow = false).constrain {
             x = 10.pixels()
             y = 7.5.pixels(true).to(divider) as YConstraint
@@ -451,11 +448,6 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             width = RelativeConstraint(0.5f) - 0.5.pixels()
             height = ChildBasedRangeConstraint()
         } childOf this
-        val divider = UIBlock(VigilancePalette.getDivider()).constrain {
-            x = RelativeConstraint(0.5f) - 0.5.pixels()
-            width = 1.pixel()
-            height = MaxConstraint(leftContainer.constraints.height, rightContainer.constraints.height)
-        } childOf this
         val showLabel = UIText("Show on self").constrain {
             x = 2.5.pixels()
             y = CramSiblingConstraint() + 5.5.pixels()
@@ -583,7 +575,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             x = CenterConstraint()
             y = SiblingConstraint(10f).to(colorLabel) as YConstraint
             width = AspectConstraint(1.25f)
-            height = 20.percentOfWindow.coerceAtLeast(30.percent)
+            height = 15.percentOfWindow.coerceAtLeast(25.percent)
         }.childOf(this).also {
             it.onValueChange {
                 if (header) {

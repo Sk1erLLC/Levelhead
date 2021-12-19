@@ -8,7 +8,6 @@ import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadTag
 import com.google.gson.JsonObject
 import gg.essential.elementa.UIComponent
-import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.Window
@@ -59,12 +58,6 @@ class CustomLevelheadComponent: UIComponent() {
         x = 0.pixels
         y = CenterConstraint() boundTo resetButton
     } childOf this
-    val divider = UIBlock(VigilancePalette.getDivider()).constrain {
-        x = 50.percent - 0.5.pixels
-        y = 0.pixels
-        width = 1.pixel
-        height = CopyConstraintFloat() boundTo resetButton
-    } childOf this
     val currentLabel = UIText("Current Text").constrain {
         x = 5.5.pixels + 50.percent
         y = CenterConstraint() boundTo resetButton
@@ -99,7 +92,6 @@ class CustomLevelheadComponent: UIComponent() {
     }
 
     private fun UIComponent.createComponents() {
-        divider.constraints.height += 200.pixels
         val statusLabel = UIText("Proposal Status").constrain {
             x = 2.5.pixels
             y = 0.pixels
@@ -307,7 +299,7 @@ class CustomLevelheadComponent: UIComponent() {
             x = CenterConstraint()
             y = SiblingConstraint(10f).to(colorLabel) as YConstraint
             width = AspectConstraint(1.25f)
-            height = 20.percentOfWindow.coerceAtLeast(30.percent)
+            height = 15.percentOfWindow.coerceAtLeast(25.percent)
         } childOf this
 
         private fun LevelheadDisplay.getCurrentSetting(header: Boolean) = when(this.config.getMode(header)) {
