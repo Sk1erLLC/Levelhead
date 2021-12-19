@@ -11,6 +11,7 @@ import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.Window
 import gg.essential.elementa.constraints.*
 import gg.essential.elementa.dsl.*
 import gg.essential.elementa.effects.OutlineEffect
@@ -22,11 +23,11 @@ import gg.essential.universal.wrappers.UPlayer
 import gg.essential.vigilance.gui.ExpandingClickEffect
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.gui.settings.*
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.RequestBody
 import java.awt.Color
-import java.util.*
 
 class CustomLevelheadComponent: UIComponent() {
 
@@ -35,10 +36,17 @@ class CustomLevelheadComponent: UIComponent() {
         if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
     }
 
+    val fakeRequest = JsonObject()
+
     val resetButton = ButtonComponent("Reset to default") {
-        clearLevelhead("message")
-        Levelhead.displayManager.aboveHead[0].update()
-        if (!Levelhead.LevelheadPurchaseStates.customLevelhead) this.hide()
+        Levelhead.scope.launch {
+            clearLevelhead("message")
+        }.invokeOnCompletion {
+            Window.enqueueRenderOperation {
+                Levelhead.displayManager.aboveHead[0].update()
+                if (!Levelhead.LevelheadPurchaseStates.customLevelhead) this.hide()
+            }
+        }
     }.constrain {
         x = 5.pixels(alignOpposite = true) - 50.percent
         y = 0.pixels
@@ -91,7 +99,7 @@ class CustomLevelheadComponent: UIComponent() {
     }
 
     private fun UIComponent.createComponents() {
-        divider.constraints.height += 170.pixels
+        divider.constraints.height += 200.pixels
         val statusLabel = UIText("Proposal Status").constrain {
             x = 2.5.pixels
             y = 0.pixels
@@ -108,7 +116,11 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this
 
         val currentProposal = getProposalInfo()
-        var (proposalHeader, proposalFooter) = this.parseProposal(currentProposalLabel, currentProposal, currentProposal["request"]?.asJsonObject)
+        var (proposalHeader, proposalFooter) = parseProposal(
+            this,
+            currentProposalLabel,
+            currentProposal["request"]?.asJsonObject
+        )
 
         var headerText = ""
         val headerInput = TextComponent("", "Header", false, false).constrain {
@@ -127,33 +139,58 @@ class CustomLevelheadComponent: UIComponent() {
             footerText = it as String
         }
         val proposeButton = ButtonComponent("Propose") {
-            proposeLevelhead(headerText, footerText)
-            val fakeRequest = JsonObject()
-            fakeRequest.addProperty("strlevel", footerText)
-            fakeRequest.addProperty("header", headerText)
-            this.parseProposal(currentProposalLabel, currentProposal, fakeRequest).also {
-                proposalHeader.hide()
-                proposalHeader = it.first
-                proposalFooter.hide()
-                proposalFooter = it.second
+            Levelhead.scope.launch {
+                proposeLevelhead(headerText, footerText)
+            }.invokeOnCompletion {
+                fakeRequest.addProperty("strlevel", footerText)
+                fakeRequest.addProperty("header", headerText)
+                Window.enqueueRenderOperation {
+                    parseProposal(this, currentProposalLabel, fakeRequest).also {
+                        proposalHeader.hide()
+                        proposalHeader = it.first
+                        proposalFooter.hide()
+                        proposalFooter = it.second
+                        currentProposal["current"]?.asJsonObject?.run {
+                            this["header_obj"]?.asJsonObject?.let { obj ->
+                                proposalHeader.constraints.color = if (obj["chroma"].asBoolean)
+                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                else
+                                    Color(obj["red"].asInt, obj["green"].asInt, obj["blue"].asInt).constraint
+                            }
+                            this["footer_obj"]?.asJsonObject?.let { obj ->
+                                proposalFooter.constraints.color = if (obj["chroma"].asBoolean)
+                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                else
+                                    Color(obj["red"].asInt, obj["green"].asInt, obj["blue"].asInt).constraint
+                            }
+                        }
+                    }
+                }
+                val newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
+                if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
             }
-            val newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
-            if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
         }.constrain {
             x = 5.pixels(true) - 50.percent
             y = (CopyConstraintFloat() boundTo headerInput) - 2.5.pixels
         } childOf this
 
         val clearProposalButton = ButtonComponent("Clear Proposal") {
-            clearLevelhead("proposal")
-            this.parseProposal(currentProposalLabel, currentProposal, null).also {
-                proposalHeader.hide()
-                proposalHeader = it.first
-                proposalFooter.hide()
-                proposalFooter = it.second
+            Levelhead.scope.launch {
+                clearLevelhead("proposal")
+            }.invokeOnCompletion {
+                Window.enqueueRenderOperation {
+                    parseProposal(this, currentProposalLabel, null).also {
+                        proposalHeader.hide()
+                        proposalHeader = it.first
+                        proposalFooter.hide()
+                        proposalFooter = it.second
+                    }
+                }
+                fakeRequest.remove("header")
+                fakeRequest.remove("strlevel")
+                val newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
+                if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
             }
-            val newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
-            if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
         }.constrain {
             x = 5.5.pixels + 50.percent
             y = CopyConstraintFloat() boundTo proposeButton
@@ -173,29 +210,46 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this
 
         val sendColorButton = ButtonComponent("Send Colors") {
-            setLevelheadColor(
-                headerColorComponent.dropdown.getValue() == 0,
-                headerColorComponent.selector.getCurrentColor(),
-                footerColorComponent.dropdown.getValue() == 0,
-                footerColorComponent.selector.getCurrentColor()
-            )
-            this.parseProposal(currentProposalLabel, currentProposal, null).also {
-                proposalHeader.hide()
-                proposalHeader = it.first
-                proposalFooter.hide()
-                proposalFooter = it.second
+            Levelhead.scope.launch {
+                setLevelheadColor(
+                    headerColorComponent.dropdown.getValue() == 0,
+                    headerColorComponent.selector.getCurrentColor(),
+                    footerColorComponent.dropdown.getValue() == 0,
+                    footerColorComponent.selector.getCurrentColor()
+                )
+            }.invokeOnCompletion {
+                Window.enqueueRenderOperation {
+                    parseProposal(this, currentProposalLabel, fakeRequest).also {
+                        proposalHeader.hide()
+                        proposalHeader = it.first
+                        if (fakeRequest.has("header")) {
+                            proposalHeader.constraints.color =
+                                if (headerColorComponent.dropdown.getValue() == 0)
+                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                else headerColorComponent.selector.getCurrentColor().constraint
+                        }
+                        proposalFooter.hide()
+                        proposalFooter = it.second
+                        if (fakeRequest.has("strlevel")) {
+                            proposalFooter.constraints.color =
+                                if (footerColorComponent.dropdown.getValue() == 0)
+                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                else footerColorComponent.selector.getCurrentColor().constraint
+                        }
+                    }
+                    Levelhead.displayManager.aboveHead[0].update()
+                    this@CustomLevelheadComponent.currentHeader?.setColor(
+                        if (headerColorComponent.dropdown.getValue() == 0)
+                            basicColorConstraint { Color(Levelhead.ChromaColor) }
+                        else headerColorComponent.selector.getCurrentColor().constraint
+                    )
+                    this@CustomLevelheadComponent.currentFooter?.setColor(
+                        if (footerColorComponent.dropdown.getValue() == 0)
+                            basicColorConstraint { Color(Levelhead.ChromaColor) }
+                        else footerColorComponent.selector.getCurrentColor().constraint
+                    )
+                }
             }
-            Levelhead.displayManager.aboveHead[0].update()
-            this@CustomLevelheadComponent.currentHeader?.setColor(
-                if (headerColorComponent.dropdown.getValue() == 0)
-                    basicColorConstraint { Color(Levelhead.ChromaColor) }
-                else headerColorComponent.selector.getCurrentColor().constraint
-            )
-            this@CustomLevelheadComponent.currentFooter?.setColor(
-                if (footerColorComponent.dropdown.getValue() == 0)
-                    basicColorConstraint { Color(Levelhead.ChromaColor) }
-                else footerColorComponent.selector.getCurrentColor().constraint
-            )
         }.constrain {
             x = 2.5.pixels(true)
             y = CopyConstraintFloat() boundTo clearProposalButton
@@ -275,35 +329,16 @@ class CustomLevelheadComponent: UIComponent() {
 
     }
 
-    fun UIComponent.parseProposal(label: UIText, currentProposal: JsonObject, request: JsonObject?): Pair<UIText, UIText> {
+    fun parseProposal(uiComponent: UIComponent, label: UIText, request: JsonObject?): Pair<UIText, UIText> {
         val aboveHeadDisplayConfig = Levelhead.displayManager.aboveHead[0].config
-        var headerChroma: Boolean = aboveHeadDisplayConfig.headerChroma
-        var headerColor: Color = aboveHeadDisplayConfig.headerColor
-        var footerChroma: Boolean = aboveHeadDisplayConfig.footerChroma
-        var footerColor: Color = aboveHeadDisplayConfig.footerColor
-        currentProposal["current"]?.asJsonObject?.run {
-            this["header_obj"]?.asJsonObject?.let { obj ->
-                headerChroma = obj["chroma"].asBoolean
-                headerColor = Color(obj["red"].asInt, obj["green"].asInt, obj["blue"].asInt)
-            }
-            this["footer_obj"]?.asJsonObject?.let { obj ->
-                footerChroma = obj["chroma"].asBoolean
-                footerColor = Color(obj["red"].asInt, obj["green"].asInt, obj["blue"].asInt)
-            }
-            Unit
-        }
         val proposalFooter = UIText(request?.get("strlevel")?.asString?.replace(defaultRegex, "") ?: "").constrain {
             x = 2.5.pixels(true)
             y = CopyConstraintFloat() boundTo label
-            color = if (request == null) Color.WHITE.constraint else
-                if (footerChroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else footerColor.constraint
-        } childOf this
+        } childOf uiComponent
         val proposalHeader = UIText(request?.get("header")?.asString?.replace(defaultRegex, "") ?: "No current proposal").constrain {
             x = SiblingConstraint(2.5f, true) boundTo proposalFooter
             y = CopyConstraintFloat() boundTo label
-            color = if (request == null) Color.WHITE.constraint else
-                if (headerChroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else headerColor.constraint
-        } childOf this
+        } childOf uiComponent
         return Pair(proposalHeader, proposalFooter)
 
     }

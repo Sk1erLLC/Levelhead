@@ -82,7 +82,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 val container = UIContainer().constrain {
                     y = SiblingConstraint(2.5f)
                     width = RelativeConstraint()
-                    height = ChildBasedRangeConstraint()
+                    height = ChildBasedRangeConstraint() + 25.pixels
                 }
                 val toggle = SwitchComponent(display.config.enabled).constrain {
                     x = 5.pixels(alignOpposite = true)
@@ -107,7 +107,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                         x = 50.percent - 0.5.pixels
                         y = content.constraints.y - 20.pixels
                         width = 1.pixel
-                        height = content.constraints.height + 0.pixels
+                        height = content.constraints.height + 40.pixels
                     } childOf container
 
                     container.constraints.height -= 20.pixels
@@ -116,6 +116,12 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     y = SiblingConstraint()
                 } childOf settings
             }
+
+            UIContainer().constrain {
+                y = SiblingConstraint(2.5f)
+                width = 100.percent
+                height = 20.pixels
+            } childOf settings
 
             ButtonComponent("Purchase more layers") {
                 attemptPurchase("head")
