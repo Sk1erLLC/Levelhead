@@ -33,6 +33,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.awt.Color
@@ -51,6 +52,8 @@ object Levelhead {
     val okHttpClient = OkHttpClient()
     val gson = Gson()
     val jsonParser = JsonParser()
+
+    val EMPTY_BODY: RequestBody = RequestBody.create(null, byteArrayOf())
 
     lateinit var auth: MojangAuth
         private set
@@ -119,6 +122,7 @@ object Levelhead {
         LevelheadPurchaseStates.chat = purchaseStatus["chat"].asBoolean
         LevelheadPurchaseStates.tab = purchaseStatus["tab"].asBoolean
         LevelheadPurchaseStates.aboveHead = purchaseStatus["head"].asInt
+        LevelheadPurchaseStates.customLevelhead = purchaseStatus["custom_levelhead"].asBoolean
         for (i in displayManager.aboveHead.size..LevelheadPurchaseStates.aboveHead) {
             displayManager.aboveHead.add(AboveHeadDisplay(DisplayConfig()))
         }
@@ -244,5 +248,6 @@ object Levelhead {
         var chat: Boolean = false
         var tab: Boolean = false
         var aboveHead: Int = 1
+        var customLevelhead: Boolean = false
     }
 }

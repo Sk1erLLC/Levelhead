@@ -6,16 +6,14 @@ import club.sk1er.mods.levelhead.Levelhead.rawWithAgent
 import club.sk1er.mods.levelhead.Levelhead.refreshRawPurchases
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.invalidateableLazy
+import club.sk1er.mods.levelhead.core.trimmed
 import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.core.update
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.ChatDisplay
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.TabDisplay
-import club.sk1er.mods.levelhead.gui.components.AboveHeadPreviewComponent
-import club.sk1er.mods.levelhead.gui.components.ChatPreviewComponent
-import club.sk1er.mods.levelhead.gui.components.LevelheadPreviewComponent
-import club.sk1er.mods.levelhead.gui.components.TabPreviewComponent
+import club.sk1er.mods.levelhead.gui.components.*
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
@@ -71,9 +69,18 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
             preview = AboveHeadPreviewComponent()
 
+            val customLevelhead = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead/${UPlayer.getUUID().trimmed}")).asJsonObject
+            if (customLevelhead["custom"].asBoolean) {
+                CustomLevelheadComponent().constrain {
+                    width = RelativeConstraint()
+                    height = ChildBasedRangeConstraint()
+                } childOf settings
+            }
+
             Levelhead.displayManager.aboveHead.forEachIndexed { i, display ->
                 if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
                 val container = UIContainer().constrain {
+                    y = SiblingConstraint(2.5f)
                     width = RelativeConstraint()
                     height = ChildBasedRangeConstraint()
                 }
@@ -98,9 +105,9 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 if (i < Levelhead.displayManager.aboveHead.size) {
                     val funnyLongDivider = UIBlock(VigilancePalette.getDivider()).constrain {
                         x = 50.percent - 0.5.pixels
-                        y = content.constraints.y
+                        y = content.constraints.y - 20.pixels
                         width = 1.pixel
-                        height = content.constraints.height + 20.pixels
+                        height = content.constraints.height + 0.pixels
                     } childOf container
 
                     container.constraints.height -= 20.pixels
