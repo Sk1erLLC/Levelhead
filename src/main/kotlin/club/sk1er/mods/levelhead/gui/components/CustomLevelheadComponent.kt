@@ -120,7 +120,14 @@ class CustomLevelheadComponent: UIComponent() {
             this,
             currentProposalLabel,
             currentProposal["request"]?.asJsonObject
-        )
+        ).also {
+            it.first.constraints.color = currentLevelhead?.header?.let { header ->
+                if (header.chroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else header.color.constraint
+            } ?: Color.WHITE.constraint
+            it.second.constraints.color = currentLevelhead?.footer?.let { footer ->
+                if (footer.chroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else footer.color.constraint
+            } ?: Color.WHITE.constraint
+        }
 
         var headerText = ""
         val headerInput = TextComponent("", "Header", false, false).constrain {
