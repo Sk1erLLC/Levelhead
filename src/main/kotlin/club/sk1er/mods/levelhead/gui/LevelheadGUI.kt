@@ -82,7 +82,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 val container = UIContainer().constrain {
                     y = SiblingConstraint(2.5f)
                     width = RelativeConstraint()
-                    height = ChildBasedRangeConstraint() + 25.pixels
+                    height = ChildBasedRangeConstraint() + 20.pixels
                 }
                 val toggle = SwitchComponent(display.config.enabled).constrain {
                     x = 5.pixels(alignOpposite = true)
