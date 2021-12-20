@@ -432,7 +432,7 @@ class CustomLevelheadComponent: UIComponent() {
             x = 2.5.pixels(true)
             y = CopyConstraintFloat() boundTo label
         } childOf uiComponent
-        val proposalHeader = UIText((request?.get("header")?.asString?.replace(defaultRegex, "") + ": ") ?: "No current proposal").constrain {
+        val proposalHeader = UIText((request?.get("header")?.asString?.replace(defaultRegex, Levelhead.selfLevelheadTag.header.value)?.let { "$it: " }) ?: "No current proposal").constrain {
             x = SiblingConstraint(2.5f, true) boundTo proposalFooter
             y = CopyConstraintFloat() boundTo label
         } childOf uiComponent
