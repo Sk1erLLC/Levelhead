@@ -24,8 +24,10 @@ object TabRender {
                 }
 
                 when {
-                    config.headerChroma -> UMinecraft.getFontRenderer().drawString(str, x1, y, Levelhead.ChromaColor)
-                    else -> UMinecraft.getFontRenderer().drawString(str, x1, y , this.config.headerColor.rgb)
+                    config.headerChroma -> UMinecraft.getFontRenderer().drawString(str,
+                        x1.toFloat(), y.toFloat(), Levelhead.ChromaColor, true)
+                    else -> UMinecraft.getFontRenderer().drawString(str,
+                        x1.toFloat(), y.toFloat(), this.config.headerColor.rgb, true)
                 }
             } ?: Levelhead.fetch(playerInfo.gameProfile.id, this, false)
         }
