@@ -46,18 +46,20 @@ class CustomLevelheadComponent: UIComponent() {
             Window.enqueueRenderOperation {
                 Levelhead.displayManager.aboveHead[0].cache.remove(UPlayer.getUUID())
                 Levelhead.fetch(UPlayer.getUUID(), Levelhead.displayManager.aboveHead[0], Levelhead.displayManager.aboveHead[0].bottomValue)
-                if (!Levelhead.LevelheadPurchaseStates.customLevelhead) {
-                    this.hide()
-                } else {
-                    Levelhead.selfLevelheadTag.header.run {
-                        currentHeader?.setText(this.value)
-                        currentHeader?.constraints?.color = if (this.chroma) basicColorConstraint { Levelhead.chromaColor } else this.color.constraint
+                    .invokeOnCompletion {
+                        if (!Levelhead.LevelheadPurchaseStates.customLevelhead) {
+                            this.hide()
+                        } else {
+                            Levelhead.selfLevelheadTag.header.run {
+                                currentHeader?.setText(this.value)
+                                currentHeader?.constraints?.color = if (this.chroma) basicColorConstraint { Levelhead.chromaColor } else this.color.constraint
+                            }
+                            Levelhead.selfLevelheadTag.footer.run {
+                                currentFooter?.setText(this.value)
+                                currentFooter?.constraints?.color = if (this.chroma) basicColorConstraint { Levelhead.chromaColor } else this.color.constraint
+                            }
+                        }
                     }
-                    Levelhead.selfLevelheadTag.footer.run {
-                        currentFooter?.setText(this.value)
-                        currentFooter?.constraints?.color = if (this.chroma) basicColorConstraint { Levelhead.chromaColor } else this.color.constraint
-                    }
-                }
             }
         }
     }.constrain {

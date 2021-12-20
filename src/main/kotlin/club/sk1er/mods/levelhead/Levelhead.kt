@@ -19,10 +19,7 @@ import gg.essential.api.utils.Multithreading
 import gg.essential.universal.ChatColor
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraftforge.common.MinecraftForge
@@ -154,10 +151,10 @@ object Levelhead {
         }
     }
 
-    fun fetch(uuid: UUID, display: LevelheadDisplay, allowOverride: Boolean) {
+    fun fetch(uuid: UUID, display: LevelheadDisplay, allowOverride: Boolean): Job {
         val type = display.config.type
 
-        scope.launch {
+        return scope.launch {
             rateLimiter.consume()
 
 
