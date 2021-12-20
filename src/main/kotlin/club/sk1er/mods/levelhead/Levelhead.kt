@@ -18,6 +18,7 @@ import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
 import gg.essential.universal.ChatColor
 import gg.essential.universal.UMinecraft
+import gg.essential.universal.wrappers.UPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -79,6 +80,10 @@ object Levelhead {
         get() = Color.HSBtoRGB(System.currentTimeMillis() % 1000 / 1000f, 0.8f, 0.2f)
     val ChromaColor: Int
         get() = Color.HSBtoRGB(System.currentTimeMillis() % 1000 / 1000f, 0.8f, 0.8f)
+    val chromaColor: Color
+        get() = Color(ChromaColor)
+    val selfLevelheadTag
+        get() = displayManager.aboveHead[0].cache[UPlayer.getUUID()]!!
 
     const val MODID = "level_head"
     const val VERSION = "8.0.0"

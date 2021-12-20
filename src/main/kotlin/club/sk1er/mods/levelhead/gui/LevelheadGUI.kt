@@ -38,8 +38,15 @@ import java.net.URI
 @Suppress("unused")
 class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
+    var screenCloseCallback: () -> Unit = {}
+
+    fun onScreenClose(callback: () -> Unit) {
+        screenCloseCallback = callback
+    }
+
     override fun onScreenClose() {
         Levelhead.displayManager.saveConfig()
+        screenCloseCallback()
         super.onScreenClose()
     }
 

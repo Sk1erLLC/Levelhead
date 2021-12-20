@@ -6,6 +6,7 @@ import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.core.update
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadTag
+import club.sk1er.mods.levelhead.gui.LevelheadGUI
 import com.google.gson.JsonObject
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIContainer
@@ -18,6 +19,7 @@ import gg.essential.elementa.state.BasicState
 import gg.essential.elementa.state.State
 import gg.essential.elementa.utils.withAlpha
 import gg.essential.universal.ChatColor
+import gg.essential.universal.UScreen
 import gg.essential.universal.wrappers.UPlayer
 import gg.essential.vigilance.gui.ExpandingClickEffect
 import gg.essential.vigilance.gui.VigilancePalette
@@ -68,7 +70,7 @@ class CustomLevelheadComponent: UIComponent() {
         UIText(footer.value).constrain {
             x = 2.5.pixels(true)
             y = CopyConstraintFloat() boundTo currentLabel
-            color = if (footer.chroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else footer.color.constraint
+            color = if (footer.chroma) basicColorConstraint { Levelhead.chromaColor } else footer.color.constraint
         } childOf this
     }
     var currentFooter = currentLevelhead?.footer?.let(createFooter)
@@ -76,7 +78,7 @@ class CustomLevelheadComponent: UIComponent() {
         UIText(header.value).constrain {
             x = SiblingConstraint(2.5f, true)
             y = CopyConstraintFloat() boundTo currentLabel
-            color = if (header.chroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else header.color.constraint
+            color = if (header.chroma) basicColorConstraint { Levelhead.chromaColor } else header.color.constraint
         } childOf this
     }
     var currentHeader = currentLevelhead?.header?.let(createHeader)
@@ -108,16 +110,19 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this
 
         val currentProposal = getProposalInfo()
+        val request = currentProposal["request"]?.asJsonObject
         var (proposalHeader, proposalFooter) = parseProposal(
             this,
             currentProposalLabel,
-            currentProposal["request"]?.asJsonObject
+            request
         ).also {
-            it.first.constraints.color = currentLevelhead?.header?.let { header ->
-                if (header.chroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else header.color.constraint
+            it.first.constraints.color = request?.get("header_obj")?.asJsonObject?.let { header ->
+                if (header["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
+                    Color(header["red"].asInt, header["green"].asInt, header["blue"].asInt).constraint
             } ?: Color.WHITE.constraint
-            it.second.constraints.color = currentLevelhead?.footer?.let { footer ->
-                if (footer.chroma) basicColorConstraint { Color(Levelhead.ChromaColor) } else footer.color.constraint
+            it.second.constraints.color = request?.get("footer_obj")?.asJsonObject?.let { footer ->
+                if (footer["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
+                    Color(footer["red"].asInt, footer["green"].asInt, footer["blue"].asInt).constraint
             } ?: Color.WHITE.constraint
         }
 
@@ -152,13 +157,13 @@ class CustomLevelheadComponent: UIComponent() {
                         currentProposal["current"]?.asJsonObject?.run {
                             this["header_obj"]?.asJsonObject?.let { obj ->
                                 proposalHeader.constraints.color = if (obj["chroma"].asBoolean)
-                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                    basicColorConstraint { Levelhead.chromaColor }
                                 else
                                     Color(obj["red"].asInt, obj["green"].asInt, obj["blue"].asInt).constraint
                             }
                             this["footer_obj"]?.asJsonObject?.let { obj ->
                                 proposalFooter.constraints.color = if (obj["chroma"].asBoolean)
-                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                    basicColorConstraint { Levelhead.chromaColor }
                                 else
                                     Color(obj["red"].asInt, obj["green"].asInt, obj["blue"].asInt).constraint
                             }
@@ -195,18 +200,46 @@ class CustomLevelheadComponent: UIComponent() {
             y = CopyConstraintFloat() boundTo proposeButton
         } childOf this
 
-        val headerColorComponent = CustomColorSetting(true).constrain {
+        val headerObj = currentProposal["current"].asJsonObject["header_obj"].asJsonObject
+        val headerColorComponent = CustomColorSetting(true, headerObj["chroma"].asBoolean, Color(
+            headerObj["red"].asInt,
+            headerObj["green"].asInt,
+            headerObj["blue"].asInt
+        )).constrain {
             x = 2.5.pixels
             y = SiblingConstraint(2.5f)
             width = RelativeConstraint(0.5f) - 7.5.pixels()
             height = AspectConstraint(0.4f)
         } childOf this
-        val footerColorComponent = CustomColorSetting(false).constrain {
+        headerColorComponent.onValueChange {
+            Levelhead.selfLevelheadTag.header.color = it
+        }
+        val footerObj = currentProposal["current"].asJsonObject["footer_obj"].asJsonObject
+        val footerColorComponent = CustomColorSetting(false, footerObj["chroma"].asBoolean, Color(
+            footerObj["red"].asInt,
+            footerObj["green"].asInt,
+            footerObj["blue"].asInt
+        )).constrain {
             x = 5.5.pixels + 50.percent
             y = CopyConstraintFloat() boundTo headerColorComponent
             width = RelativeConstraint(0.5f) - 7.5.pixels()
             height = AspectConstraint(0.4f)
         } childOf this
+        footerColorComponent.onValueChange {
+            Levelhead.selfLevelheadTag.footer.color = it
+        }
+        Window.enqueueRenderOperation {
+            (UScreen.currentScreen!! as LevelheadGUI).onScreenClose {
+                Levelhead.scope.launch {
+                    setLevelheadColor(
+                        headerColorComponent.dropdown.getValue() == 0,
+                        headerColorComponent.selector.getCurrentColor(),
+                        footerColorComponent.dropdown.getValue() == 0,
+                        footerColorComponent.selector.getCurrentColor()
+                    )
+                }
+            }
+        }
 
         val sendColorButton = ButtonComponent("Send Colors") {
             Levelhead.scope.launch {
@@ -224,7 +257,7 @@ class CustomLevelheadComponent: UIComponent() {
                         if (fakeRequest.has("header")) {
                             proposalHeader.constraints.color =
                                 if (headerColorComponent.dropdown.getValue() == 0)
-                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                    basicColorConstraint { Levelhead.chromaColor }
                                 else headerColorComponent.selector.getCurrentColor().constraint
                         }
                         proposalFooter.hide()
@@ -232,19 +265,19 @@ class CustomLevelheadComponent: UIComponent() {
                         if (fakeRequest.has("strlevel")) {
                             proposalFooter.constraints.color =
                                 if (footerColorComponent.dropdown.getValue() == 0)
-                                    basicColorConstraint { Color(Levelhead.ChromaColor) }
+                                    basicColorConstraint { Levelhead.chromaColor }
                                 else footerColorComponent.selector.getCurrentColor().constraint
                         }
                     }
                     Levelhead.displayManager.aboveHead[0].update()
                     this@CustomLevelheadComponent.currentHeader?.setColor(
                         if (headerColorComponent.dropdown.getValue() == 0)
-                            basicColorConstraint { Color(Levelhead.ChromaColor) }
+                            basicColorConstraint { Levelhead.chromaColor }
                         else headerColorComponent.selector.getCurrentColor().constraint
                     )
                     this@CustomLevelheadComponent.currentFooter?.setColor(
                         if (footerColorComponent.dropdown.getValue() == 0)
-                            basicColorConstraint { Color(Levelhead.ChromaColor) }
+                            basicColorConstraint { Levelhead.chromaColor }
                         else footerColorComponent.selector.getCurrentColor().constraint
                     )
                 }
@@ -255,15 +288,22 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this
     }
 
-    private class CustomColorSetting(header: Boolean): UIComponent() {
+    private class CustomColorSetting(header: Boolean, initialChroma: Boolean, initialColor: Color): UIComponent() {
+        var valueChangecallback: (Color) -> Unit = {}
+
+        fun onValueChange(listener: (Color) -> Unit): CustomColorSetting {
+            valueChangecallback = listener
+            return this
+        }
+
         val display = Levelhead.displayManager.aboveHead[0]
         val colorLabel = UIText(if (header) "Header Color:" else "Footer Color:").constrain {
             x = 0.pixels
             y = 4.5.pixels
         } childOf this
         val options = listOf("Chroma", "RGB") + ChatColor.values().filter { it.isColor() }
-        val dropdown = DropDown(
-            options.indexOf(display.getCurrentSetting(header)),
+        val dropdown: DropDown = DropDown(
+            if (initialChroma) 0 else initialColor.tryToGetChatColor()?.let { options.indexOf(it ) } ?: 1,
             options.map {
                 if (it is ChatColor)
                     "${it}${it.name.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() }}"
@@ -274,33 +314,52 @@ class CustomLevelheadComponent: UIComponent() {
             y = 0.pixels
         }.childOf(this).also {
             it.onValueChange {
-            when (it) {
-                // ignore chroma and rgb options
-                0 -> {}
-                1 -> {}
-                else -> {
-                    if (selector.getCurrentColor() == (options[it] as ChatColor).color!!) return@onValueChange
-                    val (red, green, blue) = (options[it] as ChatColor).color!!
-                    val (h,s,b) = Color.RGBtoHSB(red, green, blue, null)
-                    selector.setHSB(h, s, b)
+                when (it) {
+                    0 -> if (header) {
+                        Levelhead.selfLevelheadTag.header.chroma = true
+                    } else {
+                        Levelhead.selfLevelheadTag.footer.chroma = true
+                    }
+                    1 -> if (header) {
+                        Levelhead.selfLevelheadTag.header.chroma = false
+                        valueChangecallback(selector.getCurrentColor())
+                    } else {
+                        Levelhead.selfLevelheadTag.footer.chroma = false
+                        valueChangecallback(selector.getCurrentColor())
+                    }
+                    else -> {
+                        if (header) {
+                            Levelhead.selfLevelheadTag.header.chroma = true
+                        } else {
+                            Levelhead.selfLevelheadTag.footer.chroma = true
+                        }
+                        valueChangecallback(selector.getCurrentColor())
+                        if (selector.getCurrentColor() == (options[it] as ChatColor).color!!) return@onValueChange
+                        val (red, green, blue) = (options[it] as ChatColor).color!!
+                        val (h,s,b) = Color.RGBtoHSB(red, green, blue, null)
+                        selector.setHSB(h, s, b)
+                    }
                 }
             }
         }
-        }
-        val selector = if (header) {
-            ColorPicker(
-                display.config.headerColor, false
-            )
-        } else {
-            ColorPicker(
-                display.config.footerColor, false
-            )
-        }.constrain {
+        val selector: ColorPicker = ColorPicker(
+            if (initialChroma) {
+                if (header)
+                    display.config.headerColor
+                else
+                    display.config.footerColor
+            } else initialColor,
+            false
+        ).constrain {
             x = CenterConstraint()
             y = SiblingConstraint(10f).to(colorLabel) as YConstraint
             width = AspectConstraint(1.25f)
             height = 15.percentOfWindow.coerceAtLeast(25.percent)
-        } childOf this
+        }.childOf(this).apply {
+            this.onValueChange {
+                dropdown.select(1)
+            }
+        }
 
         private fun LevelheadDisplay.getCurrentSetting(header: Boolean) = when(this.config.getMode(header)) {
             "Chat Color" -> {
