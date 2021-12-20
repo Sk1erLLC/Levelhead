@@ -52,7 +52,7 @@ object AboveHeadRender {
     }
 
     private val EntityPlayer.isSelf: Boolean
-        get() = UPlayer.getPlayer()?.let { it.uniqueID == this.uniqueID } == true
+        get() = UPlayer.getUUID() == this.uniqueID
 
     private fun renderName(tag: LevelheadTag, entityIn: EntityPlayer, x: Double, y: Double, z: Double) {
         val fontrenderer = getFontRenderer()

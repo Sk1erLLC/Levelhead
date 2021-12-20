@@ -674,7 +674,6 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         }
 
         private fun LevelheadDisplay.update() {
-            if (Levelhead.LevelheadPurchaseStates.customLevelhead) return
             this.cache[UPlayer.getUUID()]?.let { tag ->
                 tag.header.let { header ->
                     header.chroma = this.config.headerChroma
