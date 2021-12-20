@@ -13,6 +13,7 @@ fun LevelheadDisplay.update() {
         tag.header.let { header ->
             header.chroma = this.config.headerChroma
             header.color = this.config.headerColor
+            header.value = "${this.config.headerString}: "
         }
         tag.footer.let { footer ->
             footer.chroma = this.config.footerChroma

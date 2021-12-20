@@ -47,6 +47,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
     override fun onScreenClose() {
         Levelhead.displayManager.saveConfig()
         screenCloseCallback()
+        Levelhead.displayManager.update()
         super.onScreenClose()
     }
 
@@ -634,6 +635,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 tag.header.let { header ->
                     header.chroma = this.config.headerChroma
                     header.color = this.config.headerColor
+                    header.value = "${this.config.headerString}: "
                 }
                 tag.footer.let { footer ->
                     footer.chroma = this.config.footerChroma

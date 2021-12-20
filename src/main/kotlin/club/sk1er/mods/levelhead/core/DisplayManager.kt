@@ -115,6 +115,47 @@ class DisplayManager(val file: File) {
         tab.playerJoin(player)
     }
 
+    fun update() {
+        aboveHead.forEachIndexed { i, head ->
+            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
+            head.cache.forEach { (_, tag) ->
+                tag.header.run {
+                    this.chroma = head.config.headerChroma
+                    this.color = head.config.headerColor
+                    this.value = "${head.config.headerString}: "
+                }
+                tag.footer.run {
+                    this.chroma = head.config.footerChroma
+                    this.color = head.config.footerColor
+                }
+            }
+        }
+        chat.run {
+            this.cache.forEach { (_, tag) ->
+                tag.header.let {
+                    it.chroma = this.config.headerChroma
+                    it.color = this.config.headerColor
+                }
+                tag.footer.let {
+                    it.chroma = this.config.footerChroma
+                    it.color = this.config.footerColor
+                }
+            }
+        }
+        tab.run {
+            this.cache.forEach { (_, tag) ->
+                tag.header.let {
+                    it.chroma = this.config.headerChroma
+                    it.color = this.config.headerColor
+                }
+                tag.footer.let {
+                    it.chroma = this.config.footerChroma
+                    it.color = this.config.footerColor
+                }
+            }
+        }
+    }
+
     fun checkCacheSizes() {
         aboveHead.forEachIndexed { i, head ->
             if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
