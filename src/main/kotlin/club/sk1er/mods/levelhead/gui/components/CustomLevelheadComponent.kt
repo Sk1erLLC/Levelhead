@@ -130,14 +130,18 @@ class CustomLevelheadComponent: UIComponent() {
             currentProposalLabel,
             request
         ).also {
-            it.first.constraints.color = request?.get("header_obj")?.asJsonObject?.let { header ->
-                if (header["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
-                    Color(header["red"].asInt, header["green"].asInt, header["blue"].asInt).constraint
-            } ?: Color.WHITE.constraint
-            it.second.constraints.color = request?.get("footer_obj")?.asJsonObject?.let { footer ->
-                if (footer["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
-                    Color(footer["red"].asInt, footer["green"].asInt, footer["blue"].asInt).constraint
-            } ?: Color.WHITE.constraint
+            it.first.constraints.color = if (it.first.getText() == "No current proposal") Color.WHITE.constraint else
+                (request?.get("header_obj")?.asJsonObject ?:
+                currentProposal["current"]?.asJsonObject?.get("header_obj")?.asJsonObject)?.let { header ->
+                    if (header["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
+                        Color(header["red"].asInt, header["green"].asInt, header["blue"].asInt).constraint
+                } ?: Levelhead.displayManager.aboveHead[0].config.headerColor.constraint
+            it.second.constraints.color = if (it.second.getText().isEmpty()) Color.WHITE.constraint else
+                (request?.get("footer_obj")?.asJsonObject ?:
+                currentProposal["current"]?.asJsonObject?.get("footer_obj")?.asJsonObject)?.let { footer ->
+                    if (footer["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
+                        Color(footer["red"].asInt, footer["green"].asInt, footer["blue"].asInt).constraint
+                } ?: Levelhead.displayManager.aboveHead[0].config.footerColor.constraint
         }
 
         var headerText = ""
@@ -425,8 +429,8 @@ class CustomLevelheadComponent: UIComponent() {
         val proposalFooter = UIText(
             request?.get("strlevel")?.asString?.replace(
                     defaultRegex,
-                    Levelhead.selfLevelheadTag.footer.value.substringAfterLast('(').removeSuffix(")")
-                )
+                    ""
+                )?.let { "$it (${Levelhead.selfLevelheadTag.footer.value.substringAfterLast('(').removeSuffix(")")})" }
                 ?: ""
         ).constrain {
             x = 2.5.pixels(true)
