@@ -48,6 +48,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         Levelhead.displayManager.saveConfig()
         screenCloseCallback()
         Levelhead.displayManager.update()
+        Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag
         super.onScreenClose()
     }
 
@@ -61,7 +62,12 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         y = 11.pixels()
     } childOf titleBar
 
-    private val editing = DropDown(0, listOf("Head", "Tab", "Chat")).constrain {
+    private val editing = DropDown(0, listOf("Head", "Tab", "Chat") +
+            if (Levelhead.LevelheadPurchaseStates.customLevelhead)
+                listOf("Custom")
+            else
+                listOf()
+    ).constrain {
         x = (masterLabel.getWidth() + 10).pixels(true).to(masterLabel) as XConstraint
         y = 5.pixels()
     } childOf titleBar
@@ -71,18 +77,24 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         y = 11.pixels()
     } childOf titleBar
 
-    private val aboveHead by lazy {
+    private val aboveHeadDelegate = invalidateableLazy {
         levelheadContainer {
             title = "Above Head"
 
-            preview = AboveHeadPreviewComponent()
-
-            val customLevelhead = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead/${UPlayer.getUUID().trimmed}")).asJsonObject
-            if (customLevelhead["custom"].asBoolean) {
-                CustomLevelheadComponent().constrain {
-                    width = RelativeConstraint()
-                    height = ChildBasedRangeConstraint()
-                } childOf settings
+            preview = AboveHeadPreviewComponent().also {
+                Levelhead.selfLevelheadTag.run {
+                    val firstLayer = Levelhead.displayManager.aboveHead[0]
+                    this.header.let {
+                        it.chroma = firstLayer.config.headerChroma
+                        it.color = firstLayer.config.headerColor
+                        it.value = "${firstLayer.config.headerString}: "
+                    }
+                    this.footer.let {
+                        it.chroma = firstLayer.config.footerChroma
+                        it.color = firstLayer.config.footerColor
+                        it.value = it.value.substringAfterLast('(').removeSuffix(")")
+                    }
+                }
             }
 
             Levelhead.displayManager.aboveHead.forEachIndexed { i, display ->
@@ -130,6 +142,30 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             } childOf this
         }
     }
+
+    private val aboveHead by aboveHeadDelegate
+
+    val customTag = Levelhead.selfLevelheadTag.clone()
+
+    private val customDelegate = invalidateableLazy {
+        levelheadContainer {
+            title = "Custom Levelhead"
+
+            preview = AboveHeadPreviewComponent().also {
+                Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag.clone()
+            }
+
+            val customLevelhead = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead/${UPlayer.getUUID().trimmed}")).asJsonObject
+            if (customLevelhead["custom"].asBoolean) {
+                CustomLevelheadComponent().constrain {
+                    width = RelativeConstraint()
+                    height = ChildBasedRangeConstraint()
+                } childOf settings
+            }
+        }
+    }
+
+    private val custom by customDelegate
 
     private val chatDelegate = invalidateableLazy {
         levelheadContainer {
@@ -233,9 +269,10 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
 
         editing.onValueChange {
             container = when (it) {
+                3 -> {customDelegate.invalidate(); custom}
                 2 -> chat
                 1 -> tab
-                else -> aboveHead
+                else -> {aboveHeadDelegate.invalidate(); aboveHead}
             }
         }
 
@@ -408,9 +445,10 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                                         confirmButtonText = "Close"
                                         onConfirm = {
                                             container = when (editing.getValue()) {
+                                                3 -> { customDelegate.invalidate(); custom}
                                                 2 -> { chatDelegate.invalidate(); chat}
                                                 1 -> { tabDelegate.invalidate(); tab }
-                                                else -> aboveHead
+                                                else -> { aboveHeadDelegate.invalidate(); aboveHead }
                                             }
                                         }
                                         denyButtonText = ""
@@ -423,9 +461,10 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                                         denyButtonText = ""
                                         onConfirm = {
                                             container = when (editing.getValue()) {
+                                                3 -> { customDelegate.invalidate(); custom}
                                                 2 -> { chatDelegate.invalidate(); chat}
                                                 1 -> { tabDelegate.invalidate(); tab }
-                                                else -> aboveHead
+                                                else -> { aboveHeadDelegate.invalidate(); aboveHead }
                                             }
                                         }
                                     } childOf window
@@ -439,9 +478,10 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             Levelhead.refreshRawPurchases()
             credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
             container = when (editing.getValue()) {
+                3 -> { customDelegate.invalidate(); custom}
                 2 -> { chatDelegate.invalidate(); chat}
                 1 -> { tabDelegate.invalidate(); tab }
-                else -> aboveHead
+                else -> { aboveHeadDelegate.invalidate(); aboveHead }
             }
         }
     }

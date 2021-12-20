@@ -10,6 +10,7 @@ import club.sk1er.mods.levelhead.display.ChatDisplay
 import club.sk1er.mods.levelhead.display.TabDisplay
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.entity.player.EntityPlayer
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -117,9 +118,10 @@ class DisplayManager(val file: File) {
 
     fun update() {
         aboveHead.forEachIndexed { i, head ->
-            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             if (i == 0 && Levelhead.LevelheadPurchaseStates.customLevelhead) return@forEachIndexed
+            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             head.cache.forEach { (_, tag) ->
+                if (tag.owner == UPlayer.getUUID()) return@forEach
                 tag.header.run {
                     this.chroma = head.config.headerChroma
                     this.color = head.config.headerColor

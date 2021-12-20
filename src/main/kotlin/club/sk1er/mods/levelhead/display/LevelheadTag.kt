@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead.display
 
+import club.sk1er.mods.levelhead.Levelhead
 import com.google.gson.JsonObject
 import java.awt.Color
 import java.util.*
@@ -35,6 +36,8 @@ class LevelheadTag(val owner: UUID) {
     fun getString() = "${header.value}${footer.value}"
 
     override fun toString(): String = "LevelheadTag{header=$header, footer=$footer, owner=$owner}"
+
+    fun clone() = Levelhead.gson.fromJson(Levelhead.gson.toJson(this), LevelheadTag::class.java)
 
     class LevelheadComponent(value: String) {
         var value: String = value.replace("&", "\u00a7")
