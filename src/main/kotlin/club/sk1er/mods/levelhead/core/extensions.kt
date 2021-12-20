@@ -1,7 +1,5 @@
 package club.sk1er.mods.levelhead.core
 
-import club.sk1er.mods.levelhead.Levelhead
-import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import gg.essential.universal.ChatColor
 import gg.essential.universal.wrappers.UPlayer
@@ -11,8 +9,16 @@ import java.util.*
 
 
 fun LevelheadDisplay.update() {
-    this.cache.remove(UPlayer.getUUID())
-    Levelhead.fetch(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)
+    this.cache[UPlayer.getUUID()]?.let { tag ->
+        tag.header.let { header ->
+            header.chroma = this.config.headerChroma
+            header.color = this.config.headerColor
+        }
+        tag.footer.let { footer ->
+            footer.chroma = this.config.footerChroma
+            footer.color = this.config.footerColor
+        }
+    }
 }
 
 fun Color.tryToGetChatColor() =
