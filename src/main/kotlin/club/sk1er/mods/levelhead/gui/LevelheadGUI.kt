@@ -18,6 +18,7 @@ import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
 import gg.essential.api.utils.Multithreading
+import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.*
 import gg.essential.elementa.components.inspector.Inspector
@@ -36,7 +37,7 @@ import java.awt.Color
 import java.net.URI
 
 @Suppress("unused")
-class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
+class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC") {
 
     var screenCloseCallback: () -> Unit = {}
 
@@ -50,6 +51,15 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         Levelhead.displayManager.update()
         Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag
         super.onScreenClose()
+    }
+
+    override fun updateGuiScale() {
+        container = when (editing.getValue()) {
+            3 -> { customDelegate.invalidate(); custom}
+            2 -> { chatDelegate.invalidate(); chat}
+            1 -> { tabDelegate.invalidate(); tab }
+            else -> { aboveHeadDelegate.invalidate(); aboveHead }
+        }
     }
 
     private val masterToggle = SwitchComponent(Levelhead.displayManager.config.enabled).constrain {
@@ -189,6 +199,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     }
                 }
             } else {
+                middleDivider.hide()
                 val container = UIContainer().constrain {
                     x = CenterConstraint()
                     y = 25.percent
@@ -232,6 +243,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                     }
                 }
             } else {
+                middleDivider.hide()
                 val container = UIContainer().constrain {
                     x = CenterConstraint()
                     y = 25.percent
