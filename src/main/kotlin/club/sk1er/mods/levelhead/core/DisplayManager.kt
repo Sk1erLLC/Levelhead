@@ -118,6 +118,7 @@ class DisplayManager(val file: File) {
     fun update() {
         aboveHead.forEachIndexed { i, head ->
             if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
+            if (i == 0 && Levelhead.LevelheadPurchaseStates.customLevelhead) return@forEachIndexed
             head.cache.forEach { (_, tag) ->
                 tag.header.run {
                     this.chroma = head.config.headerChroma

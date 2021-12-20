@@ -1,5 +1,6 @@
 package club.sk1er.mods.levelhead.core
 
+import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import gg.essential.universal.ChatColor
 import gg.essential.universal.wrappers.UPlayer
@@ -9,6 +10,7 @@ import java.util.*
 
 
 fun LevelheadDisplay.update() {
+    if (Levelhead.LevelheadPurchaseStates.customLevelhead) return
     this.cache[UPlayer.getUUID()]?.let { tag ->
         tag.header.let { header ->
             header.chroma = this.config.headerChroma
