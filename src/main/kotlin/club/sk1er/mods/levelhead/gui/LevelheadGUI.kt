@@ -39,7 +39,11 @@ import java.net.URI
 @Suppress("unused")
 class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC") {
 
-    var screenCloseCallback: () -> Unit = {}
+    companion object {
+        private var currentPage = 0
+    }
+
+    private var screenCloseCallback: () -> Unit = {}
 
     fun onScreenClose(callback: () -> Unit) {
         screenCloseCallback = callback
@@ -72,7 +76,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         y = 11.pixels()
     } childOf titleBar
 
-    private val editing = DropDown(0, listOf("Head", "Tab", "Chat") +
+    private val editing = DropDown(currentPage, listOf("Head", "Tab", "Chat") +
             if (Levelhead.LevelheadPurchaseStates.customLevelhead)
                 listOf("Custom")
             else
@@ -267,7 +271,12 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
     private var tab by tabDelegate
 
-    private var container: LevelheadContainer = aboveHead childOf content
+    private var container: LevelheadContainer = when (currentPage) {
+        3 -> custom
+        2 -> chat
+        1 -> tab
+        else -> aboveHead
+    } childOf content
         set(value) {
             container.hide()
             value.childOf(content)
@@ -280,6 +289,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         }
 
         editing.onValueChange {
+            currentPage = it
             container = when (it) {
                 3 -> {customDelegate.invalidate(); custom}
                 2 -> chat
