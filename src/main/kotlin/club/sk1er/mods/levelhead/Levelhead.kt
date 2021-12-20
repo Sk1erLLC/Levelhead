@@ -43,10 +43,6 @@ import java.text.DecimalFormat
 import java.time.Duration
 import java.util.*
 
-/**
- * TODO
- * Adapt Sk1er.club API to new config style
- */
 @Mod(modid = Levelhead.MODID, name = "Levelhead", version = Levelhead.VERSION, modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter")
 object Levelhead {
     val logger: Logger = LogManager.getLogger()
