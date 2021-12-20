@@ -214,8 +214,12 @@ class CustomLevelheadComponent: UIComponent() {
             height = AspectConstraint(0.4f)
         } childOf this
         headerColorComponent.onValueChange {
-            Levelhead.selfLevelheadTag.header.color = it
-            currentHeader?.constraints?.color = it.constraint
+            if (Levelhead.selfLevelheadTag.header.chroma) {
+                currentHeader?.constraints?.color = basicColorConstraint { Levelhead.chromaColor }
+            } else {
+                Levelhead.selfLevelheadTag.header.color = it
+                currentHeader?.constraints?.color = it.constraint
+            }
         }
         val footerColorComponent = (currentProposal["current"].asJsonObject["footer_obj"]?.asJsonObject?.let { footerObj ->
             CustomColorSetting(false, false, footerObj["chroma"].asBoolean, Color(
@@ -231,8 +235,12 @@ class CustomLevelheadComponent: UIComponent() {
             height = AspectConstraint(0.4f)
         } childOf this
         footerColorComponent.onValueChange {
-            Levelhead.selfLevelheadTag.footer.color = it
-            currentFooter?.constraints?.color = it.constraint
+            if (Levelhead.selfLevelheadTag.footer.chroma) {
+                currentFooter?.constraints?.color = basicColorConstraint { Levelhead.chromaColor }
+            } else {
+                Levelhead.selfLevelheadTag.footer.color = it
+                currentFooter?.constraints?.color = it.constraint
+            }
         }
         Window.enqueueRenderOperation {
             (UScreen.currentScreen!! as LevelheadGUI).onScreenClose {
@@ -316,8 +324,10 @@ class CustomLevelheadComponent: UIComponent() {
                 when (it) {
                     0 -> if (header) {
                         Levelhead.selfLevelheadTag.header.chroma = true
+                        valueChangecallback(selector.getCurrentColor())
                     } else {
                         Levelhead.selfLevelheadTag.footer.chroma = true
+                        valueChangecallback(selector.getCurrentColor())
                     }
                     1 -> if (header) {
                         Levelhead.selfLevelheadTag.header.chroma = false
@@ -337,7 +347,7 @@ class CustomLevelheadComponent: UIComponent() {
                         } else {
                             Levelhead.selfLevelheadTag.footer.chroma = true
                         }
-                        valueChangecallback(selector.getCurrentColor())
+                        valueChangecallback((options[it] as ChatColor).color!!)
                         if (selector.getCurrentColor() == (options[it] as ChatColor).color!!) return@onValueChange
                         val (red, green, blue) = (options[it] as ChatColor).color!!
                         val (h,s,b) = Color.RGBtoHSB(red, green, blue, null)
