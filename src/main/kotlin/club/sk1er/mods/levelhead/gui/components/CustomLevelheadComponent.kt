@@ -278,14 +278,29 @@ class CustomLevelheadComponent: UIComponent() {
                     }
                     headerColorComponent.dropdown.select(2)
                     footerColorComponent.dropdown.select(2)
-                    Levelhead.displayManager.aboveHead[0].update()
+                    Levelhead.displayManager.aboveHead[0].run {
+                        this.cache[UPlayer.getUUID()]?.let { tag ->
+                            tag.header.let { header ->
+                                header.chroma = this.config.headerChroma
+                                header.color = this.config.headerColor
+                            }
+                            tag.footer.let { footer ->
+                                footer.chroma = this.config.footerChroma
+                                footer.color = this.config.footerColor
+                            }
+                        }
+                    }
                     delay(100) {
-                        this@CustomLevelheadComponent.currentHeader?.setColor(
-                            Levelhead.displayManager.aboveHead[0].config.headerColor
-                        )
-                        this@CustomLevelheadComponent.currentFooter?.setColor(
-                            Levelhead.displayManager.aboveHead[0].config.footerColor
-                        )
+                        this@CustomLevelheadComponent.currentHeader?.constraints?.color =
+                            if (Levelhead.displayManager.aboveHead[0].config.headerChroma)
+                                basicColorConstraint { Levelhead.chromaColor }
+                            else
+                                Levelhead.displayManager.aboveHead[0].config.headerColor.constraint
+                        this@CustomLevelheadComponent.currentFooter?.constraints?.color =
+                            if (Levelhead.displayManager.aboveHead[0].config.footerChroma)
+                                basicColorConstraint { Levelhead.chromaColor }
+                            else
+                                Levelhead.displayManager.aboveHead[0].config.footerColor.constraint
                     }
                 }
             }

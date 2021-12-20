@@ -66,7 +66,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
             if (Levelhead.LevelheadPurchaseStates.customLevelhead)
                 listOf("Custom")
             else
-                listOf()
+                emptyList()
     ).constrain {
         x = (masterLabel.getWidth() + 10).pixels(true).to(masterLabel) as XConstraint
         y = 5.pixels()
