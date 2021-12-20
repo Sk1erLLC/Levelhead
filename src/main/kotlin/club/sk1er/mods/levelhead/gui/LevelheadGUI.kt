@@ -356,7 +356,7 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 }
                 else -> {
                     EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
-                        text = "Could not find package: ${type}."
+                        text = "Could not find the ${type} package."
                         secondaryText = "Please contact Sk1er immediately."
                         confirmButtonText = "Close"
                         denyButtonText = ""
@@ -394,8 +394,8 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
                 else -> {
                     val name = seed["name"].asString
                     EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
-                        text = "You are about to purchase package ${name.lowercase()}." +
-                                "This will cost $cost credits. You will have ${remainingCredits - cost} credits left."
+                        text = "You are about to purchase the ${name.lowercase()} package." +
+                                "\nThis will cost $cost credits. You will have ${remainingCredits - cost} credits left."
                         onConfirm = {
                             Multithreading.submit {
                                 val jsonObject =
