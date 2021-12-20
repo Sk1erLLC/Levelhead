@@ -483,7 +483,10 @@ class LevelheadGUI : EssentialGUI("§lLevelhead §r§8by Sk1er LLC") {
         } childOf rightContainer
         type.onValueChange {
             display.config.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
-            display.update()
+            display.run {
+                this.cache.remove(UPlayer.getUUID())
+                Levelhead.fetch(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)
+            }
             preview.update()
         }
         if (display is AboveHeadDisplay) {
