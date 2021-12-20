@@ -420,11 +420,17 @@ class CustomLevelheadComponent: UIComponent() {
 
     fun parseProposal(uiComponent: UIComponent, label: UIText, request: JsonObject?): Pair<UIText, UIText> {
         val aboveHeadDisplayConfig = Levelhead.displayManager.aboveHead[0].config
-        val proposalFooter = UIText(request?.get("strlevel")?.asString?.replace(defaultRegex, "") ?: "").constrain {
+        val proposalFooter = UIText(
+            request?.get("strlevel")?.asString?.replace(
+                    defaultRegex,
+                    Levelhead.selfLevelheadTag.footer.value.substringAfterLast('(').removeSuffix(")")
+                )
+                ?: ""
+        ).constrain {
             x = 2.5.pixels(true)
             y = CopyConstraintFloat() boundTo label
         } childOf uiComponent
-        val proposalHeader = UIText(request?.get("header")?.asString?.replace(defaultRegex, "") ?: "No current proposal").constrain {
+        val proposalHeader = UIText((request?.get("header")?.asString?.replace(defaultRegex, "") + ": ") ?: "No current proposal").constrain {
             x = SiblingConstraint(2.5f, true) boundTo proposalFooter
             y = CopyConstraintFloat() boundTo label
         } childOf uiComponent
