@@ -200,86 +200,85 @@ class CustomLevelheadComponent: UIComponent() {
             y = CopyConstraintFloat() boundTo proposeButton
         } childOf this
 
-        val headerObj = currentProposal["current"].asJsonObject["header_obj"].asJsonObject
-        val headerColorComponent = CustomColorSetting(true, headerObj["chroma"].asBoolean, Color(
-            headerObj["red"].asInt,
-            headerObj["green"].asInt,
-            headerObj["blue"].asInt
-        )).constrain {
+        val headerColorComponent = (currentProposal["current"].asJsonObject["header_obj"]?.asJsonObject?.let { headerObj ->
+            CustomColorSetting(true, false, headerObj["chroma"].asBoolean, Color(
+                headerObj["red"].asInt,
+                headerObj["green"].asInt,
+                headerObj["blue"].asInt
+            ))
+        } ?: CustomColorSetting(true, true, Levelhead.selfLevelheadTag.header.chroma, Levelhead.selfLevelheadTag.header.color)
+                ).constrain {
             x = 2.5.pixels
             y = SiblingConstraint(2.5f)
-            width = RelativeConstraint(0.5f) - 7.5.pixels()
+            width = RelativeConstraint(0.5f) - 8.pixels()
             height = AspectConstraint(0.4f)
         } childOf this
         headerColorComponent.onValueChange {
             Levelhead.selfLevelheadTag.header.color = it
+            currentHeader?.constraints?.color = it.constraint
         }
-        val footerObj = currentProposal["current"].asJsonObject["footer_obj"].asJsonObject
-        val footerColorComponent = CustomColorSetting(false, footerObj["chroma"].asBoolean, Color(
-            footerObj["red"].asInt,
-            footerObj["green"].asInt,
-            footerObj["blue"].asInt
-        )).constrain {
+        val footerColorComponent = (currentProposal["current"].asJsonObject["footer_obj"]?.asJsonObject?.let { footerObj ->
+            CustomColorSetting(false, false, footerObj["chroma"].asBoolean, Color(
+                footerObj["red"].asInt,
+                footerObj["green"].asInt,
+                footerObj["blue"].asInt
+            ))
+        } ?: CustomColorSetting(false, true, Levelhead.selfLevelheadTag.footer.chroma, Levelhead.selfLevelheadTag.footer.color)
+                ).constrain {
             x = 5.5.pixels + 50.percent
             y = CopyConstraintFloat() boundTo headerColorComponent
-            width = RelativeConstraint(0.5f) - 7.5.pixels()
+            width = RelativeConstraint(0.5f) - 9.pixels()
             height = AspectConstraint(0.4f)
         } childOf this
         footerColorComponent.onValueChange {
             Levelhead.selfLevelheadTag.footer.color = it
+            currentFooter?.constraints?.color = it.constraint
         }
         Window.enqueueRenderOperation {
             (UScreen.currentScreen!! as LevelheadGUI).onScreenClose {
                 Levelhead.scope.launch {
                     setLevelheadColor(
                         headerColorComponent.dropdown.getValue() == 0,
-                        headerColorComponent.selector.getCurrentColor(),
+                        headerColorComponent.selector.getCurrentColor().withAlpha(
+                            if (headerColorComponent.dropdown.getValue() == 2) 0f else 1f
+                                ),
                         footerColorComponent.dropdown.getValue() == 0,
-                        footerColorComponent.selector.getCurrentColor()
+                        footerColorComponent.selector.getCurrentColor().withAlpha(
+                            if (footerColorComponent.dropdown.getValue() == 2) 0f else 1f
+                        )
                     )
                 }
             }
         }
 
-        val sendColorButton = ButtonComponent("Send Colors") {
+        val clearColorButton = ButtonComponent("Clear Colors") {
             Levelhead.scope.launch {
-                setLevelheadColor(
-                    headerColorComponent.dropdown.getValue() == 0,
-                    headerColorComponent.selector.getCurrentColor(),
-                    footerColorComponent.dropdown.getValue() == 0,
-                    footerColorComponent.selector.getCurrentColor()
-                )
+                clearLevelheadColor()
             }.invokeOnCompletion {
                 Window.enqueueRenderOperation {
                     parseProposal(this, currentProposalLabel, fakeRequest).also {
                         proposalHeader.hide()
                         proposalHeader = it.first
                         if (fakeRequest.has("header")) {
-                            proposalHeader.constraints.color =
-                                if (headerColorComponent.dropdown.getValue() == 0)
-                                    basicColorConstraint { Levelhead.chromaColor }
-                                else headerColorComponent.selector.getCurrentColor().constraint
+                            proposalHeader.constraints.color = Levelhead.selfLevelheadTag.header.color.constraint
                         }
                         proposalFooter.hide()
                         proposalFooter = it.second
                         if (fakeRequest.has("strlevel")) {
-                            proposalFooter.constraints.color =
-                                if (footerColorComponent.dropdown.getValue() == 0)
-                                    basicColorConstraint { Levelhead.chromaColor }
-                                else footerColorComponent.selector.getCurrentColor().constraint
+                            proposalFooter.constraints.color = Levelhead.selfLevelheadTag.footer.color.constraint
                         }
                     }
+                    headerColorComponent.dropdown.select(2)
+                    footerColorComponent.dropdown.select(2)
                     Levelhead.displayManager.aboveHead[0].update()
-                    this@CustomLevelheadComponent.currentHeader?.setColor(
-                        if (headerColorComponent.dropdown.getValue() == 0)
-                            basicColorConstraint { Levelhead.chromaColor }
-                        else headerColorComponent.selector.getCurrentColor().constraint
-                    )
-                    this@CustomLevelheadComponent.currentFooter?.setColor(
-                        if (footerColorComponent.dropdown.getValue() == 0)
-                            basicColorConstraint { Levelhead.chromaColor }
-                        else footerColorComponent.selector.getCurrentColor().constraint
-                    )
+                    delay(100) {
+                        this@CustomLevelheadComponent.currentHeader?.setColor(
+                            Levelhead.displayManager.aboveHead[0].config.headerColor
+                        )
+                        this@CustomLevelheadComponent.currentFooter?.setColor(
+                            Levelhead.displayManager.aboveHead[0].config.footerColor
+                        )
+                    }
                 }
             }
         }.constrain {
@@ -288,7 +287,7 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this
     }
 
-    private class CustomColorSetting(header: Boolean, initialChroma: Boolean, initialColor: Color): UIComponent() {
+    private class CustomColorSetting(header: Boolean, none: Boolean, initialChroma: Boolean, initialColor: Color): UIComponent() {
         var valueChangecallback: (Color) -> Unit = {}
 
         fun onValueChange(listener: (Color) -> Unit): CustomColorSetting {
@@ -301,9 +300,9 @@ class CustomLevelheadComponent: UIComponent() {
             x = 0.pixels
             y = 4.5.pixels
         } childOf this
-        val options = listOf("Chroma", "RGB") + ChatColor.values().filter { it.isColor() }
+        val options = listOf("Chroma", "RGB", "None") + ChatColor.values().filter { it.isColor() }
         val dropdown: DropDown = DropDown(
-            if (initialChroma) 0 else initialColor.tryToGetChatColor()?.let { options.indexOf(it ) } ?: 1,
+            if (initialChroma) 0 else if (none) 2 else initialColor.tryToGetChatColor()?.let { options.indexOf(it ) } ?: 1,
             options.map {
                 if (it is ChatColor)
                     "${it}${it.name.lowercase().replace("_", " ").replaceFirstChar { it.uppercase() }}"
@@ -327,6 +326,11 @@ class CustomLevelheadComponent: UIComponent() {
                         Levelhead.selfLevelheadTag.footer.chroma = false
                         valueChangecallback(selector.getCurrentColor())
                     }
+                    2 -> if (header) {
+                        valueChangecallback(display.config.headerColor)
+                    } else {
+                        valueChangecallback(display.config.footerColor)
+                    }
                     else -> {
                         if (header) {
                             Levelhead.selfLevelheadTag.header.chroma = true
@@ -343,7 +347,7 @@ class CustomLevelheadComponent: UIComponent() {
             }
         }
         val selector: ColorPicker = ColorPicker(
-            if (initialChroma) {
+            if (initialChroma || none) {
                 if (header)
                     display.config.headerColor
                 else
@@ -359,16 +363,6 @@ class CustomLevelheadComponent: UIComponent() {
             this.onValueChange {
                 dropdown.select(1)
             }
-        }
-
-        private fun LevelheadDisplay.getCurrentSetting(header: Boolean) = when(this.config.getMode(header)) {
-            "Chat Color" -> {
-                ChatColor.values().filter { it.isColor() }
-                    .find {
-                        it.color!!.rgb == if (header) this.config.headerColor.rgb else this.config.footerColor.rgb
-                    }
-            }
-            else -> this.config.getMode(header)
         }
 
         private fun DisplayConfig.getMode(header: Boolean) = if (header) {
@@ -428,6 +422,15 @@ class CustomLevelheadComponent: UIComponent() {
             Levelhead.okHttpClient.newCall(request).execute().close()
         }
 
+        private fun clearLevelheadColor() {
+            val request = Request.Builder()
+                .url("https://api.sk1er.club/levelheadapi/clearcolor?auth=${Levelhead.auth.hash}")
+                .header("User-Agent", "Mozilla/4.76 (SK1ER LEVEL HEAD V${Levelhead.VERSION})")
+                .post(Levelhead.EMPTY_BODY)
+                .build()
+            Levelhead.okHttpClient.newCall(request).execute().close()
+        }
+
         private fun getProposalStatus(): JsonObject {
             val request = Request.Builder()
                 .url("https://api.sk1er.club/levelheadapi/status?auth=${Levelhead.auth.hash}")
@@ -446,9 +449,9 @@ class CustomLevelheadComponent: UIComponent() {
         private fun setLevelheadColor(headerChroma: Boolean, headerColor: Color, footerChroma: Boolean, footerColor: Color) {
             val colors = JsonObject()
             colors.addProperty("headerChroma", headerChroma)
-            colors.addProperty("headerColor", headerColor.withAlpha(1f).rgb)
+            colors.addProperty("headerColor", headerColor.rgb)
             colors.addProperty("footerChroma", footerChroma)
-            colors.addProperty("footerColor", footerColor.withAlpha(1f).rgb)
+            colors.addProperty("footerColor", footerColor.rgb)
             val body = RequestBody.create(MediaType.parse("application/json"), Levelhead.gson.toJson(colors))
             val request = Request.Builder()
                 .url("https://api.sk1er.club/levelheadapi/color?auth=${Levelhead.auth.hash}")
