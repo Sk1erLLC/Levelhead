@@ -188,14 +188,12 @@ object Levelhead {
             if (!allowOverride) return@run
             headerObj.add("chroma", jsonObject["headerChroma"])
             headerObj.add("color", this)
-            headerObj.addProperty("custom", true)
         }
 
         jsonObject["footerColor"]?.run {
             if (!allowOverride) return@run
             footerObj.add("chroma", jsonObject["footerChroma"])
             footerObj.add("color", this)
-            footerObj.addProperty("custom", true)
         }
 
         if (jsonObject.has("headerString") && allowOverride) {
@@ -203,11 +201,10 @@ object Levelhead {
             headerObj.addProperty("custom", true)
         }
 
-        if (jsonObject.has("footerString") && allowOverride) {
-            footerObj.addProperty("string", jsonObject["footerString"].asString)
+        footerObj.addProperty("string", jsonObject["footerString"].asString)
+        if (jsonObject["footerString"].asString != jsonObject["value"].asString && allowOverride) {
             footerObj.addProperty("custom", true)
         } else {
-            footerObj.addProperty("string", jsonObject["value"].asString)
             footerObj.addProperty("custom", false)
         }
 
