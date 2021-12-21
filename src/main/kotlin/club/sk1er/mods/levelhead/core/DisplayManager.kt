@@ -121,7 +121,9 @@ class DisplayManager(val file: File) {
             if (i == 0 && Levelhead.LevelheadPurchaseStates.customLevelhead) return@forEachIndexed
             if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
             head.cache.forEach { (_, tag) ->
-                if (tag.owner == UPlayer.getUUID()) return@forEach
+                if (tag.owner == UPlayer.getUUID() && i == 0 &&
+                            Levelhead.LevelheadPurchaseStates.customLevelhead
+                        ) return@forEach
                 tag.header.run {
                     this.chroma = head.config.headerChroma
                     this.color = head.config.headerColor

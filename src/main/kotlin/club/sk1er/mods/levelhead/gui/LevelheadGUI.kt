@@ -53,7 +53,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         Levelhead.displayManager.saveConfig()
         screenCloseCallback()
         Levelhead.displayManager.update()
-        Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag
+        if (Levelhead.LevelheadPurchaseStates.customLevelhead) Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag
         super.onScreenClose()
     }
 
