@@ -203,10 +203,11 @@ object Levelhead {
             headerObj.addProperty("custom", true)
         }
 
-        footerObj.addProperty("string", jsonObject["footerString"].asString)
         if (jsonObject["footerString"].asString != jsonObject["value"].asString && allowOverride) {
+            footerObj.addProperty("string", jsonObject["footerString"].asString)
             footerObj.addProperty("custom", true)
         } else {
+            footerObj.addProperty("string", jsonObject["value"].asString)
             footerObj.addProperty("custom", false)
         }
 
