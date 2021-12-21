@@ -295,8 +295,8 @@ dependencies {
         minecraft 'net.minecraftforge:forge:1.15.2-31.1.18'
     }
     if (!FABRIC && useMixin) {
-        annotationProcessor 'org.spongepowered:mixin:0.8'
-        compileOnly('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
+        annotationProcessor 'org.spongepowered:mixin:0.8.4-SNAPSHOT'
+        compileOnly('org.spongepowered:mixin:0.8.4-SNAPSHOT') {
             exclude module: 'launchwrapper'
             exclude module: 'guava'
             exclude module: 'gson'
