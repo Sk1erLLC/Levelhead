@@ -9,6 +9,7 @@ import gg.essential.api.commands.Command
 import gg.essential.api.commands.DefaultHandler
 import gg.essential.api.commands.SubCommand
 import gg.essential.universal.ChatColor
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 
 class LevelheadCommand : Command("levelhead") {
@@ -47,6 +48,8 @@ class LevelheadCommand : Command("levelhead") {
 
     @SubCommand(value = "dumpcache")
     fun handleDumpCache() {
+        Levelhead.scope.coroutineContext.cancelChildren()
+        Levelhead.rateLimiter.resetState()
         displayManager.clearCache()
         EssentialAPI.getMinecraftUtil().sendMessage("[Levelhead]", ChatColor.RED.toString() + " Cleared Cache")
     }

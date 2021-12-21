@@ -31,7 +31,7 @@ class RateLimiter constructor(
     private val isAtCapacity: Boolean
         get() = count == capacity
 
-    private fun resetState() {
+    fun resetState() {
         count = 0
         nextInterval = clock.instant() + interval
         Levelhead.displayManager.checkCacheSizes()

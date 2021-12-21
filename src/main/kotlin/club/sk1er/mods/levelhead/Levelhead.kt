@@ -67,7 +67,7 @@ object Levelhead {
         }
     val displayManager: DisplayManager = DisplayManager(File(File(UMinecraft.getMinecraft().mcDataDir, "config"), "levelhead.json"))
     val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val rateLimiter: RateLimiter = RateLimiter(100, Duration.ofSeconds(1))
+    val rateLimiter: RateLimiter = RateLimiter(100, Duration.ofSeconds(1))
     private val format: DecimalFormat = DecimalFormat("#,###")
     val DarkChromaColor: Int
         get() = Color.HSBtoRGB(System.currentTimeMillis() % 1000 / 1000f, 0.8f, 0.2f)
@@ -144,6 +144,8 @@ object Levelhead {
     fun playerJoin(event: EntityJoinWorldEvent) {
         // when you join world
         if (event.entity is EntityPlayerSP) {
+            scope.coroutineContext.cancelChildren()
+            rateLimiter.resetState()
             displayManager.joinWorld()
         // when others join world
         } else if (event.entity is EntityPlayer) {
