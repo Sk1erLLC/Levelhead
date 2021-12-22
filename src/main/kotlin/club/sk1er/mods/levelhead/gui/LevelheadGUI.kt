@@ -36,7 +36,7 @@ import java.awt.Color
 import java.net.URI
 
 @Suppress("unused")
-class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855)) {
+class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855), restorePreviousGuiOnClose = false) {
 
     companion object {
         private var currentPage = 0
