@@ -50,10 +50,19 @@ object ChatRender {
         val first = siblings.firstOrNull()
         if (listOf(
                 first is ChatComponentText,
+                //#if MC==10809
                 first?.chatStyle?.chatClickEvent?.action == ClickEvent.Action.RUN_COMMAND,
                 first?.chatStyle?.chatHoverEvent?.action == HoverEvent.Action.SHOW_TEXT
+                //#else
+                //$$ first?.style?.clickEvent?.action == ClickEvent.Action.RUN_COMMAND,
+                //$$ first?.style?.hoverEvent?.action == HoverEvent.Action.SHOW_TEXT
+                //#endif
         ).all { it }) {
+            //#if MC==10809
             val split = first!!.chatStyle.chatClickEvent.value.split(' ')
+            //#else
+            //$$ val split = first!!.style.clickEvent!!.value.split(' ')
+            //#endif
             if (split.size == 2) {
                 if (uuidRegex.matches(split[1])) {
                     Levelhead.displayManager.chat.cache[UUID.fromString(split[1])]?.run {

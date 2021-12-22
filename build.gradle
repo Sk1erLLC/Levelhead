@@ -33,7 +33,7 @@ buildscript {
         } else if (mcVersion >= 10800) {
             classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
             classpath('com.github.ReplayMod:ForgeGradle:' + (
-                    mcVersion >= 11200 ? '541e148' : // FG 2.3
+                    mcVersion >= 11200 ? '717a9f4' : // FG 2.3
                             mcVersion >= 10904 ? '5c1f53d' : // FG 2.2
                                     'ceb83c0'   // FG 2.1
             ) + ':all')
@@ -281,15 +281,10 @@ dependencies {
         ][mcVersion]
     }
 
-    embed "gg.essential:loader-launchwrapper:1.1.2"
-    implementation "gg.essential:essential-${mcVersionStr}-forge:1684+release-1.1-phase1"
+    embed "gg.essential:loader-launchwrapper:1.1.3"
+    compileOnly "gg.essential:essential-${mcVersionStr}-forge:1684+release-1.1-phase1"
 
     embed("com.squareup.okhttp3:okhttp:3.14.9")
-
-    // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
-    if (VANILLA) {
-        compile("org.ow2.asm:asm:5.0.3")
-    }
 
     if (mcVersion == 11502) {
         minecraft 'net.minecraftforge:forge:1.15.2-31.1.18'

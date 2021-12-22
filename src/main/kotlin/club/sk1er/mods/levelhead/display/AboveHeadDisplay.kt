@@ -4,11 +4,16 @@ import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.isNPC
 import gg.essential.universal.UMinecraft
-import net.minecraft.client.Minecraft
+import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.potion.Potion
 import net.minecraft.scoreboard.Team.EnumVisible
 import kotlin.math.min
 import kotlin.properties.Delegates
+
+//#if MC==11202
+//$$ import net.minecraft.init.MobEffects;
+//#endif
 
 class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition.ABOVE_HEAD, config) {
 
@@ -17,11 +22,22 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
 
     override fun loadOrRender(player: EntityPlayer?): Boolean {
         if (player == null) return false
-        if (player.activePotionEffects.any { potionEffect -> potionEffect.potionID == 14 }) return false
+        if (player.isPotionActive(
+            //#if MC==10809
+            Potion.invisibility
+            //#endif
+            //#if MC==11202
+            //$$ MobEffects.INVISIBILITY
+            //#endif
+        )) return false
         if (!renderFromTeam(player)) return false
+        //#if MC==10809
         if (player.riddenByEntity != null) return false
+        //#else
+        //$$ if (player.isBeingRidden()) return false
+        //#endif
         val min = min(4096, Levelhead.displayManager.config.renderDistance * Levelhead.displayManager.config.renderDistance)
-        return player.getDistanceSqToEntity(UMinecraft.getPlayer()) <= min
+        return player.getDistanceSqToEntity(UMinecraft.getPlayer()!!) <= min
                 && (!player.hasCustomName() || player.customNameTag.isNotEmpty())
                 && player.displayNameString.isNotEmpty()
                 && super.loadOrRender(player)
@@ -31,9 +47,9 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
     }
 
     private fun renderFromTeam(player: EntityPlayer): Boolean {
-        if (player === Minecraft.getMinecraft().thePlayer) return true
+        if (player.isUser) return true
         val team = player.team
-        val team1 = Minecraft.getMinecraft().thePlayer.team
+        val team1 = UPlayer.getPlayer()?.team
         if (team != null) {
             return when (team.nameTagVisibility) {
                 EnumVisible.NEVER -> false

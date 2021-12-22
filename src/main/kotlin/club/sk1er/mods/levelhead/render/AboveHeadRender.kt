@@ -102,8 +102,6 @@ object AboveHeadRender {
 
     private fun render(renderer: FontRenderer, component: LevelheadTag.LevelheadComponent, x: Int) {
         UGraphics.disableDepth()
-        UGraphics.depthMask(true)
-        UGraphics.disableDepth()
         UGraphics.depthMask(false)
         if (component.chroma) {
             renderer.drawString(component.value, x, 0, Levelhead.DarkChromaColor)
