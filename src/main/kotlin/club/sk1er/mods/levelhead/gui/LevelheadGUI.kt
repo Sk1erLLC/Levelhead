@@ -34,6 +34,7 @@ import gg.essential.vigilance.gui.ExpandingClickEffect
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.gui.settings.*
 import gg.essential.vigilance.utils.onLeftClick
+import kotlinx.coroutines.cancelChildren
 import java.awt.Color
 import java.net.URI
 
@@ -45,6 +46,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
     }
 
     private var screenCloseCallback: () -> Unit = {}
+    val initialTypes = (listOf(Levelhead.displayManager.chat, Levelhead.displayManager.tab) + Levelhead.displayManager.aboveHead).associate {
+        it to it.config.type
+    }
 
     fun onScreenClose(callback: () -> Unit) {
         screenCloseCallback = callback
@@ -55,6 +59,14 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         screenCloseCallback()
         Levelhead.displayManager.update()
         if (Levelhead.LevelheadPurchaseStates.customLevelhead) Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag
+        val finalTypes = (listOf(Levelhead.displayManager.chat, Levelhead.displayManager.tab) + Levelhead.displayManager.aboveHead).associate {
+            it to it.config.type
+        }
+        if (finalTypes.any{ initialTypes[it.key] != it.value}) {
+            Levelhead.scope.coroutineContext.cancelChildren()
+            Levelhead.rateLimiter.resetState()
+            Levelhead.displayManager.clearCache()
+        }
         super.onScreenClose()
     }
 
