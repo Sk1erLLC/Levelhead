@@ -34,7 +34,7 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
         //#if MC==10809
         if (player.riddenByEntity != null) return false
         //#else
-        //$$ if (player.isBeingRidden()) return false
+        //$$ if (!player.getPassengers().isEmpty()) return false
         //#endif
         val min = min(4096, Levelhead.displayManager.config.renderDistance * Levelhead.displayManager.config.renderDistance)
         return player.getDistanceSqToEntity(UMinecraft.getPlayer()!!) <= min

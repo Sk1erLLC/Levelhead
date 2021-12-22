@@ -3,8 +3,6 @@ package club.sk1er.mods.levelhead.gui.components
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.tryToGetChatColor
-import club.sk1er.mods.levelhead.core.update
-import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadTag
 import club.sk1er.mods.levelhead.gui.LevelheadGUI
 import com.google.gson.JsonObject
