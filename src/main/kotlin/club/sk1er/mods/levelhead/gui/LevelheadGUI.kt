@@ -105,7 +105,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         levelheadContainer {
             title = "Above Head"
 
-            preview = AboveHeadPreviewComponent().also {
+            preview = AboveHeadPreviewComponent().constrain {
+                width = 100.percent
+            }.also {
                 Levelhead.selfLevelheadTag.run {
                     val firstLayer = Levelhead.displayManager.aboveHead[0]
                     this.header.let {
@@ -192,7 +194,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         levelheadContainer {
             title = "Custom Levelhead"
 
-            preview = AboveHeadPreviewComponent().also {
+            preview = AboveHeadPreviewComponent().constrain {
+                width = 100.percent
+            }.also {
                 Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag.clone()
             }
 
