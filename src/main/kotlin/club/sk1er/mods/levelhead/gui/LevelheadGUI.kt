@@ -14,6 +14,7 @@ import club.sk1er.mods.levelhead.display.ChatDisplay
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.TabDisplay
 import club.sk1er.mods.levelhead.gui.components.*
+import club.sk1er.mods.levelhead.gui.components.SliderComponent
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
@@ -147,12 +148,29 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 height = 20.pixels
             } childOf settings
 
-            ButtonComponent("Purchase more layers") {
+            val purchase = ButtonComponent("Purchase more layers") {
                 attemptPurchase("head")
             }.constrain {
-                x = 10.pixels(true)
+                x = 12.5.pixels(true)
                 y = 7.5.pixels(true).to(divider) as YConstraint
                 textScale = 2.5.pixels()
+            } childOf this
+
+            val offsetSlider = SliderComponent((Levelhead.displayManager.config.offset * 10).toInt(), 0, 5).constrain {
+                x = 12.5.pixels(true)
+                y = 5.pixels(alignOutside = true) boundTo purchase
+            } childOf this
+            offsetSlider.childrenOfType<Slider>().first().constrain {
+                width = 80.percent boundTo purchase
+            }
+            offsetSlider.onValueChange {
+                Levelhead.displayManager.config.offset = (it as Int) / 10.0
+            }
+
+            val offsetLabel = UIText("Offset").constrain {
+                x = 12.5.pixels(true)
+                y = 2.5.pixels(alignOutside = true) boundTo offsetSlider
+                color = VigilancePalette.getBrightText().constraint
             } childOf this
         }
     }
