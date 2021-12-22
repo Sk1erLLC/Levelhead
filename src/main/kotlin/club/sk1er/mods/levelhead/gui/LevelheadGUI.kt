@@ -9,10 +9,7 @@ import club.sk1er.mods.levelhead.core.invalidateableLazy
 import club.sk1er.mods.levelhead.core.trimmed
 import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.core.update
-import club.sk1er.mods.levelhead.display.AboveHeadDisplay
-import club.sk1er.mods.levelhead.display.ChatDisplay
-import club.sk1er.mods.levelhead.display.LevelheadDisplay
-import club.sk1er.mods.levelhead.display.TabDisplay
+import club.sk1er.mods.levelhead.display.*
 import club.sk1er.mods.levelhead.gui.components.*
 import club.sk1er.mods.levelhead.gui.components.SliderComponent
 import gg.essential.api.EssentialAPI
@@ -189,7 +186,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
     private val aboveHead by aboveHeadDelegate
 
-    val customTag = Levelhead.selfLevelheadTag.clone()
+    private var customTag: LevelheadTag = Levelhead.selfLevelheadTag.clone()
 
     private val customDelegate = invalidateableLazy {
         levelheadContainer {
@@ -578,6 +575,21 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             display.run {
                 this.cache.remove(UPlayer.getUUID())
                 Levelhead.fetch(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)
+            }.invokeOnCompletion { _ ->
+                Levelhead.selfLevelheadTag.run {
+                    customTag = this.clone()
+                    val firstLayer = Levelhead.displayManager.aboveHead[0]
+                    this.header.let {
+                        it.chroma = firstLayer.config.headerChroma
+                        it.color = firstLayer.config.headerColor
+                        it.value = "${firstLayer.config.headerString}: "
+                    }
+                    this.footer.let {
+                        it.chroma = firstLayer.config.footerChroma
+                        it.color = firstLayer.config.footerColor
+                        it.value = it.value.substringAfterLast('(').removeSuffix(")")
+                    }
+                }
             }
             preview.update()
         }
