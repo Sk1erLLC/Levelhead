@@ -195,7 +195,7 @@ object Levelhead {
                             }
                         }
                         footer {
-                            value = if (req.allowOverride && result["footerString"].asString != result["value"].asString)
+                            value = if (req.allowOverride && result.has("footerString") &&result["footerString"].asString != result["value"].asString)
                                 result["footerString"].asString
                             else
                                 result["value"].asString

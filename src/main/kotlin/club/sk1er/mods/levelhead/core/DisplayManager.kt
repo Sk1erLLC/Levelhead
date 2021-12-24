@@ -103,9 +103,9 @@ class DisplayManager(val file: File) {
     fun joinWorld() {
         val displays = mutableListOf(chat, tab).also { it.addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead}) }
         UMinecraft.getWorld()!!.playerEntities
-            .filter { playerInfo -> playerInfo.gameProfile.id.version() == 4}
-            .map { playerInfo -> displays.map {
-                Levelhead.LevelheadRequest(playerInfo.gameProfile.id.trimmed, it,
+            .map { playerInfo ->
+                displays.map {
+                Levelhead.LevelheadRequest(playerInfo.uniqueID.trimmed, it,
                     if (it is AboveHeadDisplay) it.bottomValue else false
                 )
             } }.flatten().chunked(20).forEach { reqList ->
