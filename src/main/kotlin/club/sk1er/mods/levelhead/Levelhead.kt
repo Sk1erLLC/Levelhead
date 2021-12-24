@@ -186,7 +186,7 @@ object Levelhead {
                                     "${result["headerString"].asString}: "
                                 else
                                     "${req.display.config.headerString}: "
-                            if (req.allowOverride && result.has("headercolor")) {
+                            if (req.allowOverride && result.has("headerColor")) {
                                 color = Color(result["headerColor"].asInt)
                                 chroma = result["headerChroma"].asBoolean
                             } else {
@@ -199,7 +199,7 @@ object Levelhead {
                                 result["footerString"].asString
                             else
                                 result["value"].asString
-                            if (req.allowOverride && result.has("headercolor")) {
+                            if (req.allowOverride && result.has("footerColor")) {
                                 color = Color(result["footerColor"].asInt)
                                 chroma = result["footerChroma"].asBoolean
                             } else {
