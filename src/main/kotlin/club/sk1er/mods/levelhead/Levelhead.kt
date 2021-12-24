@@ -160,7 +160,7 @@ object Levelhead {
 
             rateLimiter.consume()
 
-            val reqMap = requests.associateBy { it.uuid }
+            val reqMap = requests.associateBy { it.display.toString() to it.uuid }
             val url = "https://api.sk1er.club/levelheadv8?auth=${auth.hash}&" +
                     "uuid=${UMinecraft.getMinecraft().session.profile.id.trimmed}"
 
@@ -179,13 +179,13 @@ object Levelhead {
             res["results"].asJsonArray.forEach {
                 it.asJsonObject.let { result ->
                     val uuid = result["uuid"].asString.dashUUID!!
-                    val req = reqMap[uuid.trimmed]!!
+                    val req = reqMap[result["display"].asString to result["uuid"].asString]!!
                     val tag = LevelheadTag.build(uuid) {
                         header {
                             value = if (req.allowOverride && result.has("headerString"))
                                     "${result["headerString"].asString}: "
                                 else
-                                    req.display.config.headerString
+                                    "${req.display.config.headerString}: "
                             if (req.allowOverride && result.has("headercolor")) {
                                 color = Color(result["headerColor"].asInt)
                                 chroma = result["headerChroma"].asBoolean
