@@ -168,6 +168,7 @@ object Levelhead {
             val res = jsonParser.parse(postWithAgent(url, requestObj)).asJsonObject
             if (!res["success"].asBoolean) {
                 logger.error("Api broke?", res)
+                return@launch
             }
 
             res["results"].asJsonArray.forEach {
