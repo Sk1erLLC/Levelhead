@@ -13,34 +13,6 @@ import kotlin.math.max
 abstract class LevelheadDisplay(val displayPosition: DisplayPosition, val config: DisplayConfig) {
     val cache: ConcurrentHashMap<UUID, LevelheadTag> = ConcurrentHashMap()
 
-    val headerConfig: JsonObject
-        get() = JsonObject().also { obj ->
-            mapOf<String, Any>(
-                "chroma" to config.headerChroma,
-                "color" to config.headerColor.rgb,
-                "string" to "${config.headerString}: "
-            ).forEach { (key, value) ->
-                when (value) {
-                    is Boolean -> obj.addProperty(key, value)
-                    is Int -> obj.addProperty(key, value)
-                    is String -> obj.addProperty(key, value)
-                }
-            }
-        }
-    val footerConfig: JsonObject
-        get() = JsonObject().also { obj ->
-            mapOf<String, Any>(
-                "chroma" to config.footerChroma,
-                "color" to config.footerColor.rgb
-            ).forEach { (key, value) ->
-                when (value) {
-                    is Boolean -> obj.addProperty(key, value)
-                    is Int -> obj.addProperty(key, value)
-                    is String -> obj.addProperty(key, value)
-                }
-            }
-        }
-
     abstract fun joinWorld()
 
     abstract fun playerJoin(player: EntityPlayer)
