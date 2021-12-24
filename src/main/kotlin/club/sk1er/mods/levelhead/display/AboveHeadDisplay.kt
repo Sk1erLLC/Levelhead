@@ -64,6 +64,8 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
         return true
     }
 
+    override fun toString(): String = "head${Levelhead.displayManager.aboveHead.indexOf(this)+1}"
+
     override fun joinWorld() {
         UMinecraft.getMinecraft().theWorld.playerEntities
             .filter { !cache.containsKey(it.uniqueID) && !it.isNPC }

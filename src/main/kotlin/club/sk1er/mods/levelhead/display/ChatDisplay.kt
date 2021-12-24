@@ -9,6 +9,9 @@ import net.minecraft.entity.player.EntityPlayer
 import java.util.*
 
 class ChatDisplay(config: DisplayConfig): LevelheadDisplay(DisplayPosition.CHAT, config) {
+
+    override fun toString(): String = "chat"
+
     override fun joinWorld() {
         UMinecraft.getMinecraft().netHandler!!.playerInfoMap
             .filter { it.gameProfile.id.version() == 4 && !cache.containsKey(it.gameProfile.id) }
