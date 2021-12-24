@@ -114,12 +114,12 @@ class DisplayManager(val file: File) {
     }
 
     fun playerJoin(player: EntityPlayer) {
-        aboveHead.forEachIndexed { i, head ->
-            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
-            head.playerJoin(player)
-        }
-        chat.playerJoin(player)
-        tab.playerJoin(player)
+        if (player.isNPC) return
+        val displays = mutableListOf(chat, tab).also { it.addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead}) }
+        displays.filter { !it.cache.containsKey(player.uniqueID) }
+            .map { Levelhead.LevelheadRequest(player.uniqueID.trimmed, it,
+                if (it is AboveHeadDisplay) it.bottomValue else false
+            ) }.ifEmpty { return }.run { Levelhead.fetch(this) }
     }
 
     fun update() {

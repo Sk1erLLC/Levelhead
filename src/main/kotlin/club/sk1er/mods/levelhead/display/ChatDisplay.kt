@@ -12,9 +12,4 @@ class ChatDisplay(config: DisplayConfig): LevelheadDisplay(DisplayPosition.CHAT,
 
     override fun toString(): String = "chat"
 
-    override fun playerJoin(player: EntityPlayer) {
-        if (player.isNPC) return
-        if (!cache.containsKey(player.uniqueID))
-            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID.trimmed, this, false)))
-    }
 }

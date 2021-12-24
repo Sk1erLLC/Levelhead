@@ -66,10 +66,4 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
 
     override fun toString(): String = "head${Levelhead.displayManager.aboveHead.indexOf(this)+1}"
 
-    override fun playerJoin(player: EntityPlayer) {
-        if (player.isNPC) return
-        if (!cache.containsKey(player.uniqueID))
-            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID.trimmed, this, bottomValue)))
-    }
-
 }

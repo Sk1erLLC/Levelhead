@@ -11,9 +11,4 @@ class TabDisplay(config: DisplayConfig): LevelheadDisplay(DisplayPosition.TAB, c
 
     override fun toString(): String = "tab"
 
-    override fun playerJoin(player: EntityPlayer) {
-        if (player.isNPC) return
-        if (!cache.containsKey(player.uniqueID))
-            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID.trimmed, this, false)))
-    }
 }
