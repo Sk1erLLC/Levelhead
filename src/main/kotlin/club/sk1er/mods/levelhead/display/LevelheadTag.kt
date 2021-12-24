@@ -6,8 +6,8 @@ import java.awt.Color
 import java.util.*
 
 class LevelheadTag(val owner: UUID) {
-    lateinit var header: LevelheadComponent
-    lateinit var footer: LevelheadComponent
+    var header: LevelheadComponent = LevelheadComponent()
+    var footer: LevelheadComponent = LevelheadComponent()
 
     fun getString() = "${header.value}${footer.value}"
 
@@ -30,8 +30,9 @@ class LevelheadTag(val owner: UUID) {
             tag.footer.apply(block)
     }
 
-    class LevelheadComponent(value: String) {
-        var value: String = value.replace("&", "\u00a7")
+    class LevelheadComponent {
+        var value: String = ""
+            set(value) { field = value.replace("&", "\u00a7") }
         var color: Color = Color.WHITE
         var chroma: Boolean = false
 

@@ -5,6 +5,7 @@ import club.sk1er.mods.levelhead.commands.LevelheadCommand
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.DisplayManager
 import club.sk1er.mods.levelhead.core.RateLimiter
+import club.sk1er.mods.levelhead.core.dashUUID
 import club.sk1er.mods.levelhead.core.trimmed
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.LevelheadDisplay
@@ -155,13 +156,17 @@ object Levelhead {
     }
 
     fun fetch(requests: List<LevelheadRequest>): Job {
-        val reqMap = requests.associateBy { it.uuid }
         return scope.launch {
-            val url = "https://api.sk1er.club/levelhead8?auth=${auth.hash}&" +
+
+            rateLimiter.consume()
+
+            val reqMap = requests.associateBy { it.uuid }
+            val url = "https://api.sk1er.club/levelheadv8?auth=${auth.hash}&" +
                     "uuid=${UMinecraft.getMinecraft().session.profile.id.trimmed}"
+
             val requestObj = JsonObject().also { obj ->
                 obj.add("requests", JsonArray().also { arr ->
-                    requests.map { arr.add(gson.toJsonTree(it)) }
+                    requests.map { arr.add(gson.toJsonTree(it).asJsonObject.apply { this.addProperty("display", it.display.toString()) }) }
                 })
             }
 
@@ -173,7 +178,7 @@ object Levelhead {
 
             res["results"].asJsonArray.forEach {
                 it.asJsonObject.let { result ->
-                    val uuid = UUID.fromString(result["uuid"].asString)
+                    val uuid = result["uuid"].asString.dashUUID!!
                     val req = reqMap[uuid.trimmed]!!
                     val tag = LevelheadTag.build(uuid) {
                         header {
