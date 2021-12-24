@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead.render
 
 import club.sk1er.mods.levelhead.Levelhead
+import club.sk1er.mods.levelhead.core.trimmed
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.client.network.NetworkPlayerInfo
@@ -29,7 +30,7 @@ object TabRender {
                     else -> UMinecraft.getFontRenderer().drawString(str,
                         x1.toFloat(), y.toFloat(), this.config.headerColor.rgb, true)
                 }
-            } ?: Levelhead.fetch(listOf(Levelhead.LevelheadRequest(playerInfo.gameProfile.id, this, false)))
+            } ?: Levelhead.fetch(listOf(Levelhead.LevelheadRequest(playerInfo.gameProfile.id.trimmed, this, false)))
         }
     }
 

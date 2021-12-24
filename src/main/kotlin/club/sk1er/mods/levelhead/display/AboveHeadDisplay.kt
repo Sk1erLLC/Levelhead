@@ -3,6 +3,7 @@ package club.sk1er.mods.levelhead.display
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.isNPC
+import club.sk1er.mods.levelhead.core.trimmed
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.entity.player.EntityPlayer
@@ -66,14 +67,14 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
     override fun joinWorld() {
         UMinecraft.getMinecraft().theWorld.playerEntities
             .filter { !cache.containsKey(it.uniqueID) && !it.isNPC }
-            .map { Levelhead.LevelheadRequest(it.uniqueID, this, bottomValue) }
+            .map { Levelhead.LevelheadRequest(it.uniqueID.trimmed, this, bottomValue) }
             .run { Levelhead.fetch(this) }
     }
 
     override fun playerJoin(player: EntityPlayer) {
         if (player.isNPC) return
         if (!cache.containsKey(player.uniqueID))
-            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID, this, bottomValue)))
+            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID.trimmed, this, bottomValue)))
     }
 
 }

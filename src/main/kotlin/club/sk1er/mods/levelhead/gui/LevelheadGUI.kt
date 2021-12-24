@@ -575,7 +575,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             display.config.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
             display.run {
                 this.cache.remove(UPlayer.getUUID())
-                Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)))
+                Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID().trimmed, this, if (this is AboveHeadDisplay) this.bottomValue else false)))
             }.invokeOnCompletion { _ ->
                 Levelhead.selfLevelheadTag.run {
                     customTag = this.clone()

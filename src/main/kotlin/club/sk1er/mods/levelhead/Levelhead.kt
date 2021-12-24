@@ -174,7 +174,7 @@ object Levelhead {
             res["results"].asJsonArray.forEach {
                 it.asJsonObject.let { result ->
                     val uuid = UUID.fromString(result["uuid"].asString)
-                    val req = reqMap[uuid]!!
+                    val req = reqMap[uuid.trimmed]!!
                     val tag = LevelheadTag.build(uuid) {
                         header {
                             value = if (req.allowOverride && result.has("headerString"))
@@ -241,7 +241,7 @@ object Levelhead {
         return this
     }
 
-    class LevelheadRequest(val uuid: UUID, val display: LevelheadDisplay, val allowOverride: Boolean, val type: String = display.config.type)
+    class LevelheadRequest(val uuid: String, val display: LevelheadDisplay, val allowOverride: Boolean, val type: String = display.config.type)
 
     object LevelheadPurchaseStates {
         var chat: Boolean = false

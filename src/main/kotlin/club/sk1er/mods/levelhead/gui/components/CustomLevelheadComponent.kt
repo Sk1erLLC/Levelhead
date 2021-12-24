@@ -2,6 +2,7 @@ package club.sk1er.mods.levelhead.gui.components
 
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.config.DisplayConfig
+import club.sk1er.mods.levelhead.core.trimmed
 import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.display.LevelheadTag
 import club.sk1er.mods.levelhead.gui.LevelheadGUI
@@ -43,7 +44,7 @@ class CustomLevelheadComponent: UIComponent() {
         }.invokeOnCompletion {
             Window.enqueueRenderOperation {
                 Levelhead.displayManager.aboveHead[0].cache.remove(UPlayer.getUUID())
-                Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID(), Levelhead.displayManager.aboveHead[0], Levelhead.displayManager.aboveHead[0].bottomValue)))
+                Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID().trimmed, Levelhead.displayManager.aboveHead[0], Levelhead.displayManager.aboveHead[0].bottomValue)))
                     .invokeOnCompletion {
                         if (!Levelhead.LevelheadPurchaseStates.customLevelhead) {
                             this.hide()
