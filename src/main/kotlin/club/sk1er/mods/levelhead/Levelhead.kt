@@ -12,11 +12,11 @@ import club.sk1er.mods.levelhead.display.LevelheadTag
 import club.sk1er.mods.levelhead.render.AboveHeadRender
 import club.sk1er.mods.levelhead.render.ChatRender
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
-import gg.essential.universal.ChatColor
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 import kotlinx.coroutines.*
@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -84,7 +85,7 @@ object Levelhead {
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         Multithreading.runAsync {
-            types = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead_config")).asJsonObject
+            types = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_config")).asJsonObject
         }
     }
 
@@ -99,7 +100,7 @@ object Levelhead {
 
     @Synchronized
     fun refreshRawPurchases() {
-        rawPurchases = jsonParser.parse(rawWithAgent(
+        rawPurchases = jsonParser.parse(getWithAgent(
             "https://api.sk1er.club/purchases/" + UMinecraft.getMinecraft().session.profile.id.toString()
         )).asJsonObject
         if (!rawPurchases.has("remaining_levelhead_credits")) {
@@ -109,12 +110,12 @@ object Levelhead {
 
     @Synchronized
     fun refreshPaidData() {
-        paidData = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead_data")).asJsonObject
+        paidData = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_data")).asJsonObject
     }
 
     @Synchronized
     fun refreshPurchaseStates() {
-        purchaseStatus = jsonParser.parse(rawWithAgent(
+        purchaseStatus = jsonParser.parse(getWithAgent(
             "https://api.sk1er.club/levelhead_purchase_status/" + UMinecraft.getMinecraft().session.profile.id.toString()
         )).asJsonObject
         LevelheadPurchaseStates.chat = purchaseStatus["chat"].asBoolean
@@ -153,80 +154,77 @@ object Levelhead {
         }
     }
 
-    fun fetch(uuid: UUID, display: LevelheadDisplay, allowOverride: Boolean): Job {
-        val type = display.config.type
-
+    fun fetch(requests: List<LevelheadRequest>): Job {
+        val reqMap = requests.associateBy { it.uuid }
         return scope.launch {
-            rateLimiter.consume()
+            val url = "https://api.sk1er.club/levelhead8?auth=${auth.hash}&" +
+                    "uuid=${UMinecraft.getMinecraft().session.profile.id.trimmed}"
+            val requestObj = JsonObject().also { obj ->
+                obj.add("requests", JsonArray().also { arr ->
+                    requests.map { arr.add(gson.toJsonTree(it)) }
+                })
+            }
 
-
-            val url = "https://api.sk1er.club/levelheadv8/${uuid.trimmed}/" +
-                "$type/${UMinecraft.getMinecraft().session.profile.id.trimmed}/" +
-                "$VERSION/${auth.hash}/${display.displayPosition.name}"
-            val res = jsonParser.parse(rawWithAgent(url)).asJsonObject
-
+            val res = jsonParser.parse(postWithAgent(url, requestObj)).asJsonObject
             if (!res["success"].asBoolean) {
-                res.addProperty("footerString", "Error")
+                logger.error("Api broke?", res)
             }
 
-            if (!allowOverride) {
-                res.remove("header_obj")
-                res.remove("footer_obj")
+            res["results"].asJsonArray.forEach {
+                it.asJsonObject.let { result ->
+                    val uuid = UUID.fromString(result["uuid"].asString)
+                    val req = reqMap[uuid]!!
+                    val tag = LevelheadTag.build(uuid) {
+                        header {
+                            value = if (req.allowOverride && result.has("headerString"))
+                                    "${result["headerString"].asString}: "
+                                else
+                                    req.display.config.headerString
+                            if (req.allowOverride && result.has("headercolor")) {
+                                color = Color(result["headerColor"].asInt)
+                                chroma = result["headerChroma"].asBoolean
+                            } else {
+                                color = req.display.config.headerColor
+                                chroma = req.display.config.headerChroma
+                            }
+                        }
+                        footer {
+                            value = if (req.allowOverride && result["footerString"].asString != result["value"].asString)
+                                result["footerString"].asString
+                            else
+                                result["value"].asString
+                            if (req.allowOverride && result.has("headercolor")) {
+                                color = Color(result["footerColor"].asInt)
+                                chroma = result["footerChroma"].asBoolean
+                            } else {
+                                color = req.display.config.footerColor
+                                chroma = req.display.config.footerChroma
+                            }
+                        }
+                    }
+                    req.display.cache[uuid] = tag
+                }
             }
-
-            val tag = buildTag(res, uuid, display, allowOverride)
-            display.cache[uuid] = tag
         }
     }
 
-    private suspend fun buildTag(jsonObject: JsonObject, uuid: UUID, display: LevelheadDisplay, allowOverride: Boolean): LevelheadTag {
-        val value = LevelheadTag(uuid)
-
-        val headerObj = JsonObject()
-        val footerObj = JsonObject()
-        val construct = JsonObject()
-
-        jsonObject["headerColor"]?.run {
-            if (!allowOverride) return@run
-            headerObj.add("chroma", jsonObject["headerChroma"])
-            headerObj.add("color", this)
-        }
-
-        jsonObject["footerColor"]?.run {
-            if (!allowOverride) return@run
-            footerObj.add("chroma", jsonObject["footerChroma"])
-            footerObj.add("color", this)
-        }
-
-        if (jsonObject.has("headerString") && allowOverride) {
-            headerObj.addProperty("string", jsonObject["headerString"].asString)
-            headerObj.addProperty("custom", true)
-        }
-
-        if (jsonObject.has("footerString") && jsonObject["footerString"].asString != jsonObject["value"].asString && allowOverride) {
-            footerObj.addProperty("string", jsonObject["footerString"].asString)
-            footerObj.addProperty("custom", true)
-        } else {
-            footerObj.addProperty("string", jsonObject["value"].asString)
-            footerObj.addProperty("custom", false)
-        }
-
-        headerObj.merge(display.headerConfig, !allowOverride)
-        footerObj.merge(display.footerConfig, !allowOverride)
-
-        construct.addProperty("exclude", jsonObject["exclude"]?.asBoolean ?: false)
-        construct.add("header", headerObj)
-        construct.add("footer", footerObj)
-
-        value.construct(construct)
-        return value
-    }
-
-    fun rawWithAgent(url: String): String {
+    fun getWithAgent(url: String): String {
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "Mozilla/4.76 (SK1ER LEVEL HEAD V${VERSION})")
             .get()
+            .build()
+        return kotlin.runCatching {
+            okHttpClient.newCall(request).execute().body()?.use { it.string() }!!
+        }.getOrDefault("{\"success\":false,\"cause\":\"API_DOWN\"}")
+    }
+
+    fun postWithAgent(url: String, jsonObject: JsonObject): String {
+        val body = RequestBody.create(MediaType.parse("application/json"), gson.toJson(jsonObject))
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", "Mozilla/4.76 (SK1ER LEVEL HEAD V${VERSION})")
+            .post(body)
             .build()
         return kotlin.runCatching {
             okHttpClient.newCall(request).execute().body()?.use { it.string() }!!
@@ -241,6 +239,8 @@ object Levelhead {
         }
         return this
     }
+
+    class LevelheadRequest(val uuid: UUID, val display: LevelheadDisplay, val allowOverride: Boolean, val type: String = display.config.type)
 
     object LevelheadPurchaseStates {
         var chat: Boolean = false

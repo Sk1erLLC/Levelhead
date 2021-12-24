@@ -5,20 +5,19 @@ import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.isNPC
 import gg.essential.universal.UMinecraft
 import net.minecraft.entity.player.EntityPlayer
+import java.util.*
 
 class ChatDisplay(config: DisplayConfig): LevelheadDisplay(DisplayPosition.CHAT, config) {
     override fun joinWorld() {
-        for (networkPlayerInfo in UMinecraft.getMinecraft().netHandler!!.playerInfoMap) {
-            val id = networkPlayerInfo.gameProfile.id
-            if (id.version() == 2) continue
-            if (!cache.containsKey(id))
-                Levelhead.fetch(id, this, false)
-        }
+        UMinecraft.getMinecraft().netHandler!!.playerInfoMap
+            .filter { it.gameProfile.id.version() == 4 && !cache.containsKey(it.gameProfile.id) }
+            .map { Levelhead.LevelheadRequest(it.gameProfile.id, this, false) }
+            .run { Levelhead.fetch(this) }
     }
 
     override fun playerJoin(player: EntityPlayer) {
         if (player.isNPC) return
         if (!cache.containsKey(player.uniqueID))
-            Levelhead.fetch(player.uniqueID, this, false)
+            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID, this, false)))
     }
 }

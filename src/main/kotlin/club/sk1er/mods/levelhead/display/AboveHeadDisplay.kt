@@ -8,6 +8,7 @@ import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.potion.Potion
 import net.minecraft.scoreboard.Team.EnumVisible
+import java.util.*
 import kotlin.math.min
 import kotlin.properties.Delegates
 
@@ -63,17 +64,16 @@ class AboveHeadDisplay(config: DisplayConfig) : LevelheadDisplay(DisplayPosition
     }
 
     override fun joinWorld() {
-        for (player in UMinecraft.getMinecraft().theWorld.playerEntities) {
-            if (player.isNPC) continue
-            if (!cache.containsKey(player.uniqueID))
-                Levelhead.fetch(player.uniqueID, this, bottomValue)
-        }
+        UMinecraft.getMinecraft().theWorld.playerEntities
+            .filter { !cache.containsKey(it.uniqueID) && !it.isNPC }
+            .map { Levelhead.LevelheadRequest(it.uniqueID, this, bottomValue) }
+            .run { Levelhead.fetch(this) }
     }
 
     override fun playerJoin(player: EntityPlayer) {
         if (player.isNPC) return
         if (!cache.containsKey(player.uniqueID))
-            Levelhead.fetch(player.uniqueID, this, bottomValue)
+            Levelhead.fetch(listOf(Levelhead.LevelheadRequest(player.uniqueID, this, bottomValue)))
     }
 
 }

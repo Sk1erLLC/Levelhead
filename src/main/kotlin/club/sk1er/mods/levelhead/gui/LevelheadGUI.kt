@@ -2,13 +2,10 @@ package club.sk1er.mods.levelhead.gui
 
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.Levelhead.jsonParser
-import club.sk1er.mods.levelhead.Levelhead.rawWithAgent
+import club.sk1er.mods.levelhead.Levelhead.getWithAgent
 import club.sk1er.mods.levelhead.Levelhead.refreshRawPurchases
 import club.sk1er.mods.levelhead.config.DisplayConfig
-import club.sk1er.mods.levelhead.core.invalidateableLazy
-import club.sk1er.mods.levelhead.core.trimmed
-import club.sk1er.mods.levelhead.core.tryToGetChatColor
-import club.sk1er.mods.levelhead.core.update
+import club.sk1er.mods.levelhead.core.*
 import club.sk1er.mods.levelhead.display.*
 import club.sk1er.mods.levelhead.gui.components.*
 import club.sk1er.mods.levelhead.gui.components.SliderComponent
@@ -200,7 +197,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag.clone()
             }
 
-            val customLevelhead = jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead/${UPlayer.getUUID().trimmed}")).asJsonObject
+            val customLevelhead = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead/${UPlayer.getUUID().trimmed}")).asJsonObject
             if (customLevelhead["custom"].asBoolean) {
                 CustomLevelheadComponent().constrain {
                     width = RelativeConstraint()
@@ -490,7 +487,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                         onConfirm = {
                             Multithreading.submit {
                                 val jsonObject =
-                                    jsonParser.parse(rawWithAgent("https://api.sk1er.club/levelhead_purchase?access_token=" + Levelhead.auth.accessKey + "&request=" + type + "&hash=" + Levelhead.auth.hash)).asJsonObject
+                                    jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_purchase?access_token=" + Levelhead.auth.accessKey + "&request=" + type + "&hash=" + Levelhead.auth.hash)).asJsonObject
                                 if (jsonObject["success"].asBoolean) {
                                     Levelhead.refreshPurchaseStates()
                                     EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
@@ -578,7 +575,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             display.config.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
             display.run {
                 this.cache.remove(UPlayer.getUUID())
-                Levelhead.fetch(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)
+                Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID(), this, if (this is AboveHeadDisplay) this.bottomValue else false)))
             }.invokeOnCompletion { _ ->
                 Levelhead.selfLevelheadTag.run {
                     customTag = this.clone()

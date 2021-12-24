@@ -68,7 +68,7 @@ object ChatRender {
                     Levelhead.displayManager.chat.cache[UUID.fromString(split[1])]?.run {
                         event.message = modifyChat(event.message, this.footer.value, Levelhead.displayManager.chat.config)
                     } ?: Levelhead.scope.launch {
-                        Levelhead.fetch(UUID.fromString(split[1]), Levelhead.displayManager.chat, false)
+                        Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UUID.fromString(split[1]), Levelhead.displayManager.chat, false)))
                     }
                 }
             }

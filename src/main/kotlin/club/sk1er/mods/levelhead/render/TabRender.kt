@@ -29,7 +29,7 @@ object TabRender {
                     else -> UMinecraft.getFontRenderer().drawString(str,
                         x1.toFloat(), y.toFloat(), this.config.headerColor.rgb, true)
                 }
-            } ?: Levelhead.fetch(playerInfo.gameProfile.id, this, false)
+            } ?: Levelhead.fetch(listOf(Levelhead.LevelheadRequest(playerInfo.gameProfile.id, this, false)))
         }
     }
 

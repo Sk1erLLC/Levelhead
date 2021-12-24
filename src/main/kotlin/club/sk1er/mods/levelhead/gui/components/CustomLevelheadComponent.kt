@@ -43,7 +43,7 @@ class CustomLevelheadComponent: UIComponent() {
         }.invokeOnCompletion {
             Window.enqueueRenderOperation {
                 Levelhead.displayManager.aboveHead[0].cache.remove(UPlayer.getUUID())
-                Levelhead.fetch(UPlayer.getUUID(), Levelhead.displayManager.aboveHead[0], Levelhead.displayManager.aboveHead[0].bottomValue)
+                Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID(), Levelhead.displayManager.aboveHead[0], Levelhead.displayManager.aboveHead[0].bottomValue)))
                     .invokeOnCompletion {
                         if (!Levelhead.LevelheadPurchaseStates.customLevelhead) {
                             this.hide()
@@ -491,7 +491,7 @@ class CustomLevelheadComponent: UIComponent() {
         }
 
         private fun getProposalInfo(): JsonObject =
-            Levelhead.jsonParser.parse(Levelhead.rawWithAgent("https://api.sk1er.club/levelheadapi/info?auth=${Levelhead.auth.hash}")).asJsonObject
+            Levelhead.jsonParser.parse(Levelhead.getWithAgent("https://api.sk1er.club/levelheadapi/info?auth=${Levelhead.auth.hash}")).asJsonObject
 
         private fun setLevelheadColor(headerChroma: Boolean, headerColor: Color, footerChroma: Boolean, footerColor: Color) {
             val colors = JsonObject()
