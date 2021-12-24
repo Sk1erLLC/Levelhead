@@ -7,9 +7,11 @@ import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.config.MasterConfig
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.ChatDisplay
+import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.TabDisplay
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.entity.player.EntityPlayer
 import org.apache.commons.io.FileUtils
@@ -99,12 +101,16 @@ class DisplayManager(val file: File) {
     }
 
     fun joinWorld() {
-        aboveHead.forEachIndexed { i, head ->
-            if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
-            head.joinWorld()
-        }
-        chat.joinWorld()
-        tab.joinWorld()
+        val displays = mutableListOf(chat, tab).also { it.addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead}) }
+        UMinecraft.getMinecraft().netHandler!!.playerInfoMap
+            .filter { playerInfo -> playerInfo.gameProfile.id.version() == 4}
+            .map { playerInfo -> displays.map {
+                Levelhead.LevelheadRequest(playerInfo.gameProfile.id.trimmed, it,
+                    if (it is AboveHeadDisplay) it.bottomValue else false
+                )
+            } }.flatten().chunked(20).forEach { reqList ->
+                Levelhead.fetch(reqList)
+            }
     }
 
     fun playerJoin(player: EntityPlayer) {

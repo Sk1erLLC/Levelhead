@@ -13,8 +13,6 @@ import kotlin.math.max
 abstract class LevelheadDisplay(val displayPosition: DisplayPosition, val config: DisplayConfig) {
     val cache: ConcurrentHashMap<UUID, LevelheadTag> = ConcurrentHashMap()
 
-    abstract fun joinWorld()
-
     abstract fun playerJoin(player: EntityPlayer)
 
     fun checkCacheSize() {

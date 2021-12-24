@@ -12,13 +12,6 @@ class ChatDisplay(config: DisplayConfig): LevelheadDisplay(DisplayPosition.CHAT,
 
     override fun toString(): String = "chat"
 
-    override fun joinWorld() {
-        UMinecraft.getMinecraft().netHandler!!.playerInfoMap
-            .filter { it.gameProfile.id.version() == 4 && !cache.containsKey(it.gameProfile.id) }
-            .map { Levelhead.LevelheadRequest(it.gameProfile.id.trimmed, this, false) }
-            .run { Levelhead.fetch(this) }
-    }
-
     override fun playerJoin(player: EntityPlayer) {
         if (player.isNPC) return
         if (!cache.containsKey(player.uniqueID))
