@@ -28,9 +28,12 @@ fun Color.tryToGetChatColor() =
 val String.dashUUID: UUID?
     get() {
         if (this.length != 32) return null
-        val first = this.substring(0, 16).toBigInteger(16).toLong()
-        val second = this.substring(16, 32).toBigInteger(16).toLong()
-        return UUID(first, second)
+        val arr = this.toCharArray().toMutableList()
+        arr.add(20, '-')
+        arr.add(16, '-')
+        arr.add(12, '-')
+        arr.add(8, '-')
+        return UUID.fromString(arr.joinToString(""))
     }
 
 val UUID.trimmed: String
