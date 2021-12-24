@@ -81,7 +81,7 @@ object Levelhead {
         get() = displayManager.aboveHead[0].cache[UPlayer.getUUID()]!!
 
     const val MODID = "level_head"
-    const val VERSION = "8.0.0-B2"
+    const val VERSION = "8.0.0-B3"
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
