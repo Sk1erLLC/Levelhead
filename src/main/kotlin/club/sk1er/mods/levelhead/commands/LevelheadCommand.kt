@@ -22,10 +22,10 @@ class LevelheadCommand : Command("levelhead") {
     @SubCommand(value = "limit")
     fun handleLimit() {
         EssentialAPI.getMinecraftUtil()
-            .sendMessage("[Levelhead]", ChatColor.RED.toString() + "Callback_types: " + types)
+            .sendMessage("${ChatColor.AQUA}[Levelhead]", "${ChatColor.RED}Callback_types: " + types)
         EssentialAPI.getMinecraftUtil().sendMessage(
-            "[Levelhead]",
-            ChatColor.RED.toString() + "Hypixel: " + EssentialAPI.getMinecraftUtil().isHypixel()
+            "${ChatColor.AQUA}[Levelhead]",
+            "${ChatColor.RED}Hypixel: " + EssentialAPI.getMinecraftUtil().isHypixel()
         )
     }
 
@@ -42,7 +42,10 @@ class LevelheadCommand : Command("levelhead") {
                 Levelhead.refreshPurchaseStates()
             }
         }.invokeOnCompletion {
-            EssentialAPI.getMinecraftUtil().sendMessage("[Levelhead]", ChatColor.RED.toString() + " Reauthed!")
+            if (it == null)
+                EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.AQUA}[Levelhead]", "${ChatColor.GREEN} Reauthed!")
+            else
+                EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.AQUA}[Levelhead]", "${ChatColor.RED} Reauth failed!")
         }
     }
 
@@ -51,6 +54,6 @@ class LevelheadCommand : Command("levelhead") {
         Levelhead.scope.coroutineContext.cancelChildren()
         Levelhead.rateLimiter.resetState()
         displayManager.clearCache()
-        EssentialAPI.getMinecraftUtil().sendMessage("[Levelhead]", ChatColor.RED.toString() + " Cleared Cache")
+        EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.AQUA}[Levelhead]", "${ChatColor.GREEN} Cleared Cache")
     }
 }
