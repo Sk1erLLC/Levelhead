@@ -150,6 +150,7 @@ class CustomLevelheadComponent: UIComponent() {
             y = SiblingConstraint(5f)
         } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
         headerInput.onValueChange {
+            if (it !is String || it.length > 15) return@onValueChange
             headerText = it as String
         }
         var footerText = ""
@@ -158,6 +159,7 @@ class CustomLevelheadComponent: UIComponent() {
             y = CopyConstraintFloat() boundTo headerInput
         } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
         footerInput.onValueChange {
+            if (it !is String || it.length > 15) return@onValueChange
             footerText = it as String
         }
         val proposeButton = ButtonComponent("Propose") {
@@ -420,7 +422,7 @@ class CustomLevelheadComponent: UIComponent() {
 
     }
 
-    fun parseProposal(uiComponent: UIComponent, label: UIText, request: JsonObject?): Pair<UIText, UIText> {
+    private fun parseProposal(uiComponent: UIComponent, label: UIText, request: JsonObject?): Pair<UIText, UIText> {
         val aboveHeadDisplayConfig = Levelhead.displayManager.aboveHead[0].config
         val proposalFooter = UIText(
             request?.get("strlevel")?.asString?.replace(
