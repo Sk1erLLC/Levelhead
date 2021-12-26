@@ -215,7 +215,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             title = "Chat"
 
             preview = ChatPreviewComponent(
-                "${UPlayer.getPlayer()?.name ?: "Sk1er"}§r: Hi!"
+                "${UPlayer.getPlayer()?.displayName?.formattedText ?: "Sk1er"}§r: Hi!"
             )
 
             if (Levelhead.LevelheadPurchaseStates.chat) {
