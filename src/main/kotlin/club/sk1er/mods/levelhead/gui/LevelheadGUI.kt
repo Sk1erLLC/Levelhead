@@ -396,8 +396,8 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
         val scrollBar = UIBlock(VigilancePalette.getScrollBar()).constrain {
             x = 98.5.percent
-            width = 1.percent()
-        } childOf scrollContainer
+            width = 1.percent
+        }
 
         val settings = ScrollComponent().constrain {
             width = 98.percent
@@ -405,7 +405,10 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         } childOf scrollContainer
 
         init {
-            settings.setVerticalScrollBarComponent(scrollBar)
+            if (editing.getValue() == 0) {
+                settings.setVerticalScrollBarComponent(scrollBar)
+                scrollBar childOf settingsContainer
+            }
 
             constrain {
                 width = RelativeConstraint()
