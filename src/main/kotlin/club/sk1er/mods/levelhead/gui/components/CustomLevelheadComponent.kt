@@ -18,6 +18,7 @@ import gg.essential.elementa.state.BasicState
 import gg.essential.elementa.state.State
 import gg.essential.elementa.utils.withAlpha
 import gg.essential.universal.ChatColor
+import gg.essential.universal.UMatrixStack
 import gg.essential.universal.UScreen
 import gg.essential.universal.wrappers.UPlayer
 import gg.essential.vigilance.gui.ExpandingClickEffect
@@ -403,21 +404,17 @@ class CustomLevelheadComponent: UIComponent() {
             height = 15.percentOfWindow.coerceAtLeast(25.percent)
         }.childOf(this).apply {
             this.onValueChange {
+                if (dropdown.getValue() == 0) return@onValueChange
                 dropdown.select(1)
             }
         }
 
-        private fun DisplayConfig.getMode(header: Boolean) = if (header) {
-            when {
-                this.headerChroma -> "Chroma"
-                this.headerColor.tryToGetChatColor() != null -> "Chat Color"
-                else -> "RGB"
-            }
-        } else {
-            when {
-                this.footerChroma -> "Chroma"
-                this.footerColor.tryToGetChatColor() != null -> "Chat Color"
-                else -> "RGB"
+        override fun draw(matrixStack: UMatrixStack) {
+            super.draw(matrixStack)
+            if (dropdown.getValue() == 0) {
+                val color = Levelhead.chromaColor
+                val (hue, saturation, brightness) = Color.RGBtoHSB(color.red, color.green, color.blue, null)
+                selector.setHSB(hue, saturation, brightness)
             }
         }
 

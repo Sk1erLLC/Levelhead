@@ -23,6 +23,7 @@ import gg.essential.elementa.effects.ScissorEffect
 import gg.essential.elementa.utils.withAlpha
 import gg.essential.universal.ChatColor
 import gg.essential.universal.UDesktop
+import gg.essential.universal.UMatrixStack
 import gg.essential.universal.wrappers.UPlayer
 import gg.essential.vigilance.gui.ExpandingClickEffect
 import gg.essential.vigilance.gui.VigilancePalette
@@ -698,6 +699,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             height = 15.percentOfWindow.coerceAtLeast(25.percent)
         }.childOf(this).also {
             it.onValueChange {
+                if (color.getValue() == 0) return@onValueChange
                 if (header) {
                     display.config.headerChroma = false
                     display.config.headerColor = it
@@ -716,6 +718,15 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
         init {
             if (display is ChatDisplay) selector.hide()
+        }
+
+        override fun draw(matrixStack: UMatrixStack) {
+            super.draw(matrixStack)
+            if (color.getValue() == 0) {
+                val color = Levelhead.chromaColor
+                val (hue, saturation, brightness) = Color.RGBtoHSB(color.red, color.green, color.blue, null)
+                selector.setHSB(hue, saturation, brightness)
+            }
         }
 
         private fun getCurrentSetting() = when(display.config.getMode(header)) {
