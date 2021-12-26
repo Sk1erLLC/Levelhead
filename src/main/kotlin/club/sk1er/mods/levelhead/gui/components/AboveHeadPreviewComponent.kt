@@ -20,7 +20,7 @@ class AboveHeadPreviewComponent: LevelheadPreviewComponent() {
         draggable = false
     }.constrain {
         x = CenterConstraint()
-        y = (-45).pixels(true,  true)
+        y = 70.percent
         width = 35.percentOfWindow
         height = 25.percentOfWindow
     } childOf this effect ScissorEffect(this)
