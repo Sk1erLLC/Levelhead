@@ -33,7 +33,7 @@ import java.awt.Color
 import java.net.URI
 
 @Suppress("unused")
-class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", restorePreviousGuiOnClose = false) {
+class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(), restorePreviousGuiOnClose = false) {
 
     companion object {
         private var currentPage = 0
@@ -65,6 +65,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
     }
 
     override fun updateGuiScale() {
+        newGuiScale = EssentialAPI.getGuiUtil().getGuiScale()
         container = when (editing.getValue()) {
             3 -> { customDelegate.invalidate(); custom}
             2 -> { chatDelegate.invalidate(); chat}
