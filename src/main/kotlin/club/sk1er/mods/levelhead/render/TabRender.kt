@@ -26,9 +26,9 @@ object TabRender {
 
                 when {
                     config.headerChroma -> UMinecraft.getFontRenderer().drawString(str,
-                        x1.toFloat(), y.toFloat(), Levelhead.ChromaColor, true)
+                        x1.toFloat() - 1, y.toFloat(), Levelhead.ChromaColor, true)
                     else -> UMinecraft.getFontRenderer().drawString(str,
-                        x1.toFloat(), y.toFloat(), this.config.headerColor.rgb, true)
+                        x1.toFloat() - 1, y.toFloat(), this.config.headerColor.rgb, true)
                 }
             } ?: Levelhead.fetch(listOf(Levelhead.LevelheadRequest(playerInfo.gameProfile.id.trimmed, this, false)))
         }
@@ -37,7 +37,7 @@ object TabRender {
     fun getLevelheadWidth(playerInfo: NetworkPlayerInfo)  = when {
         !Levelhead.displayManager.config.enabled -> 0
         (Levelhead.displayManager.tab.config.enabled && Levelhead.LevelheadPurchaseStates.tab) -> {
-                UMinecraft.getFontRenderer().getStringWidth(Levelhead.displayManager.tab.cache[playerInfo.gameProfile.id]?.footer?.value) + 2
+                UMinecraft.getFontRenderer().getStringWidth(Levelhead.displayManager.tab.cache[playerInfo.gameProfile.id]?.footer?.value) + 3
             }
         else -> 0
     }
