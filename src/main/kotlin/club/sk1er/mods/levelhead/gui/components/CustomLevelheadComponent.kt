@@ -48,7 +48,9 @@ class CustomLevelheadComponent: UIComponent() {
                 Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UPlayer.getUUID().trimmed, Levelhead.displayManager.aboveHead[0], Levelhead.displayManager.aboveHead[0].bottomValue)))
                     .invokeOnCompletion {
                         if (!Levelhead.LevelheadPurchaseStates.customLevelhead) {
-                            this.hide()
+                            Window.enqueueRenderOperation {
+                                this.hide()
+                            }
                         } else {
                             Levelhead.selfLevelheadTag.header.run {
                                 currentHeader?.setText(this.value)
@@ -58,6 +60,20 @@ class CustomLevelheadComponent: UIComponent() {
                                 currentFooter?.setText(this.value)
                                 currentFooter?.constraints?.color = if (this.chroma) basicColorConstraint { Levelhead.chromaColor } else this.color.constraint
                             }
+                        }
+                        currentHeader?.let { header ->
+                            header.setText(Levelhead.selfLevelheadTag.header.value)
+                            header.constraints.color = if (Levelhead.selfLevelheadTag.header.chroma)
+                                basicColorConstraint { Levelhead.chromaColor }
+                            else
+                                Levelhead.selfLevelheadTag.header.color.constraint
+                        }
+                        currentFooter?.let { footer ->
+                            footer.setText(Levelhead.selfLevelheadTag.footer.value)
+                            footer.constraints.color = if (Levelhead.selfLevelheadTag.footer.chroma)
+                                basicColorConstraint { Levelhead.chromaColor }
+                            else
+                                Levelhead.selfLevelheadTag.footer.color.constraint
                         }
                     }
             }
@@ -151,7 +167,7 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
         headerInput.onValueChange {
             if (it !is String || it.length > 15) return@onValueChange
-            headerText = it as String
+            headerText = it
         }
         var footerText = ""
         val footerInput = TextComponent("", "Footer", false, false).constrain {
@@ -160,7 +176,7 @@ class CustomLevelheadComponent: UIComponent() {
         } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
         footerInput.onValueChange {
             if (it !is String || it.length > 15) return@onValueChange
-            footerText = it as String
+            footerText = it
         }
         val proposeButton = ButtonComponent("Propose") {
             Levelhead.scope.launch {
