@@ -33,7 +33,7 @@ import java.awt.Color
 import java.net.URI
 
 @Suppress("unused")
-class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855), restorePreviousGuiOnClose = false) {
+class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", restorePreviousGuiOnClose = false) {
 
     companion object {
         private var currentPage = 0
@@ -78,7 +78,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         y = 10.pixels()
     } childOf titleBar
 
-    private val masterLabel = UIText("§7Master Toggle").constrain {
+    private val masterLabel = UIText("§7Mod Toggle").constrain {
         x = (masterToggle.getWidth() + 5).pixels(true).to(masterToggle) as XConstraint
         y = 11.pixels()
     } childOf titleBar
