@@ -21,6 +21,8 @@ import gg.essential.api.utils.Multithreading
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraftforge.common.MinecraftForge
@@ -53,13 +55,13 @@ object Levelhead {
 
     lateinit var auth: MojangAuth
         private set
-    lateinit var types: JsonObject
+    var types: JsonObject = JsonObject()
         private set
-    lateinit var rawPurchases: JsonObject
+    var rawPurchases: JsonObject = JsonObject()
         private set
-    lateinit var paidData: JsonObject
+    var paidData: JsonObject = JsonObject()
         private set
-    lateinit var purchaseStatus: JsonObject
+    var purchaseStatus: JsonObject = JsonObject()
         private set
     val allowedTypes: JsonObject
         get() = JsonObject().merge(types, true).also { obj ->
@@ -69,6 +71,7 @@ object Levelhead {
         }
     val displayManager: DisplayManager = DisplayManager(File(File(UMinecraft.getMinecraft().mcDataDir, "config"), "levelhead.json"))
     val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val mutex: Mutex = Mutex()
     val rateLimiter: RateLimiter = RateLimiter(100, Duration.ofSeconds(1))
     private val format: DecimalFormat = DecimalFormat("#,###")
     val DarkChromaColor: Int
@@ -99,34 +102,37 @@ object Levelhead {
     }
 
 
-    @Synchronized
-    fun refreshRawPurchases() {
-        rawPurchases = jsonParser.parse(getWithAgent(
-            "https://api.sk1er.club/purchases/" + UMinecraft.getMinecraft().session.profile.id.toString()
-        )).asJsonObject
-        if (!rawPurchases.has("remaining_levelhead_credits")) {
-            rawPurchases.addProperty("remaining_levelhead_credits", 0)
+    suspend fun refreshRawPurchases() {
+        mutex.withLock(rawPurchases) {
+            rawPurchases = jsonParser.parse(getWithAgent(
+                "https://api.sk1er.club/purchases/" + UMinecraft.getMinecraft().session.profile.id.toString()
+            )).asJsonObject
+            if (!rawPurchases.has("remaining_levelhead_credits")) {
+                rawPurchases.addProperty("remaining_levelhead_credits", 0)
+            }
         }
     }
 
-    @Synchronized
-    fun refreshPaidData() {
-        paidData = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_data")).asJsonObject
+    suspend fun refreshPaidData() {
+        mutex.withLock(paidData) {
+            paidData = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_data")).asJsonObject
+        }
     }
 
-    @Synchronized
-    fun refreshPurchaseStates() {
-        purchaseStatus = jsonParser.parse(getWithAgent(
-            "https://api.sk1er.club/levelhead_purchase_status/" + UMinecraft.getMinecraft().session.profile.id.toString()
-        )).asJsonObject
-        LevelheadPurchaseStates.chat = purchaseStatus["chat"].asBoolean
-        LevelheadPurchaseStates.tab = purchaseStatus["tab"].asBoolean
-        LevelheadPurchaseStates.aboveHead = purchaseStatus["head"].asInt
-        LevelheadPurchaseStates.customLevelhead = purchaseStatus["custom_levelhead"].asBoolean
-        for (i in displayManager.aboveHead.size..LevelheadPurchaseStates.aboveHead) {
-            displayManager.aboveHead.add(AboveHeadDisplay(DisplayConfig()))
+    suspend fun refreshPurchaseStates() {
+        mutex.withLock(purchaseStatus) {
+            purchaseStatus = jsonParser.parse(getWithAgent(
+                "https://api.sk1er.club/levelhead_purchase_status/" + UMinecraft.getMinecraft().session.profile.id.toString()
+            )).asJsonObject
+            LevelheadPurchaseStates.chat = purchaseStatus["chat"].asBoolean
+            LevelheadPurchaseStates.tab = purchaseStatus["tab"].asBoolean
+            LevelheadPurchaseStates.aboveHead = purchaseStatus["head"].asInt
+            LevelheadPurchaseStates.customLevelhead = purchaseStatus["custom_levelhead"].asBoolean
+            for (i in displayManager.aboveHead.size..LevelheadPurchaseStates.aboveHead) {
+                displayManager.aboveHead.add(AboveHeadDisplay(DisplayConfig()))
+            }
+            displayManager.adjustIndices()
         }
-        displayManager.adjustIndices()
     }
 
     @SubscribeEvent
@@ -136,9 +142,11 @@ object Levelhead {
         if (auth.isFailed) {
             EssentialAPI.getNotifications().push("An error occurred while logging logging into Levelhead", auth.failMessage)
         }
-        refreshPurchaseStates()
-        refreshRawPurchases()
-        refreshPaidData()
+        scope.launch {
+            refreshPurchaseStates()
+            refreshRawPurchases()
+            refreshPaidData()
+        }
 
     }
 

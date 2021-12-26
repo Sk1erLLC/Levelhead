@@ -30,6 +30,7 @@ import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.gui.settings.*
 import gg.essential.vigilance.utils.onLeftClick
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 import java.awt.Color
 import java.net.URI
 
@@ -95,7 +96,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         y = 5.pixels()
     } childOf titleBar
 
-    private val credits = UIText("Remaining credits: ${Levelhead.also { refreshRawPurchases() }.rawPurchases["remaining_levelhead_credits"].asInt}").constrain {
+    private val credits = UIText("Remaining credits: ${Levelhead.also { it.scope.launch { refreshRawPurchases() } }.rawPurchases["remaining_levelhead_credits"]?.asInt ?: 0}").constrain {
         x = CenterConstraint()
         y = 11.pixels()
     } childOf titleBar
@@ -122,34 +123,36 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 }
             }
 
-            Levelhead.displayManager.aboveHead.forEachIndexed { i, display ->
-                if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
-                val container = UIContainer().constrain {
-                    y = SiblingConstraint(2.5f)
-                    width = RelativeConstraint()
-                    height = ChildBasedRangeConstraint()
-                }
-                val toggle = SwitchComponent(display.config.enabled).constrain {
-                    x = 5.pixels(alignOpposite = true)
-                    y = 2.5.pixels()
+            Window.enqueueRenderOperation {
+                Levelhead.displayManager.aboveHead.forEachIndexed { i, display ->
+                    if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
+                    val container = UIContainer().constrain {
+                        y = SiblingConstraint(2.5f)
+                        width = RelativeConstraint()
+                        height = ChildBasedRangeConstraint()
+                    }
+                    val toggle = SwitchComponent(display.config.enabled).constrain {
+                        x = 5.pixels(alignOpposite = true)
+                        y = 2.5.pixels()
 
-                } childOf container
-                toggle.onValueChange {
-                    display.config.enabled = it as Boolean
+                    } childOf container
+                    toggle.onValueChange {
+                        display.config.enabled = it as Boolean
+                    }
+                    val text = UIText("§nLayer ${i + 1}").constrain {
+                        x = 0.pixels()
+                        y = CenterConstraint() boundTo toggle
+                    } childOf container
+                    val content = UIContainer().constrain {
+                        y = SiblingConstraint(2.5f)
+                        height = ChildBasedRangeConstraint()
+                        width = RelativeConstraint()
+                    } childOf container
+                    content.createComponents(display, preview!!)
+                    container.constrain {
+                        y = SiblingConstraint()
+                    } childOf settings
                 }
-                val text = UIText("§nLayer ${i + 1}").constrain {
-                    x = 0.pixels()
-                    y = CenterConstraint() boundTo toggle
-                } childOf container
-                val content = UIContainer().constrain {
-                    y = SiblingConstraint(2.5f)
-                    height = ChildBasedRangeConstraint()
-                    width = RelativeConstraint()
-                } childOf container
-                content.createComponents(display, preview!!)
-                container.constrain {
-                    y = SiblingConstraint()
-                } childOf settings
             }
 
             UIContainer().constrain {
@@ -494,7 +497,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                                 val jsonObject =
                                     jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_purchase?access_token=" + Levelhead.auth.accessKey + "&request=" + type + "&hash=" + Levelhead.auth.hash)).asJsonObject
                                 if (jsonObject["success"].asBoolean) {
-                                    Levelhead.refreshPurchaseStates()
+                                    Levelhead.scope.launch {
+                                        Levelhead.refreshPurchaseStates()
+                                    }
                                     EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
                                         text = "Successfully purchased package ${name}."
                                         confirmButtonText = "Close"
@@ -530,13 +535,16 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                     } childOf window
                 }
             }
-            Levelhead.refreshRawPurchases()
-            credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
-            container = when (editing.getValue()) {
-                3 -> { customDelegate.invalidate(); custom}
-                2 -> { chatDelegate.invalidate(); chat}
-                1 -> { tabDelegate.invalidate(); tab }
-                else -> { aboveHeadDelegate.invalidate(); aboveHead }
+            Levelhead.scope.launch {
+                refreshRawPurchases()
+            }.invokeOnCompletion {
+                credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
+                container = when (editing.getValue()) {
+                    3 -> { customDelegate.invalidate(); custom}
+                    2 -> { chatDelegate.invalidate(); chat}
+                    1 -> { tabDelegate.invalidate(); tab }
+                    else -> { aboveHeadDelegate.invalidate(); aboveHead }
+                }
             }
         }
     }
