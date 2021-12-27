@@ -155,13 +155,13 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                         y = SiblingConstraint()
                     } childOf settings
                 }
-            }
 
-            UIContainer().constrain {
-                y = SiblingConstraint(2.5f)
-                width = 100.percent
-                height = 20.pixels
-            } childOf settings
+                UIContainer().constrain {
+                    y = SiblingConstraint(2.5f)
+                    width = 100.percent
+                    height = 20.pixels
+                } childOf settings
+            }
 
             val purchase = ButtonComponent("Purchase more layers") {
                 attemptPurchase("head")
