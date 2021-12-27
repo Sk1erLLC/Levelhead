@@ -76,6 +76,8 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         }
     }
 
+    val dropdowns = mutableListOf<DropDown>()
+
     private val masterToggle = SwitchComponent(Levelhead.displayManager.config.enabled).constrain {
         x = 10.pixels(true)
         y = 10.pixels()
@@ -311,8 +313,14 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         else -> aboveHead
     } childOf content
         set(value) {
-            container.hide()
+            dropdowns.forEach {
+                it.collapse(true, true)
+                it.hide()
+            }
+            dropdowns.clear()
             value.childOf(content)
+            container.hide()
+            value.unhide()
             field = value
         }
 
@@ -584,6 +592,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             x = 5.pixels(true)
             y = CramSiblingConstraint() - 4.5.pixels()
         } childOf rightContainer
+        Window.enqueueRenderOperation {
+            dropdowns.add(type)
+        }
         type.onValueChange {
             display.config.type = options.entrySet().map { it.key }.sortedBy { string -> string }[it]
             display.run {
@@ -655,6 +666,10 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             y = 0.pixels()
         } childOf this
         init {
+            currentScreen?.let { screen ->
+                if (screen !is LevelheadGUI) return@let
+                Window.enqueueRenderOperation { screen.dropdowns.add(color) }
+            }
             color.onValueChange {
                 when {
                     it == 0 && display !is ChatDisplay -> {

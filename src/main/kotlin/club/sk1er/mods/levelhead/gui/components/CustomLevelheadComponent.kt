@@ -371,6 +371,10 @@ class CustomLevelheadComponent: UIComponent() {
             x = 0.pixels(true)
             y = 0.pixels
         }.childOf(this).also {
+            UScreen.currentScreen?.let { screen ->
+                if (screen !is LevelheadGUI) return@let
+                Window.enqueueRenderOperation { screen.dropdowns.add(it) }
+            }
             it.onValueChange {
                 when (it) {
                     0 -> if (header) {
