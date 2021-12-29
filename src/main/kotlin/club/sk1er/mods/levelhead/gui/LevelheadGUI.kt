@@ -224,7 +224,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             title = "Chat"
 
             preview = ChatPreviewComponent(
-                "${UPlayer.getPlayer()?.displayName?.formattedText ?: "Sk1er"}§r: Hi!"
+                "${UPlayer.getPlayer()?.displayName?.formattedText?.let { if (it.dropLast(2).endsWith(']')) it.substringBeforeLast(' ') else it } ?: "Sk1er"}§r: Hi!"
             )
 
             if (Levelhead.LevelheadPurchaseStates.chat) {
@@ -321,6 +321,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             Window.enqueueRenderOperation {
                 if (shouldClearDropdowns) {
                     dropdowns.forEach {
+                        if (!it.hasParent || Window.ofOrNull(it) == null) return@forEach
                         it.collapse(true, true)
                         it.hide()
                     }
