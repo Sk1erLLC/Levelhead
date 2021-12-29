@@ -164,22 +164,30 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 } childOf settings
             }
 
-            val purchase = ButtonComponent("Purchase more layers") {
-                attemptPurchase("head")
-            }.constrain {
-                x = 12.5.pixels(true)
-                y = 7.5.pixels(true) boundTo divider
-            } childOf this
+            var purchaseBool = false
+            if (Levelhead.LevelheadPurchaseStates.aboveHead < 3) {
+                val purchase = ButtonComponent("Purchase more layers") {
+                    attemptPurchase("head")
+                }.constrain {
+                    x = 12.5.pixels(true)
+                    y = 7.5.pixels(true) boundTo divider
+                } childOf this
 
-            // I HATE YOU STUCK CIRCLE!!!!!!!!!!
-            purchase.removeEffect<ExpandingClickEffect>()
+                // I HATE YOU STUCK CIRCLE!!!!!!!!!!
+                purchase.removeEffect<ExpandingClickEffect>()
+
+                purchaseBool = true
+            }
 
             val offsetSlider = SliderComponent((Levelhead.displayManager.config.offset * 10).toInt(), 0, 5).constrain {
                 x = 12.5.pixels(true)
-                y = 5.pixels(alignOutside = true) boundTo purchase
+                y = if (purchaseBool)
+                    SiblingConstraint(2.5f)
+                else
+                    2.5.pixels(true) boundTo divider
             } childOf this
             offsetSlider.childrenOfType<Slider>().first().constrain {
-                width = 80.percent boundTo purchase
+                width = 120.pixels
             }
             offsetSlider.onValueChange {
                 Levelhead.displayManager.config.offset = (it as Int) / 10.0
