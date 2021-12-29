@@ -588,7 +588,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             options.entrySet().sortedBy { it.key }.map { it.value.asJsonObject["name"].asString }
         ).constrain {
             x = 5.pixels(true)
-            y = CramSiblingConstraint() + 5.pixels
+            y = CramSiblingConstraint() + 7.pixels
         } childOf rightContainer
         val typeLabel = UIText("Type: ").constrain {
             x = 5.pixels()
@@ -642,7 +642,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             toggle.onValueChange {
                 display.config.enabled = it as Boolean
             }
-            val toggleLabel = UIText("Enabled").constrain {
+            val toggleLabel = UIText("Layer Toggle").constrain {
                 x = 5.pixels
                 y = CenterConstraint() boundTo toggle
             }
@@ -659,7 +659,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             textInput.childrenOfType<UIBlock>().first()
                 .also { it.childrenOfType<AbstractTextInput>().first().constraints.y = CenterConstraint() }
                 .constraints.height = 100.percent
-            showToggle.constraints.y = CramSiblingConstraint(5f)
+            showToggle.constraints.y = CramSiblingConstraint(7f)
             textInput.onValueChange {
                 if (it !is String) return@onValueChange
                 display.config.headerString = it
@@ -668,14 +668,14 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         }
         val header = ColorSetting(true, display, preview).constrain {
             x = 2.5.pixels
-            y = SiblingConstraint(5f)
-            width = RelativeConstraint() - 10.pixels()
+            y = SiblingConstraint(7f)
+            width = RelativeConstraint() - 8.5.pixels()
             height = AspectConstraint(0.4f)
         } childOf leftContainer
         if (display !is TabDisplay)
             ColorSetting(false, display, preview).constrain {
                 x = CenterConstraint()
-                y = SiblingConstraint(5f) boundTo type
+                y = SiblingConstraint(7f) boundTo type
                 width = RelativeConstraint() - 10.pixels()
                 height = AspectConstraint(0.4f)
             } childOf rightContainer
