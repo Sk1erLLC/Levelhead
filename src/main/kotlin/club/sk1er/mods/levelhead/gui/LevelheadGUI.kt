@@ -35,7 +35,7 @@ import java.awt.Color
 import java.net.URI
 
 @Suppress("unused")
-class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(), restorePreviousGuiOnClose = false) {
+class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855), restorePreviousGuiOnClose = false) {
 
     companion object {
         private var currentPage = 0
@@ -67,7 +67,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
     }
 
     override fun updateGuiScale() {
-        newGuiScale = EssentialAPI.getGuiUtil().getGuiScale()
+        newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855)
         shouldClearDropdowns = false
         container = when (editing.getValue()) {
             3 -> { customDelegate.invalidate(); custom}
@@ -99,7 +99,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         y = 5.pixels()
     } childOf titleBar
 
-    private val credits = UIText("Remaining credits: ${Levelhead.also { it.scope.launch { refreshRawPurchases() } }.rawPurchases["remaining_levelhead_credits"]?.asInt ?: 0}").constrain {
+    private val credits = UIText("Credits: ${Levelhead.also { it.scope.launch { refreshRawPurchases() } }.rawPurchases["remaining_levelhead_credits"]?.asInt ?: 0}").constrain {
         x = CenterConstraint()
         y = 11.pixels()
     } childOf titleBar
@@ -168,8 +168,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 attemptPurchase("head")
             }.constrain {
                 x = 12.5.pixels(true)
-                y = 7.5.pixels(true).to(divider) as YConstraint
-                textScale = 2.5.pixels()
+                y = 7.5.pixels(true) boundTo divider
             } childOf this
 
             // I HATE YOU STUCK CIRCLE!!!!!!!!!!
@@ -407,8 +406,8 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
         val titleText by UIText(shadow = false).constrain {
             x = 10.pixels()
-            y = 7.5.pixels(true).to(divider) as YConstraint
-            textScale = 2.5.pixels()
+            y = 7.5.pixels(true) boundTo divider
+            textScale = 2.pixels
         } childOf this
 
         private val scrollContainer = UIContainer().constrain {
