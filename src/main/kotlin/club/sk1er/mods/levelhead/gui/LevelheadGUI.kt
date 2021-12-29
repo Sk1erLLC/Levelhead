@@ -175,7 +175,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             val offsetSlider = SliderComponent((Levelhead.displayManager.config.offset * 10).toInt(), 0, 5).constrain {
                 x = 12.5.pixels(true)
                 y = if (purchaseBool)
-                    SiblingConstraint(2.5f)
+                    SiblingConstraint(2.5f, true)
                 else
                     2.5.pixels(true) boundTo divider
             } childOf this
@@ -345,8 +345,8 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             shouldClearDropdowns = true
             container = when (it) {
                 3 -> {customDelegate.invalidate(); custom}
-                2 -> chat
-                1 -> tab
+                2 -> {chatDelegate.invalidate(); chat}
+                1 -> {tabDelegate.invalidate(); tab}
                 else -> {aboveHeadDelegate.invalidate(); aboveHead}
             }
         }
@@ -592,7 +592,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         } childOf rightContainer
         val typeLabel = UIText("Type: ").constrain {
             x = 5.pixels()
-            y = CenterConstraint() boundTo type
+            y = (CopyConstraintFloat() boundTo type) + 5.5.pixels
         } childOf rightContainer
         Window.enqueueRenderOperation {
             dropdowns.add(type)
@@ -622,7 +622,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         }
         val showToggle = SwitchComponent(display.config.showSelf).constrain {
             x = 5.75.pixels(true)
-            y = CenterConstraint() boundTo type
+            y = CenterConstraint() boundTo typeLabel
         } childOf leftContainer
         val showLabel = UIText("Show on self").constrain {
             x = 2.5.pixels()
@@ -649,11 +649,11 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             rightContainer.insertChildBefore(toggleLabel, toggle)
             val textLabel = UIText("Prefix: ").constrain {
                 x = 2.5.pixels()
-                y = CenterConstraint() boundTo type
+                y = CenterConstraint() boundTo typeLabel
             } childOf leftContainer
             val textInput = TextComponent(display.config.headerString, "", false, false).constrain {
                 x = 6.pixels(true)
-                y = CenterConstraint() boundTo type
+                y = CenterConstraint() boundTo typeLabel
                 height = type.constraints.height
             } childOf leftContainer
             textInput.childrenOfType<UIBlock>().first()
@@ -675,7 +675,10 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         if (display !is TabDisplay)
             ColorSetting(false, display, preview).constrain {
                 x = CenterConstraint()
-                y = SiblingConstraint(7f) boundTo type
+                y = if (display is ChatDisplay)
+                    (CopyConstraintFloat() boundTo header) + 3.pixels
+                else
+                    CopyConstraintFloat() boundTo header
                 width = RelativeConstraint() - 10.pixels()
                 height = AspectConstraint(0.4f)
             } childOf rightContainer
