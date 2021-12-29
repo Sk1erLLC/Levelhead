@@ -68,6 +68,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
     override fun updateGuiScale() {
         newGuiScale = EssentialAPI.getGuiUtil().getGuiScale()
+        shouldClearDropdowns = false
         container = when (editing.getValue()) {
             3 -> { customDelegate.invalidate(); custom}
             2 -> { chatDelegate.invalidate(); chat}
@@ -170,6 +171,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 y = 7.5.pixels(true).to(divider) as YConstraint
                 textScale = 2.5.pixels()
             } childOf this
+
+            // I HATE YOU STUCK CIRCLE!!!!!!!!!!
+            purchase.removeEffect<ExpandingClickEffect>()
 
             val offsetSlider = SliderComponent((Levelhead.displayManager.config.offset * 10).toInt(), 0, 5).constrain {
                 x = 12.5.pixels(true)
@@ -306,6 +310,8 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
     private var tab by tabDelegate
 
+    var shouldClearDropdowns = false
+
     private var container: LevelheadContainer = when (currentPage) {
         3 -> custom
         2 -> chat
@@ -313,15 +319,19 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         else -> aboveHead
     } childOf content
         set(value) {
-            dropdowns.forEach {
-                it.collapse(true, true)
-                it.hide()
+            Window.enqueueRenderOperation {
+                if (shouldClearDropdowns) {
+                    dropdowns.forEach {
+                        it.collapse(true, true)
+                        it.hide()
+                    }
+                    dropdowns.clear()
+                }
+                value.childOf(content)
+                container.hide()
+                value.unhide()
+                field = value
             }
-            dropdowns.clear()
-            value.childOf(content)
-            container.hide()
-            value.unhide()
-            field = value
         }
 
     init {
@@ -331,6 +341,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
         editing.onValueChange {
             currentPage = it
+            shouldClearDropdowns = true
             container = when (it) {
                 3 -> {customDelegate.invalidate(); custom}
                 2 -> chat
@@ -512,6 +523,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                                         text = "Successfully purchased package ${name}."
                                         confirmButtonText = "Close"
                                         onConfirm = {
+                                            shouldClearDropdowns = false
                                             container = when (editing.getValue()) {
                                                 3 -> { customDelegate.invalidate(); custom}
                                                 2 -> { chatDelegate.invalidate(); chat}
@@ -528,6 +540,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                                         confirmButtonText = "Close"
                                         denyButtonText = ""
                                         onConfirm = {
+                                            shouldClearDropdowns = false
                                             container = when (editing.getValue()) {
                                                 3 -> { customDelegate.invalidate(); custom}
                                                 2 -> { chatDelegate.invalidate(); chat}
@@ -547,6 +560,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 refreshRawPurchases()
             }.invokeOnCompletion {
                 credits.setText("Remaining credits: ${Levelhead.rawPurchases["remaining_levelhead_credits"].asInt}")
+                shouldClearDropdowns = false
                 container = when (editing.getValue()) {
                     3 -> { customDelegate.invalidate(); custom}
                     2 -> { chatDelegate.invalidate(); chat}
