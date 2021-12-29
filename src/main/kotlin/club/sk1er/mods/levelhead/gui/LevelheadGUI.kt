@@ -128,7 +128,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
 
             Window.enqueueRenderOperation {
                 Levelhead.displayManager.aboveHead.forEachIndexed { i, display ->
-                    if (i > Levelhead.LevelheadPurchaseStates.aboveHead) return@forEachIndexed
+                    if (i > Levelhead.LevelheadPurchaseStates.aboveHead || i > 2) return@forEachIndexed
                     val container = UIContainer().constrain {
                         y = SiblingConstraint(2.5f)
                         width = RelativeConstraint()
@@ -160,7 +160,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 UIContainer().constrain {
                     y = SiblingConstraint(2.5f)
                     width = 100.percent
-                    height = 20.pixels
+                    height = 20.percentOfWindow
                 } childOf settings
             }
 
