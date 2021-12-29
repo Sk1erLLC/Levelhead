@@ -429,6 +429,9 @@ class CustomLevelheadComponent: UIComponent() {
                 if (dropdown.getValue() == 0) return@onValueChange
                 dropdown.select(1)
             }
+            this.onMouseClick {
+                dropdown.select(1)
+            }
         }
 
         override fun draw(matrixStack: UMatrixStack) {

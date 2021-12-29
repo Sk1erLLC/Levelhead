@@ -769,6 +769,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 this.color.select(it.tryToGetChatColor()?.let { options.indexOf(it) } ?: 1)
                 display.update()
             }
+            it.onMouseClick {
+                color.select(1)
+            }
         }
             set(value) {
                 if (display is ChatDisplay) return
