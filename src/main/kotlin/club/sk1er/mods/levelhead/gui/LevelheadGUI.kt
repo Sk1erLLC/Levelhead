@@ -16,6 +16,7 @@ import gg.essential.api.utils.Multithreading
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.*
+import gg.essential.elementa.components.input.AbstractTextInput
 import gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.*
 import gg.essential.elementa.dsl.*
@@ -134,17 +135,9 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                         width = RelativeConstraint()
                         height = ChildBasedRangeConstraint()
                     }
-                    val toggle = SwitchComponent(display.config.enabled).constrain {
-                        x = 5.pixels(alignOpposite = true)
-                        y = 2.5.pixels()
-
-                    } childOf container
-                    toggle.onValueChange {
-                        display.config.enabled = it as Boolean
-                    }
                     val text = UIText("§nLayer ${i + 1}").constrain {
-                        x = 0.pixels()
-                        y = CenterConstraint() boundTo toggle
+                        x = 0.pixels
+                        y = 0.pixels
                     } childOf container
                     val content = UIContainer().constrain {
                         y = SiblingConstraint(2.5f)
@@ -589,30 +582,17 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             width = RelativeConstraint(0.5f) - 0.5.pixels()
             height = ChildBasedRangeConstraint()
         } childOf this
-        val showLabel = UIText("Show on self").constrain {
-            x = 2.5.pixels()
-            y = CramSiblingConstraint() + 5.5.pixels()
-        } childOf leftContainer
-        val showToggle = SwitchComponent(display.config.showSelf).constrain {
-            x = 5.75.pixels(true)
-            y = CramSiblingConstraint() - 0.5.pixels()
-        } childOf leftContainer
-        showToggle.onValueChange {
-            display.config.showSelf = it as Boolean
-            if (display !is AboveHeadDisplay)
-                preview.update()
-        }
-        val typeLabel = UIText("Type: ").constrain {
-            x = 5.pixels()
-            y = CramSiblingConstraint() + 5.5.pixels()
-        } childOf rightContainer
         val options = Levelhead.allowedTypes
         val type = DropDown(
             options.entrySet().map { it.key }.sortedBy { string -> string }.indexOf(display.config.type).coerceAtLeast(0),
             options.entrySet().sortedBy { it.key }.map { it.value.asJsonObject["name"].asString }
         ).constrain {
             x = 5.pixels(true)
-            y = CramSiblingConstraint() - 4.5.pixels()
+            y = CramSiblingConstraint() + 5.pixels
+        } childOf rightContainer
+        val typeLabel = UIText("Type: ").constrain {
+            x = 5.pixels()
+            y = CenterConstraint() boundTo type
         } childOf rightContainer
         Window.enqueueRenderOperation {
             dropdowns.add(type)
@@ -640,15 +620,46 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             }
             preview.update()
         }
+        val showToggle = SwitchComponent(display.config.showSelf).constrain {
+            x = 5.75.pixels(true)
+            y = CenterConstraint() boundTo type
+        } childOf leftContainer
+        val showLabel = UIText("Show on self").constrain {
+            x = 2.5.pixels()
+            y = CenterConstraint() boundTo showToggle
+        } childOf leftContainer
+        showToggle.onValueChange {
+            display.config.showSelf = it as Boolean
+            if (display !is AboveHeadDisplay)
+                preview.update()
+        }
         if (display is AboveHeadDisplay) {
+            val toggle = SwitchComponent(display.config.enabled).constrain {
+                x = 5.pixels(alignOpposite = true)
+                y = 0.pixels
+            }
+            rightContainer.insertChildBefore(toggle, type)
+            toggle.onValueChange {
+                display.config.enabled = it as Boolean
+            }
+            val toggleLabel = UIText("Enabled").constrain {
+                x = 5.pixels
+                y = CenterConstraint() boundTo toggle
+            }
+            rightContainer.insertChildBefore(toggleLabel, toggle)
             val textLabel = UIText("Prefix: ").constrain {
                 x = 2.5.pixels()
-                y = SiblingConstraint(5f).to(showToggle) as YConstraint
+                y = CenterConstraint() boundTo type
             } childOf leftContainer
             val textInput = TextComponent(display.config.headerString, "", false, false).constrain {
                 x = 6.pixels(true)
-                y = CramSiblingConstraint()
+                y = CenterConstraint() boundTo type
+                height = type.constraints.height
             } childOf leftContainer
+            textInput.childrenOfType<UIBlock>().first()
+                .also { it.childrenOfType<AbstractTextInput>().first().constraints.y = CenterConstraint() }
+                .constraints.height = 100.percent
+            showToggle.constraints.y = CramSiblingConstraint(5f)
             textInput.onValueChange {
                 if (it !is String) return@onValueChange
                 display.config.headerString = it
@@ -657,14 +668,14 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         }
         val header = ColorSetting(true, display, preview).constrain {
             x = 2.5.pixels
-            y = SiblingConstraint(10f)
+            y = SiblingConstraint(5f)
             width = RelativeConstraint() - 10.pixels()
             height = AspectConstraint(0.4f)
         } childOf leftContainer
         if (display !is TabDisplay)
             ColorSetting(false, display, preview).constrain {
                 x = CenterConstraint()
-                y = CopyConstraintFloat().to(header) as YConstraint
+                y = SiblingConstraint(5f) boundTo type
                 width = RelativeConstraint() - 10.pixels()
                 height = AspectConstraint(0.4f)
             } childOf rightContainer
