@@ -88,8 +88,8 @@ object Levelhead {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        Multithreading.runAsync {
-            types = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_config")).asJsonObject
+        scope.launch {
+            refreshTypes()
         }
     }
 
@@ -101,6 +101,11 @@ object Levelhead {
         EssentialAPI.getCommandRegistry().registerCommand(LevelheadCommand())
     }
 
+    suspend fun refreshTypes() {
+        mutex.withLock(types) {
+            types = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead_config")).asJsonObject
+        }
+    }
 
     suspend fun refreshRawPurchases() {
         mutex.withLock(rawPurchases) {
@@ -146,6 +151,7 @@ object Levelhead {
             refreshPurchaseStates()
             refreshRawPurchases()
             refreshPaidData()
+            refreshTypes()
         }
 
     }
