@@ -79,14 +79,14 @@ class CustomLevelheadComponent: UIComponent() {
             }
         }
     }.constrain {
-        x = 5.pixels(alignOpposite = true) - 50.percent
+        x = 5.5.pixels(alignOpposite = true) - 50.percent
         y = 0.pixels
     } childOf this
     // get rid of the stupid circle being stuck
     init {
         resetButton.removeEffect<ExpandingClickEffect>()
     }
-    val text = UIText("§nCustom Levelhead").constrain {
+    val text = UIText("§nSettings").constrain {
         x = 0.pixels
         y = CenterConstraint() boundTo resetButton
     } childOf this
@@ -113,7 +113,7 @@ class CustomLevelheadComponent: UIComponent() {
     }
     var currentHeader = currentLevelhead?.header?.let(createHeader)
     val content = UIContainer().constrain {
-        y = SiblingConstraint(5f) boundTo resetButton
+        y = SiblingConstraint(7f) boundTo resetButton
         height = ChildBasedRangeConstraint()
         width = RelativeConstraint()
     } childOf this
@@ -146,7 +146,7 @@ class CustomLevelheadComponent: UIComponent() {
             currentProposalLabel,
             request
         ).also {
-            it.first.constraints.color = if (it.first.getText() == "No current proposal") Color.WHITE.constraint else
+            it.first.constraints.color = if (it.first.getText() == "None") Color.WHITE.constraint else
                 (request?.get("header_obj")?.asJsonObject ?:
                 currentProposal["current"]?.asJsonObject?.get("header_obj")?.asJsonObject)?.let { header ->
                     if (header["chroma"].asBoolean) basicColorConstraint { Levelhead.chromaColor } else
@@ -161,23 +161,7 @@ class CustomLevelheadComponent: UIComponent() {
         }
 
         var headerText = ""
-        val headerInput = TextComponent("", "Header", false, false).constrain {
-            x = 2.5.pixels
-            y = SiblingConstraint(5f)
-        } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
-        headerInput.onValueChange {
-            if (it !is String || it.length > 15) return@onValueChange
-            headerText = it
-        }
         var footerText = ""
-        val footerInput = TextComponent("", "Footer", false, false).constrain {
-            x = SiblingConstraint(5f)
-            y = CopyConstraintFloat() boundTo headerInput
-        } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
-        footerInput.onValueChange {
-            if (it !is String || it.length > 15) return@onValueChange
-            footerText = it
-        }
         val proposeButton = ButtonComponent("Propose") {
             Levelhead.scope.launch {
                 proposeLevelhead(headerText, footerText)
@@ -211,8 +195,27 @@ class CustomLevelheadComponent: UIComponent() {
             }
         }.constrain {
             x = 5.pixels(true) - 50.percent
-            y = (CopyConstraintFloat() boundTo headerInput) - 2.5.pixels
+            y = SiblingConstraint(7f)
         } childOf this
+
+
+        val headerInput = TextComponent("", "Header", false, false).constrain {
+            x = 2.5.pixels
+            y = CenterConstraint() boundTo proposeButton
+        } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
+        headerInput.onValueChange {
+            if (it !is String || it.length > 15) return@onValueChange
+            headerText = it
+        }
+
+        val footerInput = TextComponent("", "Footer", false, false).constrain {
+            x = SiblingConstraint(5f)
+            y = CopyConstraintFloat() boundTo headerInput
+        } childOf this effect OutlineEffect(VigilancePalette.getOutline(), 1f)
+        footerInput.onValueChange {
+            if (it !is String || it.length > 15) return@onValueChange
+            footerText = it
+        }
 
         val clearProposalButton = ButtonComponent("Clear Proposal") {
             Levelhead.scope.launch {
@@ -245,7 +248,7 @@ class CustomLevelheadComponent: UIComponent() {
         } ?: CustomColorSetting(true, true, Levelhead.selfLevelheadTag.header.chroma, Levelhead.selfLevelheadTag.header.color)
                 ).constrain {
             x = 2.5.pixels
-            y = SiblingConstraint(2.5f)
+            y = SiblingConstraint(7f)
             width = RelativeConstraint(0.5f) - 8.pixels()
             height = AspectConstraint(0.4f)
         } childOf this
@@ -457,7 +460,7 @@ class CustomLevelheadComponent: UIComponent() {
             x = 2.5.pixels(true)
             y = CopyConstraintFloat() boundTo label
         } childOf uiComponent
-        val proposalHeader = UIText((request?.get("header")?.asString?.replace(defaultRegex, Levelhead.selfLevelheadTag.header.value)?.let { "$it: " }) ?: "No current proposal").constrain {
+        val proposalHeader = UIText((request?.get("header")?.asString?.replace(defaultRegex, Levelhead.selfLevelheadTag.header.value)?.let { "$it: " }) ?: "None").constrain {
             x = SiblingConstraint(2.5f, true) boundTo proposalFooter
             y = CopyConstraintFloat() boundTo label
         } childOf uiComponent

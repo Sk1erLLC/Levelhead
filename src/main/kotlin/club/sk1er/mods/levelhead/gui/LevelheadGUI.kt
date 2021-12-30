@@ -35,6 +35,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import java.awt.Color
 import java.net.URI
+import kotlin.properties.Delegates
 
 @Suppress("unused")
 class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855), restorePreviousGuiOnClose = false) {
@@ -399,13 +400,6 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             height = 60.percent()
         } childOf this
 
-        val middleDivider by UIBlock(VigilancePalette.getDivider()).constrain {
-            x = 50.percent - 0.5.pixels
-            y = 5.pixels
-            width = 1.pixel
-            height = FillConstraint(useSiblings = false)
-        } childOf settingsContainer
-
         val titleText by UIText(shadow = false).constrain {
             x = 10.pixels()
             y = 7.5.pixels(true) boundTo divider
@@ -428,6 +422,13 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
             width = 98.percent
             height = 100.percent
         } childOf scrollContainer
+
+        val middleDivider by UIBlock(VigilancePalette.getDivider()).constrain {
+            x = CenterConstraint() boundTo settings
+            y = 5.pixels
+            width = 1.pixel
+            height = FillConstraint(useSiblings = false)
+        } childOf settingsContainer
 
         init {
             if (editing.getValue() == 0) {
