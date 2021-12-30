@@ -9,6 +9,7 @@ import club.sk1er.mods.levelhead.core.*
 import club.sk1er.mods.levelhead.display.*
 import club.sk1er.mods.levelhead.gui.components.*
 import club.sk1er.mods.levelhead.gui.components.SliderComponent
+import com.google.gson.JsonObject
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
@@ -208,8 +209,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 Levelhead.displayManager.aboveHead[0].cache[UPlayer.getUUID()] = customTag.clone()
             }
 
-            val customLevelhead = jsonParser.parse(getWithAgent("https://api.sk1er.club/levelhead/${UPlayer.getUUID().trimmed}")).asJsonObject
-            if (customLevelhead["custom"].asBoolean) {
+            Window.enqueueRenderOperation {
                 CustomLevelheadComponent().constrain {
                     width = RelativeConstraint()
                     height = ChildBasedRangeConstraint()
