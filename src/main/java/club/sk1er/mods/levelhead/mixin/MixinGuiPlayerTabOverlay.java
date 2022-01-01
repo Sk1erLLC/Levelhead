@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead.mixin;
 
 import club.sk1er.mods.levelhead.render.TabRender;
+import gg.essential.universal.UMinecraft;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,6 @@ public abstract class MixinGuiPlayerTabOverlay {
     @ModifyArg(method = "renderPlayerlist", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
     private String levelhead$tabWidthHook(String in) {
         if (this.levelhead$playerInfo == null) return in;
-        return in + StringUtils.repeat(' ', (int) Math.ceil(TabRender.INSTANCE.getLevelheadWidth(this.levelhead$playerInfo) / 4.0));
+        return in + StringUtils.repeat(' ', (int) Math.ceil(TabRender.INSTANCE.getLevelheadWidth(this.levelhead$playerInfo) / (double) UMinecraft.getFontRenderer().getCharWidth(' ')));
     }
 }
