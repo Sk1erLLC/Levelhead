@@ -32,6 +32,7 @@ public abstract class MixinGuiPlayerTabOverlay {
 
     @ModifyArg(method = "renderPlayerlist", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
     private String levelhead$tabWidthHook(String in) {
+        if (this.levelhead$playerInfo == null) return in;
         return in + StringUtils.repeat(' ', (int) Math.ceil(TabRender.INSTANCE.getLevelheadWidth(this.levelhead$playerInfo) / 4.0));
     }
 }
