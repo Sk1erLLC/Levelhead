@@ -1,6 +1,7 @@
 package club.sk1er.mods.levelhead.mixin;
 
 import club.sk1er.mods.levelhead.render.TabRender;
+import gg.essential.api.EssentialAPI;
 import gg.essential.universal.UMinecraft;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -21,6 +22,7 @@ public abstract class MixinGuiPlayerTabOverlay {
 
     @Inject(method = "drawPing", at = @At("HEAD"))
     private void levelhead$drawPingHook(int offset, int x, int y, NetworkPlayerInfo networkPlayerInfoIn, CallbackInfo ci) {
+        if (!EssentialAPI.getMinecraftUtil().isHypixel()) return;
         if (networkPlayerInfoIn.getGameProfile().getId().version() == 2) return;
         TabRender.INSTANCE.drawPingHook(offset, x, y, networkPlayerInfoIn);
     }
@@ -33,6 +35,7 @@ public abstract class MixinGuiPlayerTabOverlay {
 
     @ModifyArg(method = "renderPlayerlist", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
     private String levelhead$tabWidthHook(String in) {
+        if (!EssentialAPI.getMinecraftUtil().isHypixel()) return in;
         if (this.levelhead$playerInfo == null) return in;
         return in + StringUtils.repeat(' ', (int) Math.ceil(TabRender.INSTANCE.getLevelheadWidth(this.levelhead$playerInfo) / (double) UMinecraft.getFontRenderer().getCharWidth(' ')));
     }
