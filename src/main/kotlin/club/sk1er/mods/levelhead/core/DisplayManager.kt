@@ -7,7 +7,6 @@ import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.config.MasterConfig
 import club.sk1er.mods.levelhead.display.AboveHeadDisplay
 import club.sk1er.mods.levelhead.display.ChatDisplay
-import club.sk1er.mods.levelhead.display.LevelheadDisplay
 import club.sk1er.mods.levelhead.display.TabDisplay
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -100,22 +99,36 @@ class DisplayManager(val file: File) {
         }
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     fun joinWorld() {
-        val displays = mutableListOf(chat, tab).also { it.addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead}) }
-        UMinecraft.getWorld()!!.playerEntities
-            .map { playerInfo ->
+        val displays = buildList {
+            if (Levelhead.LevelheadPurchaseStates.chat)
+                add(chat)
+            if (Levelhead.LevelheadPurchaseStates.tab)
+                add(tab)
+            addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead})
+        }
+        UMinecraft.getWorld()?.playerEntities?.map { playerInfo ->
                 displays.map {
-                Levelhead.LevelheadRequest(playerInfo.uniqueID.trimmed, it,
-                    if (it is AboveHeadDisplay) it.bottomValue else false
-                )
-            } }.flatten().chunked(20).forEach { reqList ->
+                    Levelhead.LevelheadRequest(playerInfo.uniqueID.trimmed, it,
+                        if (it is AboveHeadDisplay) it.bottomValue else false
+                    )
+                }
+            }?.flatten()?.chunked(20) { reqList ->
                 Levelhead.fetch(reqList)
             }
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     fun playerJoin(player: EntityPlayer) {
         if (player.isNPC) return
-        val displays = mutableListOf(chat, tab).also { it.addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead}) }
+        val displays = buildList {
+            if (Levelhead.LevelheadPurchaseStates.chat)
+                add(chat)
+            if (Levelhead.LevelheadPurchaseStates.tab)
+                add(tab)
+            addAll(aboveHead.filterIndexed{ i, _ -> i <= Levelhead.LevelheadPurchaseStates.aboveHead})
+        }
         displays.filter { !it.cache.containsKey(player.uniqueID) }
             .map { Levelhead.LevelheadRequest(player.uniqueID.trimmed, it,
                 if (it is AboveHeadDisplay) it.bottomValue else false
