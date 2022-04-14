@@ -1,7 +1,6 @@
 package club.sk1er.mods.levelhead.gui.components
 
 import club.sk1er.mods.levelhead.Levelhead
-import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.trimmed
 import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.display.LevelheadTag
@@ -24,6 +23,7 @@ import gg.essential.universal.wrappers.UPlayer
 import gg.essential.vigilance.gui.ExpandingClickEffect
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.gui.settings.*
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.Request
@@ -34,12 +34,7 @@ import kotlin.properties.Delegates
 class CustomLevelheadComponent: UIComponent() {
 
     init {
-        var newStatusMaybe by Delegates.notNull<String>()
-        Levelhead.scope.launch {
-            newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
-        }.invokeOnCompletion {
-            if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
-        }
+        updateStatus()
     }
 
     val fakeRequest = JsonObject()
@@ -204,12 +199,7 @@ class CustomLevelheadComponent: UIComponent() {
                                 }
                             }
                         }
-                        var newStatusMaybe by Delegates.notNull<String>()
-                        Levelhead.scope.launch {
-                            newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
-                        }.invokeOnCompletion {
-                            if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
-                        }
+                        updateStatus()
                     }
                 }.constrain {
                     x = 5.pixels(true) - 50.percent
@@ -249,12 +239,7 @@ class CustomLevelheadComponent: UIComponent() {
                         }
                         fakeRequest.remove("header")
                         fakeRequest.remove("strlevel")
-                        var newStatusMaybe by Delegates.notNull<String>()
-                        Levelhead.scope.launch {
-                            newStatusMaybe = getProposalStatus()["status"]?.asString ?: "not purchased"
-                        }.invokeOnCompletion {
-                            if (status.get() != newStatusMaybe) status.set(newStatusMaybe)
-                        }
+                        updateStatus()
                     }
                 }.constrain {
                     x = 5.5.pixels + 50.percent
@@ -470,6 +455,15 @@ class CustomLevelheadComponent: UIComponent() {
             }
         }
 
+    }
+
+    private fun updateStatus() {
+        Levelhead.scope.launch {
+            val newStatus = Levelhead.scope.async {
+                getProposalStatus()["status"]?.asString ?: "not purchased"
+            }
+            if (status.get() != newStatus.await()) status.set(newStatus.await())
+        }
     }
 
     private fun parseProposal(uiComponent: UIComponent, label: UIText, request: JsonObject?): Pair<UIText, UIText> {
