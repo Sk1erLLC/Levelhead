@@ -448,10 +448,10 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 y = 0.pixels(alignOpposite = true)
                 width = 100.percent
                 height = 50.pixels
-            }.onLeftClick {
-                it.stopPropagation()
-                scrollBar.mouseClick(it.absoluteX.toDouble(), it.absoluteY.toDouble(), it.mouseButton)
-                settings.mouseClick(it.absoluteX.toDouble(), it.absoluteY.toDouble(), it.mouseButton)
+            }.onLeftClick { event ->
+                event.stopPropagation()
+                scrollBar.takeIf { it.hasParent }?.mouseClick(event.absoluteX.toDouble(), event.absoluteY.toDouble(), event.mouseButton)
+                settings.takeIf { it.hasParent }?.mouseClick(event.absoluteX.toDouble(), event.absoluteY.toDouble(), event.mouseButton)
             }.onMouseScroll {
                 it.stopPropagation()
                 settings.mouseScroll(it.delta)
