@@ -1,21 +1,30 @@
-# IntelliJ
-.idea/
-*.iml
+# eclipse
+eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+classes
+*.ipr
 *.iws
+*.iml
+.idea
 
-# Mac
+# gradle
+build
+.gradle
+
+#Netbeans
+.nb-gradle
+.nb-gradle-properties
+
+# other
+run
 .DS_Store
-
-# Maven
-log/
-target/
-dependency-reduced-pom.xml
-
-# Gradle
-.gradle/
-build/
-classes/
-out/
-
-# Minecraft Environment
-run/
+Thumbs.db
+.vscode

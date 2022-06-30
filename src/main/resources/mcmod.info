@@ -4,7 +4,7 @@
     "name": "LevelHead",
     "description": "Display a player's network level above their head",
     "version": "${version}",
-    "mcversion": "${mcversion}",
+    "mcversion": "${mcVersionStr}",
     "url": "https://sk1er.club/levelhead",
     "updateUrl": "https://sk1er.club/levelhead",
     "authorList": [
