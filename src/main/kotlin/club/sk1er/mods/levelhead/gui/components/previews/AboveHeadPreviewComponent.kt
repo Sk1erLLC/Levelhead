@@ -1,4 +1,4 @@
-package club.sk1er.mods.levelhead.gui.components
+package club.sk1er.mods.levelhead.gui.components.previews
 
 import com.mojang.authlib.GameProfile
 import gg.essential.api.EssentialAPI

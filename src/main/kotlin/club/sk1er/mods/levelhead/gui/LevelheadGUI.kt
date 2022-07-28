@@ -7,7 +7,6 @@ import club.sk1er.mods.levelhead.Levelhead.refreshRawPurchases
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.*
 import club.sk1er.mods.levelhead.display.*
-import club.sk1er.mods.levelhead.gui.components.*
 import club.sk1er.mods.levelhead.gui.components.SliderComponent
 import com.google.gson.JsonObject
 import gg.essential.api.EssentialAPI

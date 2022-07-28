@@ -1,4 +1,4 @@
-package club.sk1er.mods.levelhead.gui.components
+package club.sk1er.mods.levelhead.gui.components.previews
 
 import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.render.ChatRender

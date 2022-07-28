@@ -1,5 +1,6 @@
-package club.sk1er.mods.levelhead.gui.components
+package club.sk1er.mods.levelhead.gui.components.previews
 
+import club.sk1er.mods.levelhead.gui.components.previews.LevelheadPreviewComponent
 import club.sk1er.mods.levelhead.render.TabRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
