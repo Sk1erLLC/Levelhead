@@ -1,10 +1,11 @@
 package club.sk1er.mods.levelhead.gui.components.previews
 
-import club.sk1er.mods.levelhead.gui.components.previews.LevelheadPreviewComponent
 import club.sk1er.mods.levelhead.render.TabRender
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.dsl.*
+import gg.essential.universal.UGraphics
+import gg.essential.universal.UMatrixStack
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 import net.minecraft.client.gui.Gui
@@ -38,31 +39,34 @@ class TabPreviewComponent : LevelheadPreviewComponent() {
         }
     }
 
-    override fun draw() {
-        super.draw()
+    override fun draw(matrixStack: UMatrixStack) {
+        beforeDraw(matrixStack)
+        super.draw(matrixStack)
         val x = this.getLeft().toInt()
         val y = this.getTop().toInt()
 
         UMinecraft.getMinecraft().textureManager.bindTexture(player.locationSkin)
-        Gui.drawScaledCustomSizeModalRect(
-            x, y,
-            8f, 8f,
-            8, 8,
-            8, 8,
-            64f, 64f
-        )
-        if (player.isWearing(EnumPlayerModelParts.HAT)) {
+        matrixStack.runWithGlobalState {
             Gui.drawScaledCustomSizeModalRect(
                 x, y,
-                40.0f, 8f,
+                8f, 8f,
                 8, 8,
                 8, 8,
-                64.0f, 64.0f
+                64f, 64f
             )
-        }
+            if (player.isWearing(EnumPlayerModelParts.HAT)) {
+                Gui.drawScaledCustomSizeModalRect(
+                    x, y,
+                    40.0f, 8f,
+                    8, 8,
+                    8, 8,
+                    64.0f, 64.0f
+                )
+            }
 
-        drawPing(x + totalTabWidth, y, playerInfo)
-        TabRender.drawPingHook(0, x + totalTabWidth, y, playerInfo)
+            drawPing(x + totalTabWidth, y, playerInfo)
+            TabRender.drawPingHook(0, x + totalTabWidth, y, playerInfo)
+        }
     }
 
     private fun drawPing(x: Int, y: Int, networkPlayerInfoIn: NetworkPlayerInfo) {
