@@ -179,10 +179,8 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                     SiblingConstraint(2.5f, true)
                 else
                     2.5.pixels(true) boundTo divider
-            } childOf this
-            offsetSlider.childrenOfType<Slider>().first().constrain {
                 width = 120.pixels
-            }
+            } childOf this
             offsetSlider.onValueChange {
                 Levelhead.displayManager.config.offset = (it as Int) / 10.0
             }

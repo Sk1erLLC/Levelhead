@@ -26,7 +26,7 @@ class SliderComponent(initialValue: Int, min: Int, max: Int) : UIContainer() {
 
     private val slider by Slider((initialValue.toFloat() - min) / (max - min)).constrain {
         x = SiblingConstraint()
-        width = 60.pixels()
+        width = FillConstraint()
         height = 12.pixels()
     } childOf this
 
@@ -67,7 +67,6 @@ class SliderComponent(initialValue: Int, min: Int, max: Int) : UIContainer() {
             }
         }
         constrain {
-            width = ChildBasedSizeConstraint()
             height = ChildBasedMaxSizeConstraint()
         }
     }
