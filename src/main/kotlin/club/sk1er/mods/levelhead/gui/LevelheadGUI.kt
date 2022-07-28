@@ -7,8 +7,9 @@ import club.sk1er.mods.levelhead.Levelhead.refreshRawPurchases
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.*
 import club.sk1er.mods.levelhead.display.*
-import club.sk1er.mods.levelhead.gui.components.SliderComponent
-import com.google.gson.JsonObject
+import club.sk1er.mods.levelhead.gui.components.settings.SliderComponent
+import club.sk1er.mods.levelhead.gui.components.previews.*
+import club.sk1er.mods.levelhead.gui.components.settings.TextInputComponent
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.EssentialGUI
 import gg.essential.api.gui.buildConfirmationModal
@@ -34,7 +35,6 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import java.awt.Color
 import java.net.URI
-import kotlin.properties.Delegates
 
 @Suppress("unused")
 class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1er LLC", newGuiScale = EssentialAPI.getGuiUtil().getGuiScale(855), restorePreviousGuiOnClose = false) {
@@ -649,14 +649,11 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
                 x = 2.5.pixels()
                 y = CenterConstraint() boundTo typeLabel
             } childOf leftContainer
-            val textInput = TextComponent(display.config.headerString, "", false, false).constrain {
+            val textInput = TextInputComponent(display.config.headerString, "").constrain {
                 x = 6.pixels(true)
                 y = CenterConstraint() boundTo typeLabel
                 height = type.constraints.height
             } childOf leftContainer
-            textInput.childrenOfType<UIBlock>().first()
-                .also { it.childrenOfType<AbstractTextInput>().first().constraints.y = CenterConstraint() }
-                .constraints.height = 100.percent
             showToggle.constraints.y = CramSiblingConstraint(7f)
             textInput.onValueChange {
                 if (it !is String) return@onValueChange
@@ -781,6 +778,7 @@ class LevelheadGUI : EssentialGUI(ElementaVersion.V1, "§lLevelhead §r§8by Sk1
         }
 
         override fun draw(matrixStack: UMatrixStack) {
+            beforeDraw(matrixStack)
             super.draw(matrixStack)
             if (color.getValue() == 0) {
                 val color = Levelhead.chromaColor
