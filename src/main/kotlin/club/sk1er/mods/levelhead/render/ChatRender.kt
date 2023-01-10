@@ -4,6 +4,7 @@ import club.sk1er.mods.levelhead.Levelhead
 import club.sk1er.mods.levelhead.core.tryToGetChatColor
 import club.sk1er.mods.levelhead.config.DisplayConfig
 import club.sk1er.mods.levelhead.core.trimmed
+import gg.essential.api.EssentialAPI
 import gg.essential.universal.ChatColor
 import gg.essential.universal.utils.MCITextComponent
 import gg.essential.universal.wrappers.UPlayer
@@ -65,11 +66,11 @@ object ChatRender {
             //$$ val split = first!!.style.clickEvent!!.value.split(' ')
             //#endif
             if (split.size == 2) {
-                if (uuidRegex.matches(split[1])) {
-                    Levelhead.displayManager.chat.cache[UUID.fromString(split[1])]?.run {
+                EssentialAPI.getMojangAPI().getUUID(split[1])?.thenAccept { uuid ->
+                    Levelhead.displayManager.chat.cache[uuid]?.run {
                         event.message = modifyChat(event.message, this.footer.value, Levelhead.displayManager.chat.config)
                     } ?: Levelhead.scope.launch {
-                        Levelhead.fetch(listOf(Levelhead.LevelheadRequest(UUID.fromString(split[1]).trimmed, Levelhead.displayManager.chat, false)))
+                        Levelhead.fetch(listOf(Levelhead.LevelheadRequest(uuid.trimmed, Levelhead.displayManager.chat, false)))
                     }
                 }
             }
