@@ -36,7 +36,7 @@ val embed by configurations.creating
 configurations.implementation.get().extendsFrom(embed)
 
 dependencies {
-    compileOnly("gg.essential:essential-$platform:2666")
+    compileOnly("gg.essential:essential-$platform:4246+g8be73312c")
     embed("gg.essential:loader-launchwrapper:1.1.3")
 
     embed("com.squareup.okhttp3:okhttp:3.14.9")
