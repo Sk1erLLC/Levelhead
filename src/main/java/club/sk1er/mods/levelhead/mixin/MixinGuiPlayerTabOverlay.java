@@ -23,7 +23,6 @@ public abstract class MixinGuiPlayerTabOverlay {
     @Inject(method = "drawPing", at = @At("HEAD"))
     private void levelhead$drawPingHook(int offset, int x, int y, NetworkPlayerInfo networkPlayerInfoIn, CallbackInfo ci) {
         if (!EssentialAPI.getMinecraftUtil().isHypixel()) return;
-        if (networkPlayerInfoIn.getGameProfile().getId().version() == 2) return;
         TabRender.INSTANCE.drawPingHook(offset, x, y, networkPlayerInfoIn);
     }
 

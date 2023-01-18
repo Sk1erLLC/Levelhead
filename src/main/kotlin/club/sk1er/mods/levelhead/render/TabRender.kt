@@ -14,7 +14,15 @@ object TabRender {
             if (!this.config.enabled || !Levelhead.LevelheadPurchaseStates.tab ||
                 (playerInfo.gameProfile.id == UPlayer.getUUID() && !this.config.showSelf)) return
 
-            this.cache[playerInfo.gameProfile.id]?.footer?.value?.let { str ->
+            val playerUUID = if (playerInfo.gameProfile.id.version() == 2) {
+                val playerName = playerInfo.displayName?.unformattedText?.substringAfter("] ")?.substringBefore(' ')?.trim() ?: return
+                if (playerName.isBlank()) return
+                UMinecraft.getPlayer()?.sendQueue?.getPlayerInfo(playerName)?.gameProfile?.id?.takeIf { it.version() == 4 } ?: return
+            } else {
+                playerInfo.gameProfile.id
+            }
+
+            this.cache[playerUUID]?.footer?.value?.let { str ->
                 var x1 = offset + x - 12 - UMinecraft.getFontRenderer().getStringWidth(str)
                 UMinecraft.getWorld()?.scoreboard?.run {
                     if (getObjectiveInDisplaySlot(0) != null) {
@@ -30,7 +38,7 @@ object TabRender {
                     else -> UMinecraft.getFontRenderer().drawString(str,
                         x1.toFloat() - 1, y.toFloat(), this.config.headerColor.rgb, true)
                 }
-            } ?: Levelhead.fetch(listOf(Levelhead.LevelheadRequest(playerInfo.gameProfile.id.trimmed, this, false)))
+            } ?: Levelhead.fetch(listOf(Levelhead.LevelheadRequest(playerUUID.trimmed, this, false)))
         }
     }
 
