@@ -32,9 +32,20 @@ class MojangAuth {
 
     fun auth() {
         val uuid = Minecraft.getMinecraft().session.profile.id
-        val jsonObject = jsonParser.parse(fetchString(
-            "https://api.sk1er.club/auth/begin?uuid=$uuid&mod=${Levelhead.MODID}&ver=${Levelhead.VERSION}"
-        )).asJsonObject
+        val jsonResponse: String
+        try {
+            jsonResponse = fetchString(
+                "https://api.sk1er.club/auth/begin?uuid=$uuid&mod=${Levelhead.MODID}&ver=${Levelhead.VERSION}"
+            ) ?: throw IOException("Empty response from server")
+            if (jsonResponse.isEmpty() || jsonResponse == "Failed to fetch") {
+                fail("Failed to fetch initial response from server")
+                return
+            }
+        } catch (e: IOException) {
+            fail("Error during initial network request: ${e.message}")
+            return
+        }
+        val jsonObject = jsonParser.parse(jsonResponse).asJsonObject
         if (!jsonObject["success"].asBoolean) {
             fail("Error during init: $jsonObject")
             return
@@ -50,15 +61,27 @@ class MojangAuth {
             return
         }
 
-        val finalResponse = jsonParser.parse(fetchString(
-            "https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().session.profile.name
-        )).asJsonObject
-        logger.debug("Final auth response: {}", finalResponse)
-        if (finalResponse["success"].asBoolean) {
-            accessKey = finalResponse["access_key"].asString
+        val finalResponse: String
+        try {
+            finalResponse = fetchString(
+                "https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().session.profile.name
+            ) ?: throw IOException("Empty response from server")
+            if (finalResponse.isEmpty() || finalResponse == "Failed to fetch") {
+                fail("Failed to fetch final response from server")
+                return
+            }
+        } catch (e: IOException) {
+            fail("Error during final network request: ${e.message}")
+            return
+        }
+
+        val finalJsonResponse = jsonParser.parse(finalResponse).asJsonObject
+        logger.debug("Final auth response: {}", finalJsonResponse)
+        if (finalJsonResponse["success"].asBoolean) {
+            accessKey = finalJsonResponse["access_key"].asString
             logger.debug("Successfully authenticated with Levelhead")
         } else {
-            fail("Error during final auth. Reason: " + finalResponse["cause"].asString)
+            fail("Error during final auth. Reason: " + finalJsonResponse["cause"].asString)
         }
     }
 
