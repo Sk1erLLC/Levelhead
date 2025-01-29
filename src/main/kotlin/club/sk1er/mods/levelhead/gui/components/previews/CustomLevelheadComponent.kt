@@ -447,6 +447,7 @@ class CustomLevelheadComponent: UIComponent() {
         }
 
         override fun draw(matrixStack: UMatrixStack) {
+            beforeDraw(matrixStack)
             super.draw(matrixStack)
             if (dropdown.getValue() == 0) {
                 val color = Levelhead.chromaColor
