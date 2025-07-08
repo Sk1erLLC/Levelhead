@@ -28,16 +28,10 @@ Levelhead is a Minecraft Mod created for the Hypixel Network `mc.hypixel.net` to
 
 `Color Picker` - Full color picker which allows for direct control over the rgb values of the color. (Only for above head and tab)
 
-## Technical Information
-Due to the nature of the mod, millions of requests are sent to my server every day. As a result, heavy caching rules are in place. All levels are cached for a minimum of 2 days on Cloudflare’s network. The cache time on my website is based on how many requests it is receiving. Less requests will result is shorter cache times. On average, levels are cached for 4 days on my website. When a cache update is called, the player’s level is retrieved from the [Hypixel Public Api](https://api.hypixel.net) and updated across Cloudflare’s network. 
 
 ## Support the project
-You can support the project by purchasing a custom Levelhead message. More information and purchase details can be found here: https://sk1er.club/customlevelhead
+You can support the project by purchasing cosmetics through [Essential](https://essential.gg) while using Levelhead.
 
-## Analytics
-This mod tracks who uses it. General information is sent to my analytic servers. This information includes: Minecraft UUID, Minecraft Version, Mod Version and Minecraft Forge Version
-
-All analytics can be viewed here: https://sk1er.club/graphs/level_head
 
 ## Yourkit
 YourKit supports open source projects with innovative and intelligent tools 
