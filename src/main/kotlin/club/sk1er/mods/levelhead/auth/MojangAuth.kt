@@ -6,10 +6,7 @@ import club.sk1er.mods.levelhead.Levelhead.jsonParser
 import club.sk1er.mods.levelhead.Levelhead.logger
 import club.sk1er.mods.levelhead.Levelhead.okHttpClient
 import com.google.gson.JsonObject
-import gg.essential.api.utils.WebUtil.fetchJSON
-import gg.essential.api.utils.WebUtil.fetchString
 import net.minecraft.client.Minecraft
-import okhttp3.FormBody
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -32,7 +29,7 @@ class MojangAuth {
 
     fun auth() {
         val uuid = Minecraft.getMinecraft().session.profile.id
-        val jsonObject = jsonParser.parse(fetchString(
+        val jsonObject = jsonParser.parse(Levelhead.getWithAgent(
             "https://api.sk1er.club/auth/begin?uuid=$uuid&mod=${Levelhead.MODID}&ver=${Levelhead.VERSION}"
         )).asJsonObject
         if (!jsonObject["success"].asBoolean) {
@@ -50,7 +47,7 @@ class MojangAuth {
             return
         }
 
-        val finalResponse = jsonParser.parse(fetchString(
+        val finalResponse = jsonParser.parse(Levelhead.getWithAgent(
             "https://api.sk1er.club/auth/final?hash=" + hash + "&name=" + Minecraft.getMinecraft().session.profile.name
         )).asJsonObject
         logger.debug("Final auth response: {}", finalResponse)
