@@ -164,7 +164,7 @@ object Levelhead {
             rateLimiter.resetState()
             displayManager.joinWorld()
         // when others join world
-        } else if (event.entity is EntityPlayer) {
+        } else if (event.entity is EntityPlayer && !auth.isFailed) {
             displayManager.playerJoin(event.entity as EntityPlayer)
         }
     }
