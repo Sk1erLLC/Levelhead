@@ -84,7 +84,7 @@ object Levelhead {
         get() = displayManager.aboveHead[0].cache[UPlayer.getUUID()]!!
 
     const val MODID = "level_head"
-    const val VERSION = "8.2.2"
+    const val VERSION = "8.2.3"
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
@@ -164,7 +164,7 @@ object Levelhead {
             rateLimiter.resetState()
             displayManager.joinWorld()
         // when others join world
-        } else if (event.entity is EntityPlayer) {
+        } else if (event.entity is EntityPlayer && !auth.isFailed) {
             displayManager.playerJoin(event.entity as EntityPlayer)
         }
     }

@@ -16,7 +16,13 @@ class LevelheadCommand : Command("levelhead") {
 
     @DefaultHandler
     fun handle() {
-        EssentialAPI.getGuiUtil().openScreen(LevelheadGUI())
+        try {
+            EssentialAPI.getGuiUtil().openScreen(LevelheadGUI())
+        } catch (_: Exception) {
+            EssentialAPI.getMinecraftUtil().sendMessage(
+            "${ChatColor.AQUA}[Levelhead]", message = "${ChatColor.RED} Failed to open menu. Server might be down. Try restarting your game."
+            )
+        }
     }
 
     @SubCommand(value = "limit")

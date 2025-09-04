@@ -40,7 +40,6 @@ class TabPreviewComponent : LevelheadPreviewComponent() {
     }
 
     override fun draw(matrixStack: UMatrixStack) {
-        beforeDraw(matrixStack)
         super.draw(matrixStack)
         val x = this.getLeft().toInt()
         val y = this.getTop().toInt()
