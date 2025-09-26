@@ -235,7 +235,9 @@ object Levelhead {
             .get()
             .build()
         return kotlin.runCatching {
-            okHttpClient.newCall(request).execute().body()?.use { it.string() }!!
+            okHttpClient.newCall(request).execute().use { response ->
+                response.body?.string()
+            }
         }.getOrDefault("{\"success\":false,\"cause\":\"API_DOWN\"}")
     }
 
